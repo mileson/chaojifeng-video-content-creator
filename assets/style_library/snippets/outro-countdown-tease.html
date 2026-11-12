@@ -1,0 +1,70 @@
+<!--
+模式：彩蛋倒计时片尾（outro-countdown-tease）【片尾层 · 拼接式结尾】
+适用场景：留住最后 5 秒的观众——「彩蛋倒计时 3·2·1」大数字翻牌，
+  归零后弹出一句彩蛋（冷知识/番外预告/隐藏福利提示），奖励看到最后的人。
+框架参数：
+  - 彩蛋文案（一句话，别太长）、倒计时起始数（默认 3）、主题色
+技术要点：
+  - 数字 rotationX 翻牌换数 + 每次落地轻震（scale 1.06 回弹）
+  - 环形进度 SVG stroke 随秒递减
+  - 归零白闪一帧 → 彩蛋文字 elastic 弹出（无卡直贴，文字 + 发光 text-shadow，不加卡片底板）；彩蛋字别提前漏（观众快进也看不到）
+-->
+<style>
+  #oct-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #1c1a2e 0%, #0e0c1a 58%, #080710 100%); }
+  #oct-kicker { position: absolute; left: 50%; top: 200px; transform: translateX(-50%);
+    color: #ffb224; font-size: 26px; font-weight: 800; letter-spacing: 10px; }
+  #oct-ringbox { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); }
+  #oct-num { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    color: #f4f7ff; font-size: 200px; font-weight: 900; }
+  #oct-flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+  #oct-egg { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+    text-align: center; opacity: 0; }
+  #oct-egg-title { color: #ffb224; font-size: 25px; font-weight: 800; letter-spacing: 8px;
+    text-shadow: 0 0 26px rgba(255,178,36,.5); }
+  #oct-egg-text { color: #f4f7ff; font-size: 46px; font-weight: 900; margin-top: 22px; white-space: nowrap;
+    text-shadow: 0 2px 16px rgba(0,0,0,.6), 0 0 56px rgba(255,178,36,.22); }
+</style>
+
+<div id="oct-bg" data-layout-allow-overflow></div>
+<div id="oct-kicker">看到最后的人 · 有彩蛋</div>
+<div id="oct-ringbox" data-layout-allow-overflow>
+  <svg width="420" height="420" viewBox="0 0 420 420">
+    <circle cx="210" cy="210" r="186" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+    <circle id="oct-ring" cx="210" cy="210" r="186" fill="none" stroke="#ffb224" stroke-width="10"
+      stroke-linecap="round" transform="rotate(-90 210 210)"/>
+  </svg>
+  <div id="oct-num">3</div>
+</div>
+<div id="oct-egg">
+  <div id="oct-egg-title">EASTER EGG</div>
+  <div id="oct-egg-text">这期视频的 B-Roll，全是 AI 自己写代码渲染的</div>
+</div>
+<div id="oct-flash" data-layout-ignore></div>
+
+<script>
+  (function () {
+    var C = 2 * Math.PI * 186;
+    gsap.set("#oct-ring", { strokeDasharray: C, strokeDashoffset: 0 });
+    tl.from("#oct-bg", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#oct-kicker", { autoAlpha: 0, y: -20, duration: 0.45 }, t0 + 0.3);
+    tl.from("#oct-ringbox", { autoAlpha: 0, scale: 0.8, duration: 0.5, ease: "back.out(1.6)" }, t0 + 0.5);
+    tl.to("#oct-ring", { strokeDashoffset: C, duration: 3, ease: "none" }, t0 + 1.0);
+    var num = document.getElementById("oct-num");
+    tl.add(function () { num.textContent = "3"; }, t0); // 循环播放/重播时数字复位
+    [2, 1].forEach(function (n, i) {
+      var at = t0 + 2.0 + i * 1.0;
+      tl.to("#oct-num", { rotationX: 90, duration: 0.18, ease: "power2.in" }, at - 0.18);
+      tl.add(function () { num.textContent = String(n); }, at);
+      tl.fromTo("#oct-num", { rotationX: -90 }, { rotationX: 0, duration: 0.22, ease: "back.out(2)" }, at);
+      tl.fromTo("#oct-ringbox", { scale: 1.05 }, { scale: 1, duration: 0.3 }, at);
+    });
+    // 归零：白闪 + 彩蛋弹出
+    var z = t0 + 4.0;
+    tl.fromTo("#oct-flash", { opacity: 0 }, { opacity: 1, duration: 0.06 }, z);
+    tl.to("#oct-flash", { opacity: 0, duration: 0.3 }, z + 0.06);
+    tl.set(["#oct-ringbox", "#oct-kicker"], { autoAlpha: 0 }, z);
+    tl.fromTo("#oct-egg", { autoAlpha: 0, scale: 0.7 },
+      { autoAlpha: 1, scale: 1, duration: 0.8, ease: "elastic.out(1, 0.5)" }, z + 0.1);
+  })();
+</script>

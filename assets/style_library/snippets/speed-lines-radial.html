@@ -1,0 +1,53 @@
+<!--
+模式：放射速度线（speed-lines-radial）【工具层 · 节奏点缀】
+适用场景：吐槽/惊讶/「太快了」的漫画式强调——画面四周向中心放射的速度线
+  爆出 0.6~1.2s，中心留空给主体（人脸/产品/数字）。
+框架参数：
+  - 线条数（默认 28）、颜色、内圈留空半径（默认 320px）
+  - burstAt(t, dur)：可多次触发
+技术要点：
+  - JS 生成放射线（SVG line 极坐标分布，长度/粗细确定性伪随机）
+  - 入场从外缘向内 scale 收紧 + 微旋转；高频 opacity 抖动模拟漫画帧
+  - 中心径向渐变遮罩保证主体区干净
+-->
+<style>
+  #slr-svg { position: absolute; inset: 0; pointer-events: none; }
+  #slr-mask-hole { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle 320px at 50% 50%, rgba(10,14,22,0) 0%, transparent 100%); }
+</style>
+
+<svg id="slr-svg" viewBox="0 0 1920 1080" data-layout-allow-overflow></svg>
+
+<script>
+  (function () {
+    var svg = document.getElementById("slr-svg");
+    var CX = 960, CY = 540, N = 28, HOLE = 330;
+    for (var i = 0; i < N; i++) {
+      var a = (i / N) * Math.PI * 2 + ((i * 13) % 7) * 0.04;
+      var len = 260 + ((i * 37) % 200);
+      var w = 3 + ((i * 17) % 8);
+      var R = 1200;
+      var l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", CX + Math.cos(a) * R);
+      l.setAttribute("y1", CY + Math.sin(a) * R);
+      l.setAttribute("x2", CX + Math.cos(a) * (R - len));
+      l.setAttribute("y2", CY + Math.sin(a) * (R - len));
+      l.setAttribute("stroke", "#eef2fb");
+      l.setAttribute("stroke-width", w);
+      l.setAttribute("stroke-linecap", "round");
+      l.setAttribute("class", "slr-line");
+      svg.appendChild(l);
+    }
+    window.burstAt = function (t, dur) {
+      dur = dur || 1.0;
+      tl.fromTo("#slr-svg", { autoAlpha: 0, scale: 1.25, rotation: -3, transformOrigin: "50% 50%" },
+        { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.18, ease: "power4.out" }, t);
+      // 漫画帧高频闪动（确定性：交替两档透明度）
+      tl.to("#slr-svg", { opacity: 0.55, duration: 0.07, yoyo: true,
+        repeat: Math.floor(dur / 0.07) - 2, ease: "none" }, t + 0.18);
+      tl.to("#slr-svg", { autoAlpha: 0, scale: 1.12, duration: 0.22, ease: "power2.in" }, t + dur);
+    };
+  })();
+  burstAt(t0 + 0.5, 1.2);
+  burstAt(t0 + 3.0, 0.8);
+</script>

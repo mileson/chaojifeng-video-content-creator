@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #lbr-card { position: absolute; top: 50%; left: 50%; width: 780px;
+    background: rgba(14, 16, 25, 0.96); border: 1.5px solid rgba(255, 255, 255, 0.13);
+    border-radius: 24px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+    padding: 34px 40px 38px; will-change: transform; }
+  #lbr-card h3 { color: #3e9eff; font-size: 27px; font-weight: 900; letter-spacing: 4px;
+    margin-bottom: 26px; text-shadow: 0 0 14px rgba(62, 158, 255, 0.5); }
+  .lbr-row { display: flex; align-items: center; gap: 18px; padding: 13px 18px;
+    border-radius: 16px; will-change: transform; }
+  .lbr-rank { flex: none; width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 27px; font-weight: 900; color: #0c0e14; will-change: transform; }
+  .r1 { background: linear-gradient(135deg, #ffd95e, #ffb224); box-shadow: 0 0 22px rgba(255, 178, 36, 0.6); }
+  .r2 { background: linear-gradient(135deg, #e8ecf4, #aab4c4); }
+  .r3 { background: linear-gradient(135deg, #e8a06b, #c4763f); }
+  .r4 { background: rgba(255, 255, 255, 0.16); color: #c4cbd9; }
+  .lbr-name { width: 200px; color: #e6eaf2; font-size: 28px; font-weight: 800; }
+  .lbr-track { flex: 1; height: 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+  .lbr-bar { height: 100%; border-radius: 999px; transform-origin: 0 50%;
+    background: linear-gradient(90deg, #2f6fed, #3e9eff); }
+  .lbr-row.top .lbr-bar { background: linear-gradient(90deg, #ffb224, #ffd95e);
+    box-shadow: 0 0 16px rgba(255, 178, 36, 0.7); }
+  .lbr-val { flex: none; width: 96px; text-align: right; color: #fff; font-size: 28px;
+    font-weight: 900; font-variant-numeric: tabular-nums; }
+  .lbr-row.top { border: 1.5px solid rgba(255, 178, 36, 0.45); background: rgba(255, 178, 36, 0.06); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="lbr-card">
+  <h3>【榜单标题 · BENCHMARK】</h3>
+  <div class="lbr-row top"><div class="lbr-rank r1">1</div><div class="lbr-name">【第一名】</div><div class="lbr-track"><div class="lbr-bar" data-p="0.96"></div></div><div class="lbr-val" data-v="96.2">0</div></div>
+  <div class="lbr-row"><div class="lbr-rank r2">2</div><div class="lbr-name">【第二名】</div><div class="lbr-track"><div class="lbr-bar" data-p="0.88"></div></div><div class="lbr-val" data-v="88.4">0</div></div>
+  <div class="lbr-row"><div class="lbr-rank r3">3</div><div class="lbr-name">【第三名】</div><div class="lbr-track"><div class="lbr-bar" data-p="0.79"></div></div><div class="lbr-val" data-v="79.1">0</div></div>
+  <div class="lbr-row"><div class="lbr-rank r4">4</div><div class="lbr-name">【第四名】</div><div class="lbr-track"><div class="lbr-bar" data-p="0.71"></div></div><div class="lbr-val" data-v="71.5">0</div></div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  gsap.set("#lbr-card", { xPercent: -50, yPercent: -50 });
+  gsap.set(".lbr-bar", { scaleX: 0 });
+  b.from("#lbr-card", { y: "+=90", autoAlpha: 0, duration: 0.55 }, 0.15);
+  // 名次低的先入，第一名压轴揭晓
+  const lbrRows = Array.from(document.querySelectorAll(".lbr-row")).reverse();
+  lbrRows.forEach((row, i) => {
+    const t = 0.55 + i * 0.28;
+    b.from(row, { y: 34, autoAlpha: 0, duration: 0.45 }, t);
+    const bar = row.querySelector(".lbr-bar"), val = row.querySelector(".lbr-val");
+    b.to(bar, { scaleX: +bar.dataset.p, duration: 0.7, ease: "power2.inOut" }, t + 0.15);
+    const st = { v: 0 };
+    b.to(st, { v: +val.dataset.v, duration: 0.7, ease: "power1.out",
+      onUpdate() { val.textContent = st.v.toFixed(1); } }, t + 0.15);
+  });
+  b.from(".lbr-row.top .lbr-rank", { rotate: -180, scale: 0, duration: 0.5, ease: "back.out(2)" }, 1.7)
+    .to(".lbr-row.top", { scale: 1.04, duration: 0.4, ease: "back.out(1.8)" }, 2.0)
+    .fromTo(".lbr-row.top", { boxShadow: "0 0 0 rgba(255,178,36,0)" },
+      { boxShadow: "0 0 40px rgba(255,178,36,.3)", duration: 0.5, yoyo: true, repeat: 1 }, 2.05)
+    .to("#lbr-card", { y: "+=70", autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.8);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

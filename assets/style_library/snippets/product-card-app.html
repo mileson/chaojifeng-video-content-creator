@@ -1,0 +1,54 @@
+<!--
+模式：产品介绍卡 · 应用（product-card-app）【产品卡片层 · 5~7s 驻留】
+适用场景：视频中讲到或演示某个产品时叠加的标准产品介绍卡：图标 + 名称 + 类型徽章 + 一句话。
+  把名称和一句话换成你的产品信息即可；有 logo 时放进项目 assets/ 并改用 <img> 图标。
+⚠️ 合规铁律：卡内禁止二维码 / 网址 / 联系方式 / 导流话术（平台限流红线），只陈述产品事实。
+框架参数：
+  - 停靠位置（默认底部居中，可改 left/right 侧停靠避开人脸）、入场时间 t0、驻留时长
+  - 图标：默认取名称首字做字标，也可以换成项目 assets/ 内的 logo 图片
+技术要点：
+  - 卡 y 64 back.out 浮入 → 图标 back.out(2.2) 微弹 + 主题色光晕呼吸 → 文案 stagger 入
+  - shine 高光斜扫一次（700ms）提质感；退场 y 36 power2.in
+  - 同一工程可叠多张产品卡：id 前缀 pca- 全库唯一，无冲突
+-->
+<style>
+  #pca-card { position: absolute; left: 50%; bottom: 170px; display: flex; align-items: center; gap: 26px;
+    background: rgba(10,14,22,.9); border: 1px solid #3e9eff66; border-radius: 24px;
+    padding: 26px 42px 26px 28px; white-space: nowrap; overflow: hidden;
+    box-shadow: 0 0 56px #3e9eff26, 0 28px 64px rgba(0,0,0,.5); }
+  #pca-icon { width: 104px; height: 104px; border-radius: 24px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 52px; font-weight: 900;
+    background: linear-gradient(145deg, #3e9eff, #3e9eff99);
+    border: 1px solid rgba(255,255,255,.22); box-shadow: 0 10px 28px rgba(0,0,0,.5); }
+  #pca-name { color: #f2f5fc; font-size: 40px; font-weight: 900; letter-spacing: 1px; }
+  #pca-badge { display: inline-block; vertical-align: 6px; margin-left: 16px; font-size: 17px; font-weight: 800;
+    border-radius: 99px; padding: 4px 16px; letter-spacing: 1px;
+    color: #7ab8ff; background: rgba(62,158,255,.16); border: 1px solid rgba(62,158,255,.45); }
+  #pca-desc { color: #a3adc2; font-size: 23px; font-weight: 700; margin-top: 10px; }
+  #pca-shine { position: absolute; top: -40%; left: 0; width: 110px; height: 180%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.16), transparent);
+    transform: skewX(-18deg); }
+</style>
+
+<div id="pca-card">
+  <div id="pca-icon">产</div>
+  <div>
+    <span id="pca-name">【产品名称】<span id="pca-badge">iOS App</span></span>
+    <div id="pca-desc">【一句话介绍：它帮谁解决什么问题】</div>
+  </div>
+  <div id="pca-shine" data-layout-ignore></div>
+</div>
+
+<script>
+  gsap.set("#pca-card", { xPercent: -50 });
+  gsap.set("#pca-shine", { x: -160 });
+  tl.from("#pca-card", { autoAlpha: 0, y: 64, duration: 0.55, ease: "back.out(1.5)" }, t0);
+  tl.from("#pca-icon", { scale: 0.5, rotation: -8, duration: 0.5, ease: "back.out(2.2)" }, t0 + 0.15);
+  tl.from(["#pca-name", "#pca-desc"], { autoAlpha: 0, x: 26, duration: 0.45, stagger: 0.12 }, t0 + 0.3);
+  tl.from("#pca-badge", { autoAlpha: 0, scale: 0.5, duration: 0.4, ease: "back.out(2.4)" }, t0 + 0.6);
+  tl.to("#pca-shine", { x: 760, duration: 0.7, ease: "power2.inOut" }, t0 + 0.85);
+  tl.to("#pca-icon", { boxShadow: "0 0 34px #3e9eff99", duration: 0.55, yoyo: true, repeat: 2,
+    ease: "sine.inOut" }, t0 + 1.1);
+  tl.to("#pca-card", { autoAlpha: 0, y: 36, duration: 0.45, ease: "power2.in" }, t0 + 5.2);
+</script>

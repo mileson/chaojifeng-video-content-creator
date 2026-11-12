@@ -1,0 +1,45 @@
+<!--
+  模式：要点+结论标语直贴（无卡 overlay）⚙️
+  适用：「所以说/总结一下」段——彩色圆点双语要点（2~3 条）铺垫后，
+    结论标语大白字压轴砸入（「一目了然 · 非常实用」），全部直贴画面暗部。
+    与 hud-icon-checklist-overlay 区别：这是「要点→结论」的收口节拍，结论行是主角。
+  适配铁律：亮色素材保留 .hta-scrim；结论行带 scale 脉冲强调。
+  参数化：要点条数与圆点色/双语文案/结论标语。
+-->
+<style>
+  #hta-wrap { position: absolute; top: 140px; left: 56px; }
+  #hta-scrim { position: absolute; top: -50px; left: -80px; width: 600px; height: 360px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  .hta-item { position: relative; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 26px; }
+  .hta-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 9px; }
+  .hta-t { color: #fff; font-size: 24px; font-weight: 800; letter-spacing: 1px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  .hta-e { color: #93a0b4; font-size: 13px; font-weight: 700; letter-spacing: 4px; margin-top: 4px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #hta-line { position: relative; margin-top: 16px; color: #fff; font-size: 38px; font-weight: 900;
+    letter-spacing: 2px; text-shadow: 0 3px 18px rgba(0,0,0,.9), 0 0 30px rgba(255,255,255,.18); }
+</style>
+
+<div id="hta" class="clip beat" data-start="0.4" data-duration="5.0" data-track-index="0" data-layout-allow-overflow>
+  <div id="hta-wrap">
+    <div id="hta-scrim"></div>
+    <div class="hta-item"><div class="hta-dot" style="background:#3e9eff;box-shadow:0 0 12px rgba(62,158,255,.8)"></div>
+      <div><div class="hta-t">总结爆款的共性 · 规律</div><div class="hta-e">FIND THE PATTERN</div></div></div>
+    <div class="hta-item"><div class="hta-dot" style="background:#46d390;box-shadow:0 0 12px rgba(70,211,144,.8)"></div>
+      <div><div class="hta-t">不用切网页 · 不用点很多次</div><div class="hta-e">ONE GLANCE</div></div></div>
+    <div id="hta-line">一目了然 · 非常实用</div>
+  </div>
+</div>
+
+<script>
+  /* ===== 要点+结论标语（0.4 起，结论压轴脉冲）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hta-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from(".hta-item", { autoAlpha: 0, x: -28, duration: 0.5, ease: "back.out(1.5)", stagger: 0.8 }, t0 + 0.1);
+    tl.from("#hta-line", { autoAlpha: 0, y: 26, scale: 0.92, duration: 0.55, ease: "back.out(1.8)" }, t0 + 2.1);
+    tl.fromTo("#hta-line", { scale: 1 }, { scale: 1.04, duration: 0.22, yoyo: true, repeat: 1, ease: "power2.inOut" }, t0 + 2.8);
+    tl.to("#hta-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

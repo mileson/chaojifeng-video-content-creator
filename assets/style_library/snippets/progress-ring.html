@@ -1,0 +1,67 @@
+<!--
+模式：矢量进度环（额度 / 占比 / 完成度）
+适用场景：讲额度消耗、百分比、配额、完成度。中心放大数字 + 底部结论行。
+结构要点：
+  - 两个同心 circle：track（半透明白）+ bar（渐变描边 + drop-shadow 发光）
+  - bar 用 stroke-dasharray = 周长（2πr，r=132 时 ≈829.38），stroke-dashoffset 从满值开始
+  - transform="rotate(-90 cx cy)" 让起点在 12 点钟方向
+  - 中心数字绝对定位盖在 SVG 上，font-variant-numeric: tabular-nums 防抖动
+动画要点：
+  - 经典叙事节奏：环先快速画到一个"满额"示意位（如 75%），再回落到真实小值——
+    制造"原来只用了这么点"的反差感
+  - offset 与比例换算：offset = 周长 × (1 - 比例)
+  - 中心数字 back.out(1.8) 弹出，再 scale 1.06 yoyo 强调
+-->
+<style>
+  #ring-wrap {
+    position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto;
+    width: 560px; text-align: center;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px; padding: 30px 30px 34px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #ring-wrap h3 { color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 5px; margin-bottom: 18px; text-shadow: 0 0 14px rgba(62,158,255,.5); }
+  #ring-svg { display: block; margin: 0 auto; }
+  #ring-svg .track { stroke: rgba(255, 255, 255, 0.1); }
+  #ring-svg .bar { stroke: url(#ring-grad); filter: drop-shadow(0 0 10px rgba(70, 211, 144, 0.7)); }
+  #ring-center {
+    position: absolute; top: 188px; left: 0; right: 0;
+    color: #fff; font-size: 88px; font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 26px rgba(70, 211, 144, 0.6);
+    will-change: transform;
+  }
+  #ring-foot { color: #c8cad3; font-size: 27px; font-weight: 700; margin-top: 16px; }
+  #ring-foot em { color: #46d390; font-style: normal; font-weight: 900; }
+</style>
+
+<div id="ring-wrap">
+  <h3>【ENGLISH LABEL · 中文说明】</h3>
+  <svg id="ring-svg" width="320" height="320" viewBox="0 0 320 320">
+    <defs>
+      <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#46d390" /><stop offset="100%" stop-color="#3e9eff" />
+      </linearGradient>
+    </defs>
+    <circle class="track" cx="160" cy="160" r="132" fill="none" stroke-width="26" />
+    <circle class="bar" id="ring-bar" cx="160" cy="160" r="132" fill="none" stroke-width="26"
+      stroke-linecap="round" transform="rotate(-90 160 160)"
+      stroke-dasharray="829.38" stroke-dashoffset="829.38" />
+  </svg>
+  <div id="ring-center">【数字】<span style="font-size:44px;color:#8b8d98;"> /【总量】</span></div>
+  <div id="ring-foot">【结论行 · <em>强调词</em>】</div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  // 周长 829.38；先画到 75%（offset=207.3）示意总量，再回落到真实小占比
+  b.from("#ring-wrap", { y: 80, autoAlpha: 0, duration: 0.55 }, 0.15)
+   .to("#ring-bar", { strokeDashoffset: 207.3, duration: 1.1, ease: "power2.inOut" }, 0.7)
+   .to("#ring-bar", { strokeDashoffset: 827.7, duration: 0.9, ease: "power3.inOut" }, 2.0)
+   .from("#ring-center", { scale: 0.4, autoAlpha: 0, duration: 0.55, ease: "back.out(1.8)" }, 2.6)
+   .from("#ring-foot", { y: 30, autoAlpha: 0, duration: 0.4 }, "<0.15")
+   .to("#ring-center", { scale: 1.06, duration: 0.25, ease: "power1.inOut", repeat: 3, yoyo: true }, 3.4)
+   .to("#ring-wrap", { y: 70, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 5.05);
+</script>

@@ -1,0 +1,62 @@
+<!--
+  模式：红✕否定清单（直贴 overlay）⚙️
+  适用：「连 XX 都没有」「不需要 XX」类痛点/反常识连发——红 ✕ 方块 + 白字否定句
+    逐条砸入，直贴画面暗部；配红色 kicker（WHY …）情绪更完整。
+  适配铁律：亮色素材保留 .hcp-scrim；✕ 入场带轻微震屏强调否定情绪。
+  参数化：条目数 1~3/否定句文案/kicker 文案/主题红色。
+-->
+<style>
+  #hcp-wrap { position: absolute; top: 44px; left: 56px; }
+  #hcp-scrim { position: absolute; top: -50px; left: -80px; width: 640px; height: 340px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  #hcp-chip { position: relative; display: flex; align-items: center; gap: 12px; }
+  #hcp-bar { width: 4px; height: 20px; background: #e5484d; border-radius: 2px;
+    box-shadow: 0 0 12px rgba(229,72,77,.8); }
+  #hcp-en { color: #ff6b70; font-size: 22px; font-weight: 800; letter-spacing: 7px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.85); }
+  #hcp-sub { position: relative; margin-top: 8px; color: #aeb4c2; font-size: 17px; font-weight: 600;
+    letter-spacing: 3px; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #hcp-list { position: relative; margin-top: 44px; display: flex; flex-direction: column; gap: 30px; }
+  .hcp-item { display: flex; align-items: center; gap: 16px; }
+  .hcp-x { width: 40px; height: 40px; border-radius: 10px; flex: none;
+    background: rgba(229,72,77,.18); border: 1.5px solid rgba(229,72,77,.75);
+    display: flex; align-items: center; justify-content: center;
+    color: #ff6b70; font-size: 22px; font-weight: 900;
+    box-shadow: 0 0 18px rgba(229,72,77,.4); }
+  .hcp-t { color: #fff; font-size: 27px; font-weight: 800; letter-spacing: 1px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+</style>
+
+<div id="hcp" class="clip beat" data-start="0.4" data-duration="4.8" data-track-index="0" data-layout-allow-overflow>
+  <div id="hcp-wrap">
+    <div id="hcp-scrim"></div>
+    <div id="hcp-chip"><div id="hcp-bar"></div><div id="hcp-en">WHY OPEN SOURCE · 为什么开源</div></div>
+    <div id="hcp-sub">常见的做法——</div>
+    <div id="hcp-list">
+      <div class="hcp-item"><div class="hcp-x">✕</div><div class="hcp-t">工具没试过就下结论</div></div>
+      <div class="hcp-item"><div class="hcp-x">✕</div><div class="hcp-t">用网页生成的稿子照着念</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 红✕否定清单（0.4 起，✕ 砸入带震屏）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hcp-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hcp-bar", { scaleY: 0, duration: 0.35 }, t0 + 0.05);
+    tl.from("#hcp-en", { autoAlpha: 0, x: -26, duration: 0.45 }, t0 + 0.1);
+    tl.from("#hcp-sub", { autoAlpha: 0, y: 12, duration: 0.4 }, t0 + 0.3);
+    /* 每条：✕ scale 砸入 + 文字滑入 + 整组轻微震屏 */
+    [0, 1].forEach(function (i) {
+      var at = t0 + 0.9 + i * 1.3;
+      tl.from("#hcp-list .hcp-item:nth-child(" + (i + 1) + ") .hcp-x",
+        { autoAlpha: 0, scale: 2.0, rotation: 18, duration: 0.4, ease: "power3.in" }, at);
+      tl.from("#hcp-list .hcp-item:nth-child(" + (i + 1) + ") .hcp-t",
+        { autoAlpha: 0, x: -20, duration: 0.4 }, at + 0.15);
+      tl.fromTo("#hcp-wrap", { x: 0 }, { x: 4, duration: 0.05, yoyo: true, repeat: 3 }, at + 0.38);
+    });
+    tl.to("#hcp-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.2);
+  })();
+</script>

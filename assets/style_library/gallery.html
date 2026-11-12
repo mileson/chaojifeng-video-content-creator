@@ -1,0 +1,90 @@
+<!--
+## 核心功能
+统一浏览、筛选、预览和复制 chaojifeng-video-content-creator 的原生与 Remotion 动效配方。
+## 输入
+registry.js 中的原生特效记录，以及 recipes/video-shotcraft/recipes.js 中的 Remotion 配方快照。
+## 输出
+可通过 file:// 直接打开的双引擎配方 Gallery，不依赖本地开发服务器。
+## 定位
+chaojifeng-video-content-creator 内置特效库的用户入口；展示层不改写任何配方或 snippet。
+## 依赖
+gallery.css、gallery.js、registry.js、Remotion recipes.js，以及各自的本地或远程预览。
+## 维护规则
+数据契约或交互变化时同步更新 EffectsLibrary_style_library_README.md，并保持 index.html 入口可用。
+-->
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Motion Recipe Atlas · 视频特效配方库</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <a class="skip-link" href="#recipeGrid">跳到配方列表</a>
+  <header class="topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div><p>MOTION RECIPE ATLAS</p><strong>视频特效配方库</strong></div>
+    </div>
+    <div class="topbar-actions">
+      <span class="sync-chip"><i></i> 本地配方已同步</span>
+      <div class="theme-switch" role="group" aria-label="页面主题">
+        <button type="button" data-theme-choice="system">自动</button>
+        <button type="button" data-theme-choice="light">浅色</button>
+        <button type="button" data-theme-choice="dark" class="is-active">深色</button>
+      </div>
+    </div>
+  </header>
+  <div class="atlas-layout">
+    <aside class="sidebar" aria-label="配方分类">
+      <div class="side-block">
+        <p class="side-label">配方引擎</p>
+        <div class="engine-nav" id="engineNav">
+          <button type="button" data-engine="all" class="is-active"><span class="engine-icon all">∞</span><span>全部引擎</span><b id="allRecipeCount">—</b></button>
+          <button type="button" data-engine="native"><span class="engine-icon native">H</span><span>原生 / Hyperframes</span><b id="nativeRecipeCount">—</b></button>
+          <button type="button" data-engine="remotion"><span class="engine-icon remotion">R</span><span>Remotion</span><b id="remotionRecipeCount">—</b></button>
+        </div>
+      </div>
+      <div class="side-block category-block">
+        <p class="side-label">叙事与镜头</p>
+        <nav class="category-nav" id="categoryNav" aria-label="按分类筛选"></nav>
+      </div>
+      <div class="source-note"><span>统一配方，多个渲染引擎</span><p>原生配方可直接用于 HTML/GSAP；Remotion 配方保留帧驱动源码与上游预览入口。</p></div>
+    </aside>
+    <main class="main-column">
+      <section class="hero" aria-labelledby="pageTitle">
+        <div class="hero-copy">
+          <p class="eyebrow">ONE SYSTEM · THREE RUNTIMES</p>
+          <h1 id="pageTitle">从灵感到成片，<br><em>先选配方，再选引擎。</em></h1>
+          <p class="hero-desc">把原来的 HTML / GSAP / Hyperframes 模式，与 Remotion 帧驱动配方放进同一张工作台。来源、运行方式和验证状态始终清楚可见。</p>
+        </div>
+        <dl class="stats-board" aria-label="配方库统计">
+          <div class="stat-primary"><dt>配方卡</dt><dd id="recipeCount">—</dd></div>
+          <div><dt>动效样式</dt><dd id="styleCount">—</dd></div>
+          <div><dt>本地原生</dt><dd id="nativeStyleCount">—</dd></div>
+          <div><dt>Remotion</dt><dd id="remotionStyleCount">—</dd></div>
+        </dl>
+      </section>
+      <section class="control-deck" aria-label="搜索和筛选">
+        <label class="search-box" for="searchInput"><span class="search-glyph" aria-hidden="true"></span><span class="sr-only">搜索配方</span><input id="searchInput" type="search" autocomplete="off" placeholder="搜索名称、场景、动效、参数或用途…"><kbd>⌘ K</kbd></label>
+        <div class="status-filter" id="statusFilter" role="group" aria-label="验证状态">
+          <button type="button" data-status="all" class="is-active">全部状态</button>
+          <button type="button" data-status="local">本地可用</button>
+          <button type="button" data-status="upstream">上游源码</button>
+        </div>
+      </section>
+      <section class="result-header" aria-live="polite"><div><p class="result-kicker">CURRENT VIEW</p><h2 id="resultTitle">全部配方</h2></div><p id="resultCount">正在读取配方…</p></section>
+      <section class="recipe-grid" id="recipeGrid" aria-live="polite" aria-busy="true"></section>
+      <div class="empty-state" id="emptyState" hidden><strong>没有找到对应配方</strong><p>换一个关键词，或清除引擎和分类筛选。</p><button type="button" id="clearFilters">清除筛选</button></div>
+    </main>
+  </div>
+  <aside class="selection-bar" id="selectionBar" hidden aria-live="polite"><div><span id="selectionCount">0</span><p>张配方已加入本次镜头计划</p></div><button type="button" id="clearSelected" class="button-ghost">清空</button><button type="button" id="copySelected" class="button-solid">复制给 Agent</button></aside>
+  <dialog class="preview-dialog" id="previewDialog"><div class="dialog-shell"><header><div><p id="dialogEngine">配方预览</p><h2 id="dialogTitle">—</h2></div><button type="button" id="closeDialog" aria-label="关闭预览">×</button></header><div class="dialog-stage" id="dialogStage"></div><footer id="dialogFooter"></footer></div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="registry.js"></script>
+  <script src="recipes/video-shotcraft/recipes.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>

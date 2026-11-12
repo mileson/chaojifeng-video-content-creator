@@ -1,0 +1,55 @@
+<!--
+模式：屏录包装框（screen-studio-frame）【容器层 · 屏录工艺】
+适用场景：包装产品 UI 演示 / 录屏片段，复刻屏录工具常见的「壁纸框 + 自动变焦」工艺。
+框架参数：
+  - 框内内容可换成 <video>/<img> 真实录屏，或骨架行占位
+  - URL 地址栏文案、hero 高亮区文案、底部 caption
+  - 变焦目标：scale 值 + y 偏移决定推近哪个区域
+技术要点：
+  - 渐变壁纸墙打底（data-layout-ignore）→ 浏览器框带 macOS 三色点 + 大投影浮入
+  - 自动变焦：scale 1→1.45 + y 偏移（power2.inOut 0.9s）推近 hero，停留 ~2s 后拉回
+  - 框居中用 gsap.set xPercent/yPercent -50；变焦 tween 直接改 scale/y 不冲突
+  - 推近坐标公式：y 偏移 ≈ (目标区中心到框中心的距离) × (scale - 1)
+-->
+<style>
+  #ssf-wall { position: absolute; inset: 0; background: linear-gradient(160deg, #0d1117 0%, #1a2233 60%, #14202e 100%); }
+  #ssf-frame { position: absolute; left: 50%; top: 50%; width: 1480px; height: 850px; border-radius: 18px;
+    background: #f4f6f9; overflow: hidden; box-shadow: 0 60px 140px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.1); }
+  #ssf-bar { height: 52px; background: #e8ebf0; display: flex; align-items: center; padding: 0 20px; gap: 9px; }
+  .ssf-dot { width: 14px; height: 14px; border-radius: 50%; }
+  #ssf-url { margin-left: 20px; background: #fff; border-radius: 8px; color: #555; font-size: 16px; padding: 8px 22px; font-weight: 600; }
+  #ssf-content { position: relative; height: calc(100% - 52px); padding: 36px 48px; }
+  .ssf-row { height: 52px; border-radius: 10px; background: rgba(16,24,40,.08); margin-bottom: 18px; }
+  #ssf-hero { height: 150px; border-radius: 14px; background: linear-gradient(135deg, rgba(77,208,225,.25), rgba(43,127,212,.18));
+    border: 1px solid rgba(43,127,212,.3); margin-bottom: 18px; display: flex; align-items: center; padding: 0 34px;
+    color: #1a4a66; font-size: 30px; font-weight: 900; }
+  #ssf-cap { position: absolute; left: 90px; bottom: 60px; background: rgba(10,14,22,.88); color: #fff;
+    border: 1px solid rgba(255,255,255,.16); border-radius: 12px; padding: 12px 26px; font-size: 21px; font-weight: 900; }
+  #ssf-cap em { color: #4dd0e1; font-style: normal; }
+</style>
+
+<div id="ssf-wall" data-layout-ignore></div>
+<div id="ssf-frame">
+  <div id="ssf-bar">
+    <div class="ssf-dot" style="background:#ff5f57"></div><div class="ssf-dot" style="background:#febc2e"></div><div class="ssf-dot" style="background:#28c840"></div>
+    <div id="ssf-url">【app.example.com / dashboard】</div>
+  </div>
+  <div id="ssf-content">
+    <div id="ssf-hero">【核心操作区文案】</div>
+    <div class="ssf-row" style="width:88%"></div>
+    <div class="ssf-row" style="width:74%"></div>
+    <div class="ssf-row" style="width:81%"></div>
+  </div>
+</div>
+<div id="ssf-cap"><span>【说明前缀 · 】</span><em>【高亮结论】</em></div>
+
+<script>
+  gsap.set("#ssf-frame", { xPercent: -50, yPercent: -50 });
+  tl.from("#ssf-wall", { autoAlpha: 0, duration: 0.4 }, t0);
+  tl.from("#ssf-frame", { autoAlpha: 0, y: 70, scale: 0.93, duration: 0.6 }, t0 + 0.25);
+  tl.from("#ssf-cap", { autoAlpha: 0, x: -40, duration: 0.45 }, t0 + 0.7);
+  // 自动变焦推近（Screen Studio 工艺核心）
+  tl.to("#ssf-frame", { scale: 1.45, y: 170, duration: 0.9, ease: "power2.inOut" }, t0 + 1.8);
+  tl.to("#ssf-frame", { scale: 1, y: 0, duration: 0.8, ease: "power2.inOut" }, t0 + 3.9);
+  tl.to(["#ssf-frame", "#ssf-cap", "#ssf-wall"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 5.4);
+</script>

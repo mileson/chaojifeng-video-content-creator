@@ -1,0 +1,59 @@
+<!--
+模式：终端报错地狱（terminal-error-hell）【容器层 · 痛点场景】
+适用场景：表达「手动配置环境跑一半报错」的痛点叙事，对比产品「一键」卖点前使用。
+框架参数：
+  - 终端行内容（命令 cyan / 正常 ok 绿 / 报错红），行数 5~8
+  - 报错时刻（红光 + 倾斜 + 震动的触发时间）
+技术要点：
+  - 行逐条 y 8 + autoAlpha 入场（每行 0.36s），模拟命令滚动
+  - 报错时刻三连：红色 radial 辉光 opacity 0→1 + 窗口 rotation -1.6 荷兰角 + x±10 震动（repeat 5）
+  - 震动用 "-=10" 相对值 + yoyo；荷兰角倾斜表达「失控感」
+  - 窗口居中 gsap.set xPercent/yPercent -50；glow 加 data-layout-ignore
+-->
+<style>
+  #teh-win { position: absolute; left: 50%; top: 50%; width: 1240px; height: 700px; border-radius: 16px;
+    background: #10131c; border: 1px solid rgba(255,255,255,.12); overflow: hidden;
+    box-shadow: 0 40px 110px rgba(0,0,0,.65); }
+  #teh-bar { height: 44px; background: #0a0d14; display: flex; align-items: center; padding: 0 18px; gap: 8px; }
+  .teh-dot { width: 13px; height: 13px; border-radius: 50%; }
+  #teh-name { margin-left: 16px; color: #8b93a3; font-size: 15px; font-family: ui-monospace, Menlo, monospace; }
+  #teh-body { padding: 24px 30px; font-family: ui-monospace, Menlo, monospace; font-size: 19px; line-height: 1.9; }
+  .teh-ln { white-space: pre; color: #9aa3b5; }
+  .teh-cmd { color: #4dd0e1; } .teh-ok { color: #46d390; } .teh-err { color: #ff5c5c; font-weight: 700; }
+  #teh-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 80%, rgba(255,60,60,.18), transparent 60%); opacity: 0; }
+  #teh-cap { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; }
+  #teh-cap span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,92,92,.4);
+    border-radius: 12px; padding: 12px 28px; font-size: 22px; font-weight: 900; }
+  #teh-cap em { color: #ff8589; font-style: normal; }
+</style>
+
+<div id="teh-win">
+  <div id="teh-bar">
+    <div class="teh-dot" style="background:#ff5f57"></div><div class="teh-dot" style="background:#febc2e"></div><div class="teh-dot" style="background:#28c840"></div>
+    <div id="teh-name">【~/project — zsh】</div>
+  </div>
+  <div id="teh-body">
+    <div class="teh-ln" id="teh-l1"><span class="teh-cmd">$ 【命令1】</span></div>
+    <div class="teh-ln" id="teh-l2">【正常输出】</div>
+    <div class="teh-ln" id="teh-l3"><span class="teh-cmd">$ 【命令2】</span></div>
+    <div class="teh-ln" id="teh-l4">【输出】 ... <span class="teh-ok">ok</span></div>
+    <div class="teh-ln" id="teh-l5">【输出】 ... <span class="teh-err">error</span></div>
+    <div class="teh-ln" id="teh-l6"><span class="teh-err">ERROR: 【报错信息】</span></div>
+    <div class="teh-ln" id="teh-l7"><span class="teh-err">✗ 【人话总结报错】</span></div>
+  </div>
+  <div id="teh-glow" data-layout-ignore></div>
+</div>
+<div id="teh-cap"><span>【痛点文案 · 】<em>【高亮】</em></span></div>
+
+<script>
+  gsap.set("#teh-win", { xPercent: -50, yPercent: -50 });
+  tl.from("#teh-win", { autoAlpha: 0, y: 60, duration: 0.55 }, t0);
+  ["#teh-l1","#teh-l2","#teh-l3","#teh-l4","#teh-l5","#teh-l6","#teh-l7"].forEach(function (sel, i) {
+    tl.from(sel, { autoAlpha: 0, y: 8, duration: 0.18 }, t0 + 0.5 + i * 0.36);
+  });
+  tl.to("#teh-glow", { opacity: 1, duration: 0.3 }, t0 + 2.4);
+  tl.to("#teh-win", { rotation: -1.6, duration: 0.4, ease: "power2.inOut" }, t0 + 2.4);
+  tl.to("#teh-win", { x: "-=10", duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, t0 + 2.5);
+  tl.from("#teh-cap", { autoAlpha: 0, y: 20, duration: 0.4 }, t0 + 3.1);
+  tl.to(["#teh-win", "#teh-cap"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.9);
+</script>

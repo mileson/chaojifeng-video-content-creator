@@ -1,0 +1,131 @@
+<!--
+模式：连续滑屏转场（continuous-slide-loop）【转场层 · 组合动画】
+适用场景：用稳定的横向循环平移快速带过列表、看板、网页或产品录屏，适合 1 秒左右的轻快切段。
+框架参数：
+  - continuousSlideAt(t, opts)：在主 timeline 的 t 秒触发连续滑屏
+  - opts.target：包住底片内容的容器，默认 #csl-stage
+  - opts.duration：默认 1.2s
+  - opts.direction：1 向左滑屏，-1 向右滑屏
+  - opts.baseSpeed：底片滑屏速度，默认 1
+  - opts.saturation：滑屏时的饱和度，默认 1.2
+技术要点：
+  - 这是整帧组合转场，不是镜头工具；底片复制成双份后做无缝水平位移。
+  - 进度保持线性，结束点回到等价画面，避免来回滑移、旋转、缩放或额外装饰。
+  - 容器背景只作为兜底黑色；正常路径通过循环取样不应露边。
+-->
+<style>
+  #csl-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    transform-origin: 50% 50%;
+    will-change: filter;
+  }
+
+  .csl-track {
+    position: absolute;
+    inset: 0;
+    width: 200%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    will-change: transform;
+  }
+
+  .csl-panel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+</style>
+
+<div id="csl-stage" data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    function resolveTarget(target) {
+      if (target instanceof Element) return target;
+      return document.querySelector(target || "#csl-stage");
+    }
+
+    function prepareLoop(el) {
+      if (el.__cslTrack && el.contains(el.__cslTrack)) return el.__cslTrack;
+
+      var panel = document.createElement("div");
+      panel.className = "csl-panel";
+      while (el.firstChild) panel.appendChild(el.firstChild);
+
+      var clone = panel.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+
+      var track = document.createElement("div");
+      track.className = "csl-track";
+      track.appendChild(panel);
+      track.appendChild(clone);
+
+      el.appendChild(track);
+      el.__cslTrack = track;
+      return track;
+    }
+
+    function wrap01(value) {
+      var wrapped = value % 1;
+      return wrapped < 0 ? wrapped + 1 : wrapped;
+    }
+
+    function applyProgress(el, p, opts) {
+      var direction = opts.direction === -1 ? -1 : 1;
+      var baseSpeed = opts.baseSpeed || 1;
+      var phase = wrap01(p * baseSpeed);
+      var track = prepareLoop(el);
+      var trackX = (direction === 1 ? -50 : 50) * phase;
+
+      gsap.set(track, { xPercent: trackX, force3D: true });
+      gsap.set(el, {
+        filter: "saturate(" + opts.saturation.toFixed(2) + ")",
+        force3D: true,
+      });
+    }
+
+    window.continuousSlideAt = function (t, opts) {
+      opts = opts || {};
+      var el = resolveTarget(opts.target);
+      if (!el) return null;
+
+      var dur = opts.duration || 1.2;
+      var state = { p: 0 };
+      var settings = {
+        direction: opts.direction === -1 ? -1 : 1,
+        baseSpeed: opts.baseSpeed || 1,
+        saturation: opts.saturation || 1.2,
+      };
+      var local = gsap.timeline({
+        onStart: function () {
+          prepareLoop(el);
+          applyProgress(el, state.p, settings);
+        },
+      });
+
+      local.to(state, {
+        p: 1,
+        duration: dur,
+        ease: "none",
+        onUpdate: function () { applyProgress(el, state.p, settings); },
+      }, 0);
+
+      if (opts.restore === true) {
+        local.set(el, { clearProps: "filter" }, dur + 0.02);
+      }
+
+      tl.add(local, t);
+      return local;
+    };
+
+    window.linearSlideTransitionAt = window.continuousSlideAt;
+  })();
+
+  // 演示节奏：1.2 秒横向连续滑屏
+  continuousSlideAt(t0, { duration: 1.2 });
+</script>

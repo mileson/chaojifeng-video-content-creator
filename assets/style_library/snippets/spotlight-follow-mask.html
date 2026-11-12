@@ -1,0 +1,48 @@
+<!--
+模式：聚光追踪遮罩（spotlight-follow-mask）【工具层 · 视线引导】
+适用场景：录屏/截图上依次聚焦多个 UI 区域——周围压暗、光圈内清晰，
+  光圈可在多个兴趣点之间平滑移动并变径，是「跟着我看这里」的镜头语言。
+框架参数：
+  - spotTo(t, x, y, r, dur)：移动光圈到 (x,y) 半径 r；spotOff(t) 收场
+  - 压暗强度（默认 .72）、光圈羽化宽度（默认 90px）
+技术要点：
+  - 用 radial-gradient 遮罩层 + CSS 变量驱动（--sx/--sy/--sr），GSAP 改变量即移动
+  - 羽化边缘（transparent → 暗）比硬边自然
+  - 光圈描边脉冲一次提示到位；移动用 power2.inOut（视线扫动节奏）
+-->
+<style>
+  #sfm-dim { position: absolute; inset: 0; pointer-events: none;
+    --sx: 960px; --sy: 540px; --sr: 240px;
+    background: radial-gradient(circle var(--sr) at var(--sx) var(--sy),
+      transparent 0%, transparent calc(100% - 90px), rgba(5,8,14,.72) 100%); }
+  #sfm-ring { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 50%;
+    border: 2.5px solid rgba(62,158,255,.85); box-shadow: 0 0 28px rgba(62,158,255,.4);
+    transform: translate(-50%, -50%); pointer-events: none; }
+</style>
+
+<div id="sfm-dim" data-layout-ignore></div>
+<div id="sfm-ring" data-layout-ignore></div>
+
+<script>
+  (function () {
+    var v = { x: 960, y: 540, r: 240 };
+    function apply() {
+      gsap.set("#sfm-dim", { "--sx": v.x + "px", "--sy": v.y + "px", "--sr": v.r + "px" });
+      gsap.set("#sfm-ring", { left: v.x, top: v.y, width: v.r * 2, height: v.r * 2 });
+    }
+    window.spotTo = function (t, x, y, r, dur) {
+      tl.to(v, { x: x, y: y, r: r || 240, duration: dur || 0.7, ease: "power2.inOut", onUpdate: apply }, t);
+      tl.fromTo("#sfm-ring", { boxShadow: "0 0 28px rgba(62,158,255,.4)" },
+        { boxShadow: "0 0 52px rgba(62,158,255,.9)", duration: 0.35, yoyo: true, repeat: 1 }, t + (dur || 0.7));
+    };
+    window.spotOff = function (t) {
+      tl.to(["#sfm-dim", "#sfm-ring"], { autoAlpha: 0, duration: 0.5 }, t);
+    };
+    apply();
+    tl.from(["#sfm-dim", "#sfm-ring"], { autoAlpha: 0, duration: 0.5 }, t0);
+  })();
+  // 演示：中央 → 右上按钮（小圈） → 左下面板（大圈） → 收
+  spotTo(t0 + 1.0, 1430, 300, 150);
+  spotTo(t0 + 2.8, 520, 760, 300);
+  spotOff(t0 + 5.0);
+</script>

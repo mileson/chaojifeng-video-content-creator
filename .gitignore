@@ -1,0 +1,19 @@
+# 个人配置与密钥不进入公开仓库
+.env
+.env.*
+!.env.example
+data/*.local.json
+data/*.local.yaml
+
+# 运行产物
+__pycache__/
+*.pyc
+.DS_Store
+.pytest_cache/
+
+# 视频工程的过程目录与成片不属于 Skill 本体
+视频剪辑明细/
+*.mp4
+*.mov
+*.wav
+!examples/**/*.mp4

@@ -1,0 +1,62 @@
+{
+  "duration": 15.0,
+  "segments": [
+    {
+      "start": 0.35,
+      "end": 4.9,
+      "text": "你录完口播先加了特效然后的话再回头删口水词",
+      "words": [
+        {"word": "你", "start": 0.35, "end": 0.55},
+        {"word": "录完", "start": 0.56, "end": 0.95},
+        {"word": "口播", "start": 0.96, "end": 1.4},
+        {"word": "先", "start": 1.62, "end": 1.78},
+        {"word": "加了", "start": 1.79, "end": 2.1},
+        {"word": "特效", "start": 2.11, "end": 2.55},
+        {"word": "然后", "start": 2.7, "end": 3.0},
+        {"word": "的话", "start": 3.01, "end": 3.3},
+        {"word": "再", "start": 3.36, "end": 3.5},
+        {"word": "回头", "start": 3.51, "end": 3.95},
+        {"word": "删", "start": 3.96, "end": 4.15},
+        {"word": "口水词", "start": 4.16, "end": 4.9}
+      ]
+    },
+    {
+      "start": 5.6,
+      "end": 10.1,
+      "text": "呃删掉一个嗯后面所有内容都都往前移了",
+      "words": [
+        {"word": "呃", "start": 5.6, "end": 5.95},
+        {"word": "删掉", "start": 6.1, "end": 6.55},
+        {"word": "一个", "start": 6.56, "end": 6.85},
+        {"word": "嗯", "start": 6.95, "end": 7.3},
+        {"word": "后面", "start": 7.85, "end": 8.2},
+        {"word": "所有", "start": 8.21, "end": 8.5},
+        {"word": "内容", "start": 8.51, "end": 8.95},
+        {"word": "都", "start": 8.96, "end": 9.12},
+        {"word": "都", "start": 9.13, "end": 9.3},
+        {"word": "往前", "start": 9.31, "end": 9.7},
+        {"word": "移", "start": 9.71, "end": 9.9},
+        {"word": "了", "start": 9.91, "end": 10.1}
+      ]
+    },
+    {
+      "start": 10.9,
+      "end": 14.8,
+      "text": "特效还留在原来的时间上整条整条就错位了",
+      "words": [
+        {"word": "特效", "start": 10.9, "end": 11.35},
+        {"word": "还", "start": 11.36, "end": 11.5},
+        {"word": "留在", "start": 11.51, "end": 11.9},
+        {"word": "原来", "start": 11.91, "end": 12.3},
+        {"word": "的", "start": 12.31, "end": 12.4},
+        {"word": "时间", "start": 12.41, "end": 12.8},
+        {"word": "上", "start": 12.81, "end": 12.95},
+        {"word": "整条", "start": 13.3, "end": 13.7},
+        {"word": "整条", "start": 13.71, "end": 14.1},
+        {"word": "就", "start": 14.11, "end": 14.25},
+        {"word": "错位", "start": 14.26, "end": 14.7},
+        {"word": "了", "start": 14.71, "end": 14.8}
+      ]
+    }
+  ]
+}

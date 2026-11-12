@@ -1,0 +1,65 @@
+<!--
+  模式：GitHub 仓库介绍卡 ⚙️
+  适用：「我把它开源了/GitHub 上搜 XX」——GitHub 风深色仓库卡：所有者头像点 +
+    仓库名 + Public 徽章 + 描述 + 语言色点/Star/Fork 元信息行 + Branch/Tags，
+    开源宣布与引导 star 的标准画面（独立开发者高频）。
+  适配铁律：卡片自带深底（GitHub 风），任意素材上可读；禁放网址（合规铁律，
+    口播说「GitHub 搜」即可）。
+  参数化：仓库名/描述/语言与配色/star 数（count-up）/徽章文案。
+-->
+<style>
+  #grc-card { position: absolute; left: 50%; top: 50%; width: 760px;
+    border-radius: 18px; background: #0d1117; border: 1px solid #30363d;
+    box-shadow: 0 0 0 6px rgba(88,166,255,.08), 0 0 50px rgba(88,166,255,.18), 0 40px 90px rgba(0,0,0,.6);
+    padding: 34px 38px; }
+  #grc-head { display: flex; align-items: center; gap: 14px; }
+  #grc-avatar { width: 40px; height: 40px; border-radius: 50%; flex: none;
+    background: linear-gradient(135deg, #58a6ff, #bc8cff); }
+  #grc-name { color: #58a6ff; font-size: 30px; font-weight: 800;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  #grc-name .owner { color: #8b949e; font-weight: 600; }
+  #grc-badge { margin-left: 6px; padding: 4px 12px; border-radius: 999px; flex: none;
+    border: 1px solid #30363d; color: #8b949e; font-size: 15px; font-weight: 700; }
+  #grc-desc { margin-top: 18px; color: #c9d1d9; font-size: 20px; line-height: 1.6; font-weight: 500; }
+  #grc-meta { margin-top: 24px; display: flex; align-items: center; gap: 28px;
+    color: #8b949e; font-size: 17px; font-weight: 600; }
+  .grc-m { display: flex; align-items: center; gap: 8px; }
+  #grc-lang-dot { width: 13px; height: 13px; border-radius: 50%; background: #3572a5; }
+  #grc-star-n { color: #e3b341; font-weight: 800; }
+  #grc-cta { margin-top: 26px; padding: 13px 0; border-radius: 10px; text-align: center;
+    background: #238636; color: #fff; font-size: 19px; font-weight: 800; letter-spacing: 1px; }
+</style>
+
+<div id="grc" class="clip beat" data-start="0.4" data-duration="5.0" data-track-index="0" data-layout-ignore>
+  <div id="grc-card">
+    <div id="grc-head">
+      <div id="grc-avatar"></div>
+      <div id="grc-name"><span class="owner">your-name /</span> 【repo-name】</div>
+      <div id="grc-badge">Public</div>
+    </div>
+    <div id="grc-desc">【一句话描述：这个仓库解决什么问题，20~40 字】</div>
+    <div id="grc-meta">
+      <div class="grc-m"><div id="grc-lang-dot"></div>【Python】</div>
+      <div class="grc-m">★ <span id="grc-star-n">0</span></div>
+      <div class="grc-m">⑂ 【12】 forks</div>
+      <div class="grc-m">⊙ 【1】 Branch · 【0】 Tags</div>
+    </div>
+    <div id="grc-cta">⭐ Star 一下 · 完全免费</div>
+  </div>
+</div>
+
+<script>
+  /* ===== GitHub 仓库卡（0.4 起，star count-up）===== */
+  (function () {
+    var t0 = 0.4;
+    gsap.set("#grc-card", { xPercent: -50, yPercent: -50 });
+    tl.from("#grc-card", { autoAlpha: 0, y: 60, scale: 0.94, duration: 0.6, ease: "power3.out" }, t0);
+    tl.from("#grc-head", { autoAlpha: 0, x: -22, duration: 0.45 }, t0 + 0.25);
+    tl.from("#grc-desc", { autoAlpha: 0, y: 14, duration: 0.45 }, t0 + 0.5);
+    tl.from("#grc-meta .grc-m", { autoAlpha: 0, y: 12, duration: 0.4, stagger: 0.12 }, t0 + 0.75);
+    countUp("#grc-star-n", 1284, 1.1, t0 + 0.95);
+    tl.from("#grc-cta", { autoAlpha: 0, scale: 0.85, duration: 0.5, ease: "back.out(1.8)" }, t0 + 1.5);
+    tl.to("#grc-cta", { boxShadow: "0 0 26px rgba(35,134,54,.8)", duration: 0.5, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 2.1);
+    tl.to("#grc-card", { autoAlpha: 0, y: 40, duration: 0.45, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

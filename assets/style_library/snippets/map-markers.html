@@ -1,0 +1,89 @@
+<!--
+模式：地图标记（多地 / 全球化 / 覆盖范围叙事）
+适用场景：讲"从 A 到 B 都在用"、多地分布、全球趋势。抽象网格地图 + pin 落下 + 波纹 + 虚线航线。
+结构要点：
+  - 地图底：repeating-linear-gradient 双向画网格 + 2 个 radial-gradient 大陆色块 + 深色底，
+    不需要真地图素材，抽象感反而更有科技感
+  - pin 用纯 CSS：圆 head + border 三角 tip；每个 pin 配同位置 ripple（圆环 div）和 label
+  - 航线：SVG path（Q 二次贝塞尔），stroke-dasharray "8 10" 虚线
+动画要点：
+  - pin y:-140 bounce.out 落下，三个依次错开 0.4s
+  - ripple：fromTo scale 0.4→3.2 + autoAlpha 0.9→0（power1.out），紧跟在各自 pin 落地后 0.3s
+  - 航线描画：getTotalLength 取 len，set strokeDashoffset=len 再 to 0——
+    注意虚线 path 也用同样手法，dasharray 保留 "8 10" 不变，只动 offset
+-->
+<style>
+  #map-card {
+    position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto;
+    width: 980px;
+    background: rgba(12, 14, 22, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px; padding: 30px 40px 36px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #map-card h3 { color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 5px; margin-bottom: 20px; text-shadow: 0 0 14px rgba(62,158,255,.5); }
+  #map-stage {
+    position: relative; height: 360px; border-radius: 14px; overflow: hidden;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 44px, rgba(62, 158, 255, 0.12) 44px, rgba(62, 158, 255, 0.12) 45px),
+      repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(62, 158, 255, 0.12) 44px, rgba(62, 158, 255, 0.12) 45px),
+      radial-gradient(ellipse at 30% 40%, rgba(62, 158, 255, 0.16), transparent 55%),
+      radial-gradient(ellipse at 75% 55%, rgba(70, 211, 144, 0.14), transparent 50%),
+      #0b0e16;
+  }
+  .pin { position: absolute; width: 30px; height: 42px; will-change: transform; }
+  .pin .head { position: absolute; top: 0; left: 0; width: 30px; height: 30px; border-radius: 50%; }
+  .pin .tip { position: absolute; top: 24px; left: 9px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; }
+  .pin.p1 { top: 110px; left: 200px; } .pin.p1 .head { background: #3e9eff; box-shadow: 0 0 18px rgba(62,158,255,.9); } .pin.p1 .tip { border-top: 16px solid #3e9eff; }
+  .pin.p2 { top: 80px; left: 640px; }  .pin.p2 .head { background: #ffb224; box-shadow: 0 0 18px rgba(255,178,36,.9); }  .pin.p2 .tip { border-top: 16px solid #ffb224; }
+  .pin.p3 { top: 210px; left: 760px; } .pin.p3 .head { background: #46d390; box-shadow: 0 0 18px rgba(70,211,144,.9); } .pin.p3 .tip { border-top: 16px solid #46d390; }
+  .ripple { position: absolute; width: 30px; height: 30px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.75); }
+  .ripple.r1 { top: 110px; left: 200px; border-color: rgba(62, 158, 255, 0.8); }
+  .ripple.r2 { top: 80px; left: 640px; border-color: rgba(255, 178, 36, 0.8); }
+  .ripple.r3 { top: 210px; left: 760px; border-color: rgba(70, 211, 144, 0.8); }
+  .pin-label {
+    position: absolute; color: #fff; font-size: 24px; font-weight: 800;
+    background: rgba(10, 12, 18, 0.75); border-radius: 8px; padding: 6px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2); will-change: transform;
+  }
+  .pin-label.l1 { top: 70px; left: 244px; }
+  .pin-label.l2 { top: 40px; left: 684px; }
+  .pin-label.l3 { top: 170px; left: 804px; }
+  #map-link { position: absolute; inset: 0; }
+  #map-link path { stroke: rgba(255, 255, 255, 0.5); stroke-width: 2.5; fill: none; stroke-dasharray: 8 10; }
+</style>
+
+<div id="map-card">
+  <h3>【ENGLISH LABEL · 中文标题】</h3>
+  <div id="map-stage">
+    <svg id="map-link" width="900" height="360" viewBox="0 0 900 360">
+      <path id="map-path" d="M 215 122 Q 430 20 655 92 Q 720 140 775 222" />
+    </svg>
+    <div class="ripple r1" id="map-r1"></div>
+    <div class="ripple r2" id="map-r2"></div>
+    <div class="ripple r3" id="map-r3"></div>
+    <div class="pin p1" id="map-pin1"><div class="head"></div><div class="tip"></div></div>
+    <div class="pin p2" id="map-pin2"><div class="head"></div><div class="tip"></div></div>
+    <div class="pin p3" id="map-pin3"><div class="head"></div><div class="tip"></div></div>
+    <div class="pin-label l1" id="map-l1">【地点一】</div>
+    <div class="pin-label l2" id="map-l2">【地点二】</div>
+    <div class="pin-label l3" id="map-l3">【地点三】</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const link = document.querySelector("#map-path");
+  const linkLen = link.getTotalLength();
+  gsap.set(link, { strokeDasharray: "8 10", strokeDashoffset: linkLen });
+  b.from("#map-card", { y: 80, autoAlpha: 0, duration: 0.5 }, 0.1);
+  [1, 2, 3].forEach((i, idx) => {
+    const t = 0.6 + idx * 0.4;
+    b.from(`#map-pin${i}`, { y: -140, autoAlpha: 0, duration: 0.45, ease: "bounce.out" }, t)
+     .fromTo(`#map-r${i}`, { scale: 0.4, autoAlpha: 0.9 }, { scale: 3.2, autoAlpha: 0, duration: 0.9, ease: "power1.out" }, t + 0.3)
+     .from(`#map-l${i}`, { y: 20, autoAlpha: 0, duration: 0.35 }, t + 0.25);
+  });
+  b.to(link, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, 1.9)
+   .to("#map-card", { y: 70, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 2.7);
+</script>

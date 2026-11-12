@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chaojifeng Video Content Creator"
+  short_description: "端到端规划、写稿、分镜、音轨波形质检、字幕驱动特效和发布口播视频。"
+  default_prompt: "使用 chaojifeng-video-content-creator，把这个视频选题或素材整理成完整视频工程：口播稿、A/B-Roll 分镜、素材清单、A-Roll 转写和清洗、剪口波形质检与人工复听、真实字幕驱动的特效节拍表、B-Roll overlay、字幕、封面和发布版输出。"

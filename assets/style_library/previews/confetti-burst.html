@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #cfb-stage { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .cfb-p { position: absolute; left: 0; top: 0; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div style="position:absolute;inset:0;background:linear-gradient(150deg,#1d2638 0%,#10182a 100%)"></div><div style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);padding:40px 90px;border-radius:26px;background:linear-gradient(135deg,#1c2742,#131a2c);border:2px solid #46d39088;color:#5fe0a8;font:900 72px/1 sans-serif;letter-spacing:4px">审核通过 🎉</div>
+<div id="cfb-stage" data-layout-ignore data-layout-allow-overflow></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  (function () {
+    var COLORS = ["#3e9eff", "#46d390", "#ffb224", "#e5484d", "#b388ff", "#4dd0e1"];
+    var stage = document.getElementById("cfb-stage");
+    window.confettiAt = function (t, fromSide) {
+      var sides = fromSide === "both" || !fromSide ? ["left", "right"] : [fromSide];
+      sides.forEach(function (side, si) {
+        for (var k = 0; k < 26; k++) {
+          var p = document.createElement("div");
+          p.className = "cfb-p";
+          var sz = 10 + ((k * 31) % 14);
+          var shape = k % 3;
+          p.style.width = sz + "px";
+          p.style.height = (shape === 2 ? sz * 2.2 : sz) + "px";
+          p.style.background = COLORS[(k + si) % COLORS.length];
+          p.style.borderRadius = shape === 1 ? "50%" : "2px";
+          stage.appendChild(p);
+          var x0 = side === "left" ? -30 : 1950;
+          var y0 = 880 + ((k * 53) % 140);
+          var dir = side === "left" ? 1 : -1;
+          var vx = dir * (480 + ((k * 67) % 620));
+          var peak = 380 + ((k * 41) % 420);
+          var dur = 1.7 + ((k * 23) % 10) / 14;
+          gsap.set(p, { x: x0, y: y0, autoAlpha: 0 });
+          tl.set(p, { autoAlpha: 1 }, t);
+          tl.to(p, { x: x0 + vx * dur, duration: dur, ease: "none" }, t);
+          tl.to(p, { y: y0 - peak, duration: dur * 0.42, ease: "power2.out" }, t);
+          tl.to(p, { y: 1160, duration: dur * 0.58, ease: "power2.in" }, t + dur * 0.42);
+          tl.to(p, { rotationZ: 360 + ((k * 97) % 540), rotationX: 540 + ((k * 71) % 360),
+            duration: dur, ease: "none" }, t);
+          tl.to(p, { autoAlpha: 0, duration: 0.3 }, t + dur - 0.3);
+        }
+      });
+    };
+  })();
+  confettiAt(t0 + 0.4, "both");
+  confettiAt(t0 + 2.8, "left");
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

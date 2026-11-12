@@ -1,0 +1,42 @@
+<!--
+模式：震屏冲击（camera-shake-impact）【工具层 · 镜头语言】
+适用场景：报错炸了/价格吓一跳/重点词砸下时给整个画面 0.3~0.6s 衰减震动，
+  配合音效是「冲击感」最廉价有效的放大器。
+框架参数：
+  - shakeAt(t, strength, dur)：strength 像素振幅（10 轻 / 26 重），可多次调用
+  - 目标容器选择器（默认 #csk-stage，工程里指向底片容器）
+技术要点：
+  - 确定性伪随机位移序列（sin 组合），离线逐帧渲染稳定可复现
+  - 振幅随 progress 指数衰减，结尾必归零（x/y 清零防累积偏移）
+  - 频率 ~28Hz 接近真实手持撞击；只震 x/y 不震 rotation（旋转易晕）
+-->
+<style>
+  #csk-stage { position: absolute; inset: 0; }
+</style>
+
+<div id="csk-stage" data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    var target = "#csk-stage";
+    window.shakeAt = function (t, strength, dur) {
+      strength = strength || 18; dur = dur || 0.5;
+      var st = { p: 0 };
+      tl.to(st, {
+        p: 1, duration: dur, ease: "none",
+        onUpdate: function () {
+          var decay = Math.pow(1 - st.p, 2.2);
+          var ph = st.p * dur * 28 * Math.PI;
+          gsap.set(target, {
+            x: Math.sin(ph * 1.0 + 1.3) * strength * decay,
+            y: Math.sin(ph * 1.31 + 4.7) * strength * 0.7 * decay,
+          });
+        },
+        onComplete: function () { gsap.set(target, { x: 0, y: 0 }); },
+      }, t);
+    };
+  })();
+  // 演示：轻震 → 重震
+  shakeAt(t0 + 0.6, 12, 0.4);
+  shakeAt(t0 + 2.2, 26, 0.6);
+</script>

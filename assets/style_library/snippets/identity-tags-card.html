@@ -1,0 +1,49 @@
+<!--
+  模式：身份名片清单卡 ⚙️
+  适用：大标题（强调词延迟换色脉冲）+ 2xN grid 图标标签（圆角图标块 + 中文主行 + 英文大写小字）grid stagger 弹入。适合片尾自我介绍/人设强化，与 follow-pill 组成片尾双件套。
+  参数化：标签数（2~6）/列数/图标与配色。
+
+  通用规则：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    亮色录屏上裸白字会直接消失
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+-->
+<style>
+  /* ===== B9 identity-tags-card ===== */
+  #b9-wrap { position: absolute; top: 70px; left: 56px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.45); padding: 26px 32px; }
+  #b9-title { color: #fff; font-size: 52px; font-weight: 900; }
+  #b9-title em { color: #3e9eff; font-style: normal; }
+  #b9-grid { margin-top: 34px; display: grid; grid-template-columns: repeat(2, 330px); gap: 22px 28px; }
+  .b9-tag { display: flex; align-items: center; gap: 14px; }
+  .b9-ico { width: 48px; height: 48px; border-radius: 12px; background: rgba(62,158,255,.15); border: 1px solid rgba(62,158,255,.5);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .b9-tag .zh { color: #fff; font-size: 23px; font-weight: 800; }
+  .b9-tag .en { color: #8b8d98; font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-top: 2px; }
+</style>
+
+<!-- B9 身份名片清单卡 -->
+  <div id="b9" class="clip beat" data-start="50.5" data-duration="5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b9-wrap">
+      <div id="b9-title">【开场短语】 <em>【强调短语】</em></div>
+      <div id="b9-grid">
+        <div class="b9-tag" id="b9-t1"><div class="b9-ico">🧪</div><div><div class="zh">【身份标签一】</div><div class="en">TAG ONE</div></div></div>
+        <div class="b9-tag" id="b9-t2"><div class="b9-ico">💸</div><div><div class="zh">【身份标签二】</div><div class="en">TAG TWO</div></div></div>
+        <div class="b9-tag" id="b9-t3"><div class="b9-ico">🛠️</div><div><div class="zh">【身份标签三】</div><div class="en">TAG THREE</div></div></div>
+        <div class="b9-tag" id="b9-t4"><div class="b9-ico">🚀</div><div><div class="zh">【身份标签四】</div><div class="en">TAG FOUR</div></div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B9 身份名片清单卡（50.5 起） ===== */
+  (function () {
+    var t0 = 50.5;
+    tl.from("#b9-title", { autoAlpha: 0, y: 24, duration: 0.55 }, t0);
+    tl.to("#b9-title em", { color: "#7ab8ff", textShadow: "0 0 24px rgba(62,158,255,.8)", duration: 0.4, yoyo: true, repeat: 1 }, t0 + 0.7);
+    tl.from(".b9-tag", { autoAlpha: 0, x: -26, scale: 0.9, duration: 0.5, ease: "back.out(1.6)",
+      stagger: { each: 0.18, grid: [2, 2], from: "start" } }, t0 + 0.9);
+    tl.to("#b9-wrap", { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

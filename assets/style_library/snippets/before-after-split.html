@@ -1,0 +1,58 @@
+<!--
+模式：前后分屏对照（before-after-split）【节拍层 · 全屏对比】
+适用场景：「一晚上运维 vs 3 分钟上岗」式强对比，痛点→解法的转折节拍。
+框架参数：
+  - 左（Before 灰暗）/ 右（After 青色渐变）文案：label / 大字 / 副标
+  - 左侧划掉线（红色 strike）可选
+技术要点：
+  - 左右半屏 xPercent ∓100 相向滑入（错开 0.15s）→ 中缝渐变 divider scaleY 自顶展开
+  - 节奏：Before 大字先出 → 红线划掉（scaleX origin left）→ After 大字 scale 1.4 砸入
+  - After 大字 textShadow yoyo 脉冲一次 = 胜者确认
+  - 左右用底色面板自带可读性；半屏元素有 CSS left/right 定位但无 transform，可安全用 xPercent
+-->
+<style>
+  #bas-wrap { position: absolute; inset: 0; }
+  #bas-left { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: #14161d; overflow: hidden; }
+  #bas-right { position: absolute; right: 0; top: 0; bottom: 0; width: 50%; background: linear-gradient(160deg, #11324a, #0d4a52); overflow: hidden; }
+  #bas-divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 5px; margin-left: -2px;
+    background: linear-gradient(180deg, #4dd0e1, #ff7a59); box-shadow: 0 0 24px rgba(77,208,225,.7); }
+  .bas-label { position: absolute; top: 110px; left: 0; right: 0; text-align: center; font-size: 26px; font-weight: 900; letter-spacing: 4px; }
+  #bas-left .bas-label { color: #8b93a3; }
+  #bas-right .bas-label { color: #4dd0e1; }
+  .bas-big { position: absolute; top: 42%; left: 0; right: 0; text-align: center; font-size: 60px; font-weight: 900; }
+  #bas-left .bas-big { color: #aab2c2; }
+  #bas-right .bas-big { color: #fff; text-shadow: 0 0 36px rgba(77,208,225,.5); }
+  .bas-sub { position: absolute; top: 56%; left: 0; right: 0; text-align: center; font-size: 23px; font-weight: 700; }
+  #bas-left .bas-sub { color: #69718a; }
+  #bas-right .bas-sub { color: #bfeef5; }
+  #bas-strike { position: absolute; top: 47.5%; left: 20%; width: 60%; height: 5px; background: #ff5c5c; transform-origin: left; border-radius: 3px; }
+</style>
+
+<div id="bas-wrap">
+  <div id="bas-left">
+    <div class="bas-label">BEFORE · 【旧方式】</div>
+    <div class="bas-big">【痛点大字】</div>
+    <div id="bas-strike"></div>
+    <div class="bas-sub">【痛点细节】</div>
+  </div>
+  <div id="bas-right">
+    <div class="bas-label">AFTER · 【新方式】</div>
+    <div class="bas-big">【收益大字】</div>
+    <div class="bas-sub">【收益细节】</div>
+  </div>
+  <div id="bas-divider"></div>
+</div>
+
+<script>
+  tl.from("#bas-left", { xPercent: -100, duration: 0.55, ease: "power3.out" }, t0);
+  tl.from("#bas-right", { xPercent: 100, duration: 0.55, ease: "power3.out" }, t0 + 0.15);
+  tl.from("#bas-divider", { scaleY: 0, transformOrigin: "top", duration: 0.5, ease: "power2.inOut" }, t0 + 0.55);
+  tl.from("#bas-left .bas-label", { autoAlpha: 0, y: -16, duration: 0.4 }, t0 + 0.8);
+  tl.from("#bas-right .bas-label", { autoAlpha: 0, y: -16, duration: 0.4 }, t0 + 0.95);
+  tl.from("#bas-left .bas-big", { autoAlpha: 0, y: 26, duration: 0.45 }, t0 + 1.1);
+  tl.fromTo("#bas-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, t0 + 1.7);
+  tl.from("#bas-right .bas-big", { autoAlpha: 0, scale: 1.4, duration: 0.45, ease: "power4.out" }, t0 + 2.1);
+  tl.from(["#bas-left .bas-sub", "#bas-right .bas-sub"], { autoAlpha: 0, y: 16, duration: 0.4, stagger: 0.12 }, t0 + 2.5);
+  tl.to("#bas-right .bas-big", { textShadow: "0 0 60px rgba(77,208,225,.9)", duration: 0.4, yoyo: true, repeat: 1 }, t0 + 3.2);
+  tl.to("#bas-wrap", { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, t0 + 4.9);
+</script>

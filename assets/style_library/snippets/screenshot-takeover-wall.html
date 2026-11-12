@@ -1,0 +1,68 @@
+<!--
+  模式：全屏截图接管 + 品牌水印墙 ⚙️
+  适用：重点演示仪表盘/网页全貌——截图容器占屏 ~88% 全屏接管，
+    背后整面品牌字重复水印墙缓慢平移（防搬运 + 品牌曝光），
+    驻留期可对容器做轻微 zoom 推近强调。
+  适配铁律：本段为不透明接管段（非 overlay），水印墙文字换成自己的品牌名；
+    容器与水印墙均加 data-layout-ignore。
+  参数化：品牌字/水印行数与角度/容器描边色/推近比例与时间点/内容（img 可换）。
+-->
+<style>
+  #stw-bg { position: absolute; inset: 0; background: #0b0d13; overflow: hidden; }
+  #stw-wall { position: absolute; left: -15%; top: -12%; width: 135%; height: 130%;
+    display: flex; flex-direction: column; justify-content: space-around;
+    transform: rotate(-8deg); }
+  .stw-row { white-space: nowrap; font-size: 84px; font-weight: 900; letter-spacing: 10px;
+    color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,.13); }
+  .stw-row.fill { color: rgba(255,255,255,.07); -webkit-text-stroke: 0; }
+  /* 居中由 script 里 gsap.set xPercent/yPercent 完成（勿加 CSS transform，避免双重居中冲突） */
+  #stw-panel { position: absolute; left: 50%; top: 50%; width: 1660px; height: 920px;
+    border-radius: 38px; overflow: hidden;
+    border: 3px solid rgba(77,208,225,.8);
+    box-shadow: 0 0 0 8px rgba(77,208,225,.14), 0 0 80px rgba(77,208,225,.35), 0 50px 110px rgba(0,0,0,.7);
+    background: #14171f; }
+  /* 演示内容：实际使用整块替换为 <img> 截图 */
+  #stw-mock { position: absolute; inset: 0; padding: 50px; display: grid;
+    grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 24px; }
+  .stw-cell { border-radius: 20px; display: flex; flex-direction: column; justify-content: center;
+    padding: 0 38px; gap: 10px; }
+  .stw-k { font-size: 22px; font-weight: 700; color: rgba(255,255,255,.75); }
+  .stw-v { font-size: 64px; font-weight: 900; color: #fff; }
+</style>
+
+<div id="stw" class="clip beat" data-start="0.4" data-duration="5.4" data-track-index="0" data-layout-ignore>
+  <div id="stw-bg">
+    <div id="stw-wall">
+      <div class="stw-row">BRAND · ORIGINAL · BRAND · ORIGINAL · BRAND</div>
+      <div class="stw-row fill">ORIGINAL · BRAND · ORIGINAL · BRAND · ORIGINAL</div>
+      <div class="stw-row">BRAND · ORIGINAL · BRAND · ORIGINAL · BRAND</div>
+      <div class="stw-row fill">ORIGINAL · BRAND · ORIGINAL · BRAND · ORIGINAL</div>
+      <div class="stw-row">BRAND · ORIGINAL · BRAND · ORIGINAL · BRAND</div>
+    </div>
+  </div>
+  <div id="stw-panel">
+    <div id="stw-mock">
+      <div class="stw-cell" style="background:#e5484d"><div class="stw-k">最新作品总播放量</div><div class="stw-v" id="stw-v1">17,806</div></div>
+      <div class="stw-cell" style="background:#3e9eff"><div class="stw-k">5s完播率</div><div class="stw-v">49.1</div></div>
+      <div class="stw-cell" style="background:#1d2330"><div class="stw-k">点赞</div><div class="stw-v">544</div></div>
+      <div class="stw-cell" style="background:#1d2330"><div class="stw-k">时速</div><div class="stw-v" style="color:#ffd24d">245</div></div>
+      <div class="stw-cell" style="background:#3e9eff"><div class="stw-k">均时长</div><div class="stw-v">29</div></div>
+      <div class="stw-cell" style="background:#ff8a23"><div class="stw-k">最新粉丝数量</div><div class="stw-v">52,100</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 全屏截图接管（0.4 起：墙先现 → 容器浮入 → 水印缓移 + 轻推近）===== */
+  (function () {
+    var t0 = 0.4;
+    gsap.set("#stw-panel", { xPercent: -50, yPercent: -50 });
+    tl.from("#stw-bg", { autoAlpha: 0, duration: 0.45 }, t0);
+    tl.from("#stw-panel", { autoAlpha: 0, scale: 0.88, y: 60, duration: 0.7, ease: "power3.out" }, t0 + 0.25);
+    /* 水印墙缓慢平移（全程） */
+    tl.to("#stw-wall", { x: -160, duration: 4.6, ease: "none" }, t0 + 0.2);
+    /* 驻留期轻微推近强调 */
+    tl.to("#stw-panel", { scale: 1.05, duration: 1.6, ease: "power1.inOut" }, t0 + 2.2);
+    tl.to(["#stw-panel", "#stw-bg"], { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, t0 + 4.8);
+  })();
+</script>

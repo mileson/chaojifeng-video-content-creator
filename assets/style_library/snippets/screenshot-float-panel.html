@@ -1,0 +1,50 @@
+<!--
+  模式：截图悬浮容器（发光描边浮窗）⚙️
+  适用：展示任意截图/证据图——右侧 40~45% 宽圆角浮窗，彩色发光描边，
+    从右滑入 + 驻留期缓慢上下漂浮（呼吸感）+ 内容缓慢滚动；
+    比手机样机/桌面窗口更通用，长截图短截图都能装。
+  适配铁律：浮窗加 data-layout-ignore；描边色按语义（红=警示证据，蓝=演示，绿=好评）。
+  参数化：描边色/停靠（左/右）/宽度/倾斜角/内容（img 或滚动长图）/滚动距离。
+-->
+<style>
+  #sfp-panel { position: absolute; right: 70px; top: 50%; width: 700px; height: 760px;
+    margin-top: -380px; border-radius: 34px; overflow: hidden;
+    border: 3px solid rgba(229,72,77,.85);
+    box-shadow: 0 0 0 6px rgba(229,72,77,.18), 0 0 60px rgba(229,72,77,.4), 0 40px 90px rgba(0,0,0,.6);
+    background: #f6f7f9; }
+  #sfp-scroll { position: absolute; left: 0; top: 0; width: 100%; }
+  /* 演示内容：实际使用时整块替换为 <img src="..."> 长截图 */
+  .sfp-line { margin: 26px 34px 0; height: 18px; border-radius: 9px; background: #d8dde6; }
+  .sfp-line.w60 { width: 60%; } .sfp-line.w85 { width: 85%; } .sfp-line.w72 { width: 72%; }
+  .sfp-block { margin: 26px 34px 0; height: 150px; border-radius: 16px; background: #e6eaf1;
+    border: 1px solid #d4dae4; }
+  .sfp-title { margin: 30px 34px 0; font-size: 26px; font-weight: 900; color: #20242c; }
+</style>
+
+<div id="sfp" class="clip beat" data-start="0.4" data-duration="5.4" data-track-index="0" data-layout-ignore>
+  <div id="sfp-panel">
+    <div id="sfp-scroll">
+      <div class="sfp-title">【截图标题 · 整块可换 img】</div>
+      <div class="sfp-line w85"></div><div class="sfp-line w60"></div>
+      <div class="sfp-block"></div>
+      <div class="sfp-line w72"></div><div class="sfp-line w85"></div>
+      <div class="sfp-block"></div>
+      <div class="sfp-line w60"></div><div class="sfp-line w72"></div>
+      <div class="sfp-block"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 截图悬浮容器（0.4 起：右滑入 → 漂浮呼吸 + 内容停顿式滚动）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#sfp-panel", { autoAlpha: 0, x: 320, rotate: 2.5, duration: 0.7, ease: "power3.out" }, t0);
+    /* 驻留期缓慢上下漂浮 */
+    tl.to("#sfp-panel", { y: -14, duration: 1.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, t0 + 0.9);
+    /* 内容停顿式分段滚动（像真人浏览） */
+    tl.to("#sfp-scroll", { y: -180, duration: 0.8, ease: "power1.inOut" }, t0 + 1.4);
+    tl.to("#sfp-scroll", { y: -360, duration: 0.8, ease: "power1.inOut" }, t0 + 2.9);
+    tl.to("#sfp-panel", { autoAlpha: 0, x: 260, duration: 0.5, ease: "power2.in" }, t0 + 4.8);
+  })();
+</script>

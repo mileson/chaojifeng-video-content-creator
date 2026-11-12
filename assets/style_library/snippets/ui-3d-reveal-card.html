@@ -1,0 +1,52 @@
+<!--
+模式：透视 3D 翻入功能卡（产品功能点高级出场）
+适用场景：逐个介绍产品功能点/亮点时的高级出场。卡片带 3D 透视从深处翻入，
+  比平面浮入更有「产品发布会」质感（ui-3d-reveal 范式）。
+结构要点：
+  - 外层 #u3d-persp 提供 perspective: 1200px（3D 必须在父级设 perspective）
+  - 卡片：渐变描边玻璃卡 + 图标块 + 功能名 + 一句话；transform-style: preserve-3d
+  - 底部反光条（::after 渐变）增强空间感
+动画要点：
+  - rotateX(38deg) + y(160) + z(-240) + autoAlpha 0 起始 → 全部归零，power4.out 1s
+  - 入场尾段轻微过冲（rotateX 到 -4 再回 0）模拟实体卡片惯性
+  - 驻留期 rotateY ±3 缓慢摇摆（sine.inOut yoyo）保持立体感
+参数：图标字符/功能名/描述/accent 色；多卡时 stagger 0.18 依次翻入
+-->
+<style>
+  #u3d-persp { position: absolute; inset: 0; perspective: 1200px; }
+  #u3d-card {
+    position: absolute; top: 50%; left: 50%; width: 620px; margin: -190px 0 0 -310px;
+    background: linear-gradient(160deg, rgba(26, 32, 48, 0.96), rgba(14, 18, 30, 0.96));
+    border: 1.5px solid rgba(122, 162, 255, 0.35); border-radius: 26px;
+    box-shadow: 0 50px 120px rgba(0, 0, 0, 0.65), 0 0 60px rgba(62, 158, 255, 0.12);
+    padding: 44px 48px 50px; transform-style: preserve-3d; will-change: transform;
+  }
+  #u3d-card::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: -3px; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(122, 162, 255, 0.8), transparent); }
+  #u3d-ic { width: 92px; height: 92px; border-radius: 24px;
+    background: linear-gradient(135deg, #3e9eff, #b388ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 46px; box-shadow: 0 14px 40px rgba(62, 158, 255, 0.45); }
+  #u3d-card h3 { margin-top: 28px; color: #fff; font-size: 46px; font-weight: 900; letter-spacing: 2px; }
+  #u3d-card p { margin-top: 14px; color: #aeb6c8; font-size: 27px; line-height: 1.6; }
+  #u3d-card p em { color: #7aa2ff; font-style: normal; font-weight: 800; }
+</style>
+
+<div id="u3d-persp">
+  <div id="u3d-card">
+    <div id="u3d-ic">⚡</div>
+    <h3>【功能名】</h3>
+    <p>【一句话描述，关键能力用 <em>强调色</em> 标出】</p>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power4.out" } });
+  b.fromTo("#u3d-card",
+    { rotateX: 38, y: 160, z: -240, autoAlpha: 0 },
+    { rotateX: 0, y: 0, z: 0, autoAlpha: 1, duration: 1.0 }, 0.2)
+    .to("#u3d-card", { rotateX: -4, duration: 0.22, ease: "power2.out" }, 1.0)
+    .to("#u3d-card", { rotateX: 0, duration: 0.3, ease: "power2.inOut" }, 1.22)
+    .to("#u3d-card", { rotateY: 3, duration: 1.8, yoyo: true, repeat: 2, ease: "sine.inOut" }, 1.6)
+    .to("#u3d-card", { rotateX: -24, y: -120, z: -160, autoAlpha: 0, duration: 0.55, ease: "power2.in" }, 6.6);
+</script>

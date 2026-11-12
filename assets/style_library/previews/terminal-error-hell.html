@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #teh-win { position: absolute; left: 50%; top: 50%; width: 1240px; height: 700px; border-radius: 16px;
+    background: #10131c; border: 1px solid rgba(255,255,255,.12); overflow: hidden;
+    box-shadow: 0 40px 110px rgba(0,0,0,.65); }
+  #teh-bar { height: 44px; background: #0a0d14; display: flex; align-items: center; padding: 0 18px; gap: 8px; }
+  .teh-dot { width: 13px; height: 13px; border-radius: 50%; }
+  #teh-name { margin-left: 16px; color: #8b93a3; font-size: 15px; font-family: ui-monospace, Menlo, monospace; }
+  #teh-body { padding: 24px 30px; font-family: ui-monospace, Menlo, monospace; font-size: 19px; line-height: 1.9; }
+  .teh-ln { white-space: pre; color: #9aa3b5; }
+  .teh-cmd { color: #4dd0e1; } .teh-ok { color: #46d390; } .teh-err { color: #ff5c5c; font-weight: 700; }
+  #teh-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 80%, rgba(255,60,60,.18), transparent 60%); opacity: 0; }
+  #teh-cap { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; }
+  #teh-cap span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,92,92,.4);
+    border-radius: 12px; padding: 12px 28px; font-size: 22px; font-weight: 900; }
+  #teh-cap em { color: #ff8589; font-style: normal; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="teh-win">
+  <div id="teh-bar">
+    <div class="teh-dot" style="background:#ff5f57"></div><div class="teh-dot" style="background:#febc2e"></div><div class="teh-dot" style="background:#28c840"></div>
+    <div id="teh-name">【~/project — zsh】</div>
+  </div>
+  <div id="teh-body">
+    <div class="teh-ln" id="teh-l1"><span class="teh-cmd">$ 【命令1】</span></div>
+    <div class="teh-ln" id="teh-l2">【正常输出】</div>
+    <div class="teh-ln" id="teh-l3"><span class="teh-cmd">$ 【命令2】</span></div>
+    <div class="teh-ln" id="teh-l4">【输出】 ... <span class="teh-ok">ok</span></div>
+    <div class="teh-ln" id="teh-l5">【输出】 ... <span class="teh-err">error</span></div>
+    <div class="teh-ln" id="teh-l6"><span class="teh-err">ERROR: 【报错信息】</span></div>
+    <div class="teh-ln" id="teh-l7"><span class="teh-err">✗ 【人话总结报错】</span></div>
+  </div>
+  <div id="teh-glow" data-layout-ignore></div>
+</div>
+<div id="teh-cap"><span>【痛点文案 · 】<em>【高亮】</em></span></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  gsap.set("#teh-win", { xPercent: -50, yPercent: -50 });
+  tl.from("#teh-win", { autoAlpha: 0, y: 60, duration: 0.55 }, t0);
+  ["#teh-l1","#teh-l2","#teh-l3","#teh-l4","#teh-l5","#teh-l6","#teh-l7"].forEach(function (sel, i) {
+    tl.from(sel, { autoAlpha: 0, y: 8, duration: 0.18 }, t0 + 0.5 + i * 0.36);
+  });
+  tl.to("#teh-glow", { opacity: 1, duration: 0.3 }, t0 + 2.4);
+  tl.to("#teh-win", { rotation: -1.6, duration: 0.4, ease: "power2.inOut" }, t0 + 2.4);
+  tl.to("#teh-win", { x: "-=10", duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, t0 + 2.5);
+  tl.from("#teh-cap", { autoAlpha: 0, y: 20, duration: 0.4 }, t0 + 3.1);
+  tl.to(["#teh-win", "#teh-cap"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.9);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

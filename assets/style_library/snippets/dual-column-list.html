@@ -1,0 +1,65 @@
+<!--
+模式：双栏清单对比（暗栏 vs 亮栏）【参数化框架】
+适用场景：两种方式的"一天/流程/清单"逐行对比（普通 vs 升级、对内 vs 对外、烧钱 vs 省钱）。
+  双栏日程卡，典型文案："INTERNAL 普通工程师一天 vs EXTERNAL FDE 客户现场一天"。
+框架参数：
+  - 行数每栏 3~8 行；两栏行数可以不等（例如左 5 行右 8 行），右栏更密=信息更多的暗示
+  - 行结构 time + text 可换成 label + value（变成属性对比表）
+  - 结论行 class：左栏 hurt（红字）、右栏 win（绿字发光），各放最后一行
+结构要点：
+  - 视觉权重故意不对称：暗栏（灰字、白描边 1.5px）vs 亮栏（黄描边 2px + 黄 glow + 白字）
+  - 时间列 tabular-nums 等宽对齐
+动画要点：
+  - 叙事顺序：暗栏先入 + 行 stagger 0.18 → 停顿 → 亮栏 back.out 入场 + 行 stagger 0.22（稍慢，让观众逐行读）
+  - 亮栏结论行 scale yoyo 脉冲（transformOrigin: left center）
+-->
+<style>
+  #dcl-wrap { position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto; width: fit-content; display: flex; gap: 40px; }
+  .sched-col { border-radius: 18px; padding: 26px 34px 30px; will-change: transform; }
+  .sched-col h4 { font-size: 24px; font-weight: 800; letter-spacing: 4px; margin-bottom: 18px; }
+  .sched-col h4 .cn { letter-spacing: 1px; margin-left: 10px; }
+  .sched-col .line { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+  .sched-col .line:last-child { margin-bottom: 0; }
+  .sched-col .dot2 { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; align-self: center; }
+  .sched-col .tm { font-size: 23px; font-weight: 800; font-variant-numeric: tabular-nums; width: 84px; flex-shrink: 0; }
+  .sched-col .tx { font-size: 25px; font-weight: 700; }
+  #dcl-dim { background: rgba(16, 18, 26, 0.82); border: 1.5px solid rgba(255, 255, 255, 0.12); width: 480px; }
+  #dcl-dim h4 { color: #8b8d98; }
+  #dcl-dim .dot2 { background: #5a5d68; }
+  #dcl-dim .tm { color: #8b8d98; }
+  #dcl-dim .tx { color: #a0a3ad; }
+  #dcl-dim .line.hurt .tx { color: #ff8589; font-weight: 800; }
+  #dcl-lit { background: rgba(26, 22, 8, 0.9); border: 2px solid #ffb224; width: 520px; box-shadow: 0 0 34px rgba(255, 178, 36, 0.4); }
+  #dcl-lit h4 { color: #ffb224; text-shadow: 0 0 12px rgba(255,178,36,.6); }
+  #dcl-lit .dot2 { background: #ffb224; box-shadow: 0 0 10px rgba(255,178,36,.8); }
+  #dcl-lit .tm { color: #ffd58a; }
+  #dcl-lit .tx { color: #fff; }
+  #dcl-lit .line.win .tx { color: #46d390; font-weight: 900; text-shadow: 0 0 12px rgba(70,211,144,.55); }
+</style>
+
+<div id="dcl-wrap">
+  <div class="sched-col" id="dcl-dim">
+    <h4>【方式 A】<span class="cn">· 【副注】</span></h4>
+    <div class="line"><div class="dot2"></div><span class="tm">【09:00】</span><span class="tx">【条目一】</span></div>
+    <div class="line"><div class="dot2"></div><span class="tm">【11:00】</span><span class="tx">【条目二】</span></div>
+    <div class="line"><div class="dot2"></div><span class="tm">【15:00】</span><span class="tx">【条目三】</span></div>
+    <div class="line hurt"><div class="dot2"></div><span class="tm">【18:00】</span><span class="tx">【负面结论】</span></div>
+  </div>
+  <div class="sched-col" id="dcl-lit">
+    <h4>【方式 B】<span class="cn">· 【副注】</span></h4>
+    <div class="line"><div class="dot2"></div><span class="tm">【09:00】</span><span class="tx">【条目一】</span></div>
+    <div class="line"><div class="dot2"></div><span class="tm">【11:00】</span><span class="tx">【条目二】</span></div>
+    <div class="line"><div class="dot2"></div><span class="tm">【15:00】</span><span class="tx">【条目三】</span></div>
+    <div class="line win"><div class="dot2"></div><span class="tm">【18:00】</span><span class="tx">【正面结论】</span></div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#dcl-dim", { x: -120, autoAlpha: 0, duration: 0.5 }, 0.15)
+   .from("#dcl-dim .line", { x: -30, autoAlpha: 0, duration: 0.35, stagger: 0.18 }, 0.55)
+   .from("#dcl-lit", { x: 120, autoAlpha: 0, duration: 0.55, ease: "back.out(1.3)" }, 1.5)
+   .from("#dcl-lit .line", { x: 30, autoAlpha: 0, duration: 0.35, stagger: 0.22 }, 1.95)
+   .to("#dcl-lit .line.win .tx", { scale: 1.08, transformOrigin: "left center", duration: 0.28, ease: "power1.inOut", repeat: 3, yoyo: true }, 3.4)
+   .to("#dcl-wrap", { y: -60, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 5.3);
+</script>

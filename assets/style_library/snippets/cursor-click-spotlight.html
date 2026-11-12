@@ -1,0 +1,52 @@
+<!--
+模式：光标点击强调（cursor-click-spotlight）【节拍层 · 屏录光标礼仪】
+适用场景：模拟/强化录屏中的关键点击动作（一键安装、提交按钮），光标礼仪示范。
+框架参数：
+  - 按钮文案与位置；光标移动路径关键点（建议 2 段折线逼近）
+  - 点击坐标（= 按钮中心），ripple 个数（默认 2）
+技术要点：
+  - 光标礼仪三步：远处弧线移入（power2.inOut）→ 按钮上停顿 0.5s → 压下点击
+  - 点击瞬间：光标 scale 0.82→1（back.out(3)）+ 按钮 scale 1.06 高亮 + ring 扩散
+  - ripple 用 JS createElement 动态生成并 setAttribute("data-layout-ignore","")
+  - ring fromTo scale 0.3→2.2+i，错开 0.12s，双圈层次感
+-->
+<style>
+  #ccs-btn { position: absolute; left: 810px; top: 470px; background: linear-gradient(135deg, #4dd0e1, #2b7fd4);
+    color: #06121a; border-radius: 14px; padding: 22px 56px; font-size: 30px; font-weight: 900;
+    box-shadow: 0 16px 44px rgba(43,127,212,.4); }
+  #ccs-cursor { position: absolute; left: 0; top: 0; width: 44px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+  .ccs-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 4px solid rgba(77,208,225,.9); }
+  #ccs-cap { position: absolute; left: 0; right: 0; top: 640px; text-align: center; }
+  #ccs-cap span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px; padding: 12px 28px; font-size: 22px; font-weight: 900; }
+  #ccs-cap em { color: #4dd0e1; font-style: normal; }
+</style>
+
+<div id="ccs-btn">【按钮文案】</div>
+<svg id="ccs-cursor" viewBox="0 0 24 24"><path d="M5 2 L5 20 L10 15.5 L13 21.5 L15.5 20.3 L12.6 14.4 L19 14 Z" fill="#fff" stroke="#1a1a2a" stroke-width="1.4"/></svg>
+<div id="ccs-cap"><span>【说明 · 】<em>【高亮】</em></span></div>
+
+<script>
+  var CLICK = { x: 985, y: 525 }; // 点击坐标 = 按钮中心
+  tl.from("#ccs-btn", { autoAlpha: 0, y: 30, duration: 0.45 }, t0);
+  tl.from("#ccs-cap", { autoAlpha: 0, y: 20, duration: 0.4 }, t0 + 0.3);
+  tl.fromTo("#ccs-cursor", { x: 1500, y: 870, autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, t0 + 0.5);
+  tl.to("#ccs-cursor", { x: 1180, y: 700, duration: 0.45, ease: "power2.inOut" }, t0 + 0.6);
+  tl.to("#ccs-cursor", { x: CLICK.x, y: CLICK.y, duration: 0.45, ease: "power2.out" }, t0 + 1.1);
+  // 停顿 0.5s 后点击
+  tl.to("#ccs-cursor", { scale: 0.82, duration: 0.1, ease: "power2.in" }, t0 + 2.1);
+  tl.to("#ccs-cursor", { scale: 1, duration: 0.18, ease: "back.out(3)" }, t0 + 2.2);
+  var stage = document.getElementById("ccs-btn").parentElement, rings = [];
+  for (var i = 0; i < 2; i++) {
+    var r = document.createElement("div");
+    r.className = "ccs-ring"; r.setAttribute("data-layout-ignore", "");
+    stage.appendChild(r); rings.push(r);
+  }
+  gsap.set(rings, { left: CLICK.x, top: CLICK.y, xPercent: -50, yPercent: -50, opacity: 0 });
+  rings.forEach(function (r, i) {
+    tl.fromTo(r, { scale: 0.3, opacity: 0.9 }, { scale: 2.2 + i, opacity: 0, duration: 0.65, ease: "power2.out" }, t0 + 2.1 + i * 0.12);
+  });
+  tl.to("#ccs-btn", { scale: 1.06, boxShadow: "0 0 50px rgba(77,208,225,.8)", duration: 0.18, ease: "back.out(2)" }, t0 + 2.1);
+  tl.to("#ccs-btn", { scale: 1, duration: 0.3 }, t0 + 2.35);
+  tl.to(["#ccs-btn", "#ccs-cursor", "#ccs-cap"], { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+</script>

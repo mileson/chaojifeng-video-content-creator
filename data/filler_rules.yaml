@@ -1,0 +1,281 @@
+# 口播视频无效表达清洗规则。
+# 这些规则用于生成评审草稿；不要盲目删除承载语义的词。
+
+principles:
+  - "删前保后：说话人重来一遍时，后一句通常更完整。"
+  - "先分句，再比对；重复句和残句按整句处理，不只删几个字。"
+  - "短开头或不完整尾巴后面紧接完整复述时，删前保后，并同步剪音视频。"
+  - "保留少量自然连接词；删除影响节奏但不影响含义的废话。"
+  - "字幕分段由 Agent 根据上下文判断完整意群；不要用固定关键词列表硬切。"
+  - "字幕不要润色改写成另一句话；只删除口癖/废话，或修正错别字、专名、大小写、标点。"
+  - "删掉真实说出口的词时，必须同步生成字级 word_cut_ranges 剪掉音视频。"
+
+silence:
+  # 注意：静音时长必须用波形 RMS 实测 gap 判定，不要用 ASR 词间 gap（见 waveform_verification）
+  ignore_below_seconds: 0.20
+  suggest_delete_above_seconds: 1.0
+  force_review_above_seconds: 5.0
+  keep_padding_seconds: 0.16
+
+waveform_verification:
+  enabled: true
+  principle: >-
+    ASR 词级时间戳只作粗定位；所有静音判定、片段收紧、结巴检测必须用波形 RMS 包络复核。
+    mlx-whisper/FunASR 在停顿后的词 start 会系统性前漂 0.3-0.6s（把前面的静音吞进词跨度），
+    尾句词的 end 同样漂移（实测「拜拜」漂 0.33s）。直接信 ASR gap 会导致真实停顿显示为 0 而整批漏检。
+  rms_hop_seconds: 0.01
+  speech_onset_rms: 0.02          # 16k 单声道归一化幅度，持续达标才算起音
+  speech_onset_min_duration_seconds: 0.04
+  low_noise_peak_rms_max: 0.09    # 无词区间峰值低于此值（键盘声/唇齿音/呼吸/咽口水）按静音同权处理，可剪
+  asr_start_untrusted_after_gap_seconds: 0.30  # 词前 ASR gap 超过该值时 start 必须波形复核
+
+pause_budget:
+  principle: >-
+    源自一次人工精剪版的反推：人工保留了 24 处 0.27-0.63s 自然停顿，
+    但把更长的停顿收紧到剪口残留 0.07-0.29s。不是见 0.2s 静音就剪，而是超长停顿收紧、自然节奏保留。
+  speech_gap_trim_above_seconds: 0.50   # 句间真实停顿超过该值才收紧
+  speech_gap_trim_to_seconds: 0.28      # 收紧后的目标停顿（keep_after + keep_before）
+  keep_after_speech_seconds: 0.10
+  keep_before_speech_seconds: 0.15
+  segment_head_max_lead_seconds: 0.20   # 保留段头部在首个真实起音前最多留这么多
+  final_word_gap_trim_to_seconds: 0.12  # 收尾短词间隙（如 再见→拜拜）收得更紧
+
+demo_segment_silence:
+  cap_seconds: 0.60
+  principle: >-
+    先按 references/screen-recording-qa.md 检查画面状态与观众是否获得新信息。
+    cap_seconds 只适用于无新信息的静默等待、重复打字或往返动作，不适用于需要看清的操作结果。
+    保留关键点击、发送、结果出现和下一步所需的稳定画面；键盘敲击声等低音量杂音不构成保留理由。
+
+stutter_waveform_check:
+  enabled: true
+  word_span_min_seconds: 0.40
+  internal_valley_min_seconds: 0.30
+  burst_max_seconds: 0.40
+  principle: >-
+    ASR 会把结巴重复字在文本层去重吸收（如「做…做完」转写成一个「做」且该词跨度被拉长），
+    文本比对和 stutter_patterns 关键词表都发现不了。检测法：波形上双音团夹 >=0.3s 静音谷、
+    且该静音被 ASR 词跨度覆盖（ASR 声称此处连续）时，列为结巴候选，删前音团保后音团。
+    被吞的不只是结巴：口头禅（「那个」）、失败起头（「要用」）、整组重说（「其实还是」）
+    同样会被吸收进相邻长词跨度，统一走 residual_fragment_audit 的双信号扫描发现。
+  local_asr_verify_required: >-
+    候选必须用局部 ASR 复核后才能剪：截取候选前音团±0.3s 单独转写，转写出的末字与静音后首字相同
+    （如「然后做」vs「做完」）才判结巴；若转写出的是上一词尾音（如「选择」的「择」），则是
+    ASR 下一词 start 前漂造成的误报，禁止剪。声学相似度不可靠（不同字的音团余弦也能到 0.9+），
+    实测案例：候选 A「做」确认为结巴，候选 B「择」为误报。
+
+pre_render_cut_audit:
+  enabled: true
+  window_seconds: 0.30
+  peak_rms_review_threshold: 0.10
+  principle: >-
+    渲染前对每个剪口输出前后 0.3s 峰值 RMS 审计表；剪口紧邻高能量（>0.10）说明可能切字，
+    必须波形复核或人工确认后才能渲染。
+
+residual_fragment_audit:
+  enabled: true
+  principle: >-
+    正向清洗（转写→找口水词→剪）会漏掉被 ASR 吞进长词的碎词。交付前必须做一轮反向审计：
+    对清洗后的成片音频整段重新 ASR，逐句核对；碎词残留会在成片转写里以重复词或怪异断句暴露
+    （实测「要用 一定要」「我,好,我刚才」）。实测案例：一条视频 v1 交付后，人工
+    仍指出 5 处一两字级碎词，全部被该审计捕获。
+  triggers:
+    - "standard 及以上剪辑强度默认执行"
+    - "用户反馈成片仍有口水话/重复时必须执行"
+  source_scan_signals:
+    adjacent_word_repeat: "相邻词归一化文本相同或前缀重复（如「往|往」）→ 结巴候选"
+    word_span_anomaly_seconds_per_char: 0.35   # 单字跨度超过 0.35s/字 且总跨度 >0.5s
+    word_span_anomaly_min_seconds: 0.50
+    note: >-
+      词跨度异常说明 ASR 把口头禅、失败起头或结巴碎字吞进了长词跨度
+      （实测「一定要 8.02-9.48」内藏失败起头「要用」；「我 12.22-13.34」内藏碎字「我、好」；
+      「还是 49.64-51.50」内藏整组重说「其实还是」）。
+  local_asr_verify:
+    required: true
+    window_padding_seconds: 1.0
+    principle: >-
+      每个候选窗口 ±1s 截取音频单独转写并把词时间映射回源时间，确认真实说了什么、边界在哪；
+      只有局部转写证实存在碎词/重说才允许剪。
+  boundary_rms_scan:
+    hop_seconds: 0.01
+    principle: >-
+      0.3s 阈值的全片 gap 表对碎词太粗；碎词剪切边界必须用 10ms hop 的 RMS 细扫找静音谷
+      （dip），以真实起音/尾音定 cut range 两端。
+  fragment_types:
+    - "一两个字的口头禅（如句中「那个」）"
+    - "两三个字的失败起头，后面紧跟完整重说（如「要用→一定要先想到AI」）"
+    - "单字结巴碎片，连续一两个碎字后重说（如「我、好、我刚发布」）"
+    - "两三个字的整组重说（如「其实还是、其实还是」「想用好、想用好」）"
+
+splice_precheck:
+  enabled: true
+  principle: >-
+    语义剪辑（删重说/失败起头/口头禅）渲染前，把剪口两侧的保留音频拼接成小段 wav，
+    单独 ASR 转写；读出的文本必须正好是目标句（无残音、无吞字）才允许进入渲染。
+    实测一次预检 5 处剪口全部通过后，成片零返工。
+  applies_to:
+    - "所有删除真实口播词的 word_cut_ranges"
+  keep_context_seconds: 1.0
+
+filler_words:
+  safe_to_mark:
+    - "嗯"
+    - "呃"
+    - "额"
+    - "啊"
+    - "哎"
+    - "诶"
+    - "哦"
+    - "噢"
+    - "欸"
+discourse_markers_review:
+    - "那个"
+    - "这个"
+    - "就是"
+    - "然后"
+    - "所以"
+    - "其实"
+    - "然后的话"
+    - "那么的话"
+    - "接下来"
+    - "我们可以看到"
+
+spoken_habit_cleanup:
+  principle: "只删不改变语义的口癖；如果 X 的话 表达条件关系，保留。删除真实口癖时，字幕和音视频必须同步剪掉。"
+  fixed_replacements:
+    - from: "今天的话"
+      to: "今天"
+    - from: "文档的话"
+      to: "文档"
+    - from: "然后的话"
+      to: "然后"
+    - from: "那么的话"
+      to: "那么"
+    - from: "未来的话"
+      to: "未来"
+    - from: "一般来说的话"
+      to: "一般来说"
+    - from: "这种情况下的话"
+      to: "这种情况下"
+    - from: "这样的话也能"
+      to: "这样也能"
+    - from: "那我们就用进行一个提交"
+      to: "那我们就进行提交"
+  audio_cut_required: true
+  plan_field: "word_cut_ranges"
+  allowed_text_only_changes:
+    - "ASR 错别字"
+    - "专名/大小写/中英空格"
+    - "标点和换行"
+  forbidden_text_only_changes:
+    - "把口播润色成另一种说法"
+    - "新增口播中没有说出的词"
+    - "只删字幕里的口癖但保留音频"
+  agent_review_suffixes:
+    - suffix: "的话"
+      remove_when: "纯口癖或拖尾，例如 今天的话、未来的话、然后的话。"
+      keep_when: "表达条件或假设关系，例如 如果这样的话、要是这种情况的话。"
+
+semantic_segmentation:
+  owner: "agent"
+  plan_file: "subtitle_plan.json"
+  principles:
+    - "每条字幕表达一个完整意群。"
+    - "上一条字幕不能吞掉下一句的开头。"
+    - "先看前后 1-2 句再决定边界；长度只做兜底。"
+    - "如果自动换行切开固定词组或半句话，Agent 在 plan 中显式改写 parts。"
+    - "检查没有标点的中文裸连句，例如 问候+自我介绍、转场+结论、并列短句。"
+    - "能按时间自然拆开时拆成连续字幕事件；时间太短时，在同一事件内加入中文标点和显式换行。"
+    - "不要用空格解决中文句子粘连；空格只用于中英混排、专名、数字和单位。"
+  bare_concatenation:
+    review_examples:
+      - bad: "哈喽大家好好久不见我是小明"
+        preferred_single_event: "哈喽大家好，好久不见\n我是小明"
+        preferred_two_events:
+          - "哈喽大家好，好久不见"
+          - "我是小明"
+    choose_two_events_when: "两个意群各自有清晰语音时间点，且每条显示时间不低于 min_split_event_seconds。"
+    choose_single_event_with_break_when: "总时长较短，拆成两条会导致其中一条阅读时间不足。"
+
+stutter_patterns:
+  - "那个那个"
+  - "这个这个"
+  - "就是就是"
+  - "然后然后"
+  - "所以所以"
+  - "可以可以"
+  - "我们我们"
+
+semantic_cut_patterns:
+  repeated_sentence_prefix_chars: 5
+  sentence_gap_split_seconds: 0.5
+  minimum_keep_piece_seconds: 0.75
+  short_fragment_max_chars: 8
+  remove_previous_when_false_start: true
+
+repeated_restatement:
+  principle: "口播说错或说一半后，通常会马上重说一遍更完整的版本；保留后句，删除前句或前句重复尾巴。"
+  action: "把前句重复部分写入 word_cut_ranges，字幕和音视频同步删除。"
+  keep_later_when:
+    - "后一句包含前一句核心意思，并补全对象、动作或结果。"
+    - "前一句停在泛化词、半句、重复口癖或不完整结果上。"
+    - "前一句和后一句间隔很短，且后一句语义更完整、更像正式表达。"
+  avoid_hardcoding: "这些规则必须由 Agent 基于当前视频上下文判断，不写死某个视频里的具体句子。"
+
+subtitle_cleanup:
+  forbid_terminal_ellipsis: true
+  near_duplicate_window_seconds: 1.2
+  near_duplicate_similarity: 0.72
+  overlap_min_chars: 6
+  false_start_min_chars: 3
+  false_start_max_delete_chars: 18
+  max_subtitle_visual_width_ratio: 1.0
+  min_split_event_seconds: 0.85
+
+subtitle_audio_consistency:
+  enabled: true
+  block_on_hidden_speech: true
+  min_hidden_chars: 3
+  min_hidden_duration_seconds: 0.20
+  max_source_gap_seconds: 1.2
+  principle: "最终字幕不能隐藏仍然保留在音视频里的真实口播；只有 ASR 错别字、专名、大小写、中英空格、标点和换行允许作为文本层修正。"
+  review_artifacts:
+    - "hidden_speech_review.json"
+    - "hidden_speech_review.md"
+  required_action: "发现隐藏口播时，补充 subtitle_plan.word_cut_ranges 同步剪掉音视频，或经用户确认后显式允许保留。"
+
+post_cut_silence_cleanup:
+  enabled: true
+  gap_threshold_seconds: 0.28
+  keep_before_word_seconds: 0.08
+  keep_after_word_seconds: 0.06
+  min_cut_seconds: 0.16
+  max_passes: 2
+  principle: "字级剪掉口癖、残句或重复前句后，必须复查相邻片段首尾是否留下无词音频、咽口水、停顿或呼吸空白；这些边界空白要自动转成 cut range。"
+  review_examples:
+    - "上一句最后一个有效字后到下一句开始前，只剩咽口水或无词停顿。"
+    - "剪掉句首口癖后，保留下来的片段开头仍有一段没有字的空白。"
+
+word_boundary_guard:
+  enabled: true
+  protect_initial_segment_start: true
+  apply_start_guard_to_first_segment_only: true
+  near_segment_start_seconds: 0.08
+  pre_word_padding_seconds: 0.18
+  max_start_extension_seconds: 0.24
+  near_segment_end_seconds: 0.08
+  post_word_padding_seconds: 0.18
+  max_extension_seconds: 0.24
+  stop_before_next_word_seconds: 0.04
+  principle: "片段开始不能精确卡在第一个字的 ASR start 上，片段结束也不能精确卡在最后一个字的 ASR end 上；首字和短尾字都要保留少量音头/尾音余量。"
+
+cover_frame:
+  mode: "metadata"
+  principle: "封面默认作为 MP4 attached_pic 封面图元数据嵌入，不改变播放画面的第 0 帧、不生成静音片头、不占用额外时长、不整体后移字幕和音频。只有用户明确要求封面进入画面时才使用 first_frame 或 intro 模式。"
+
+cut_reasons:
+  long_silence: "长停顿/等待"
+  repeated_take: "重复开头或重说"
+  filler_only: "无效语气词/口水话"
+  false_start: "残句或说错后重来"
+  pacing: "节奏压缩"

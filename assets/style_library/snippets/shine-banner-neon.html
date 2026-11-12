@@ -1,0 +1,53 @@
+<!--
+模式：高光横幅 + 霓虹关键词（组合）
+适用：宣布方法/方案/组合，下方霓虹大字打出核心卖点（价格、口号）
+要点：黑横幅落下后一道斜高光扫过（overflow:hidden 容器内 gradient 条 fromTo x 扫描）；
+     霓虹字 = 品牌色 + 多层 text-shadow glow（近层亮、远层散）+ elastic 弹出 + yoyo 脉冲；
+     横幅需 data-layout-allow-overflow，高光条需 data-layout-ignore
+-->
+<style>
+  #sb-banner {
+    position: absolute; top: 110px; left: 0; right: 0;
+    margin: 0 auto; width: fit-content;
+    background: #1a1a1a; color: #fff;
+    border-radius: 20px;
+    padding: 26px 52px;
+    display: flex; align-items: center; gap: 26px;
+    box-shadow: 0 16px 48px rgba(16, 24, 40, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    will-change: transform;
+  }
+  #sb-banner .logo { font-size: 44px; font-weight: 900; }
+  #sb-banner .x { font-size: 32px; color: #8b8d98; font-weight: 700; }
+  #sb-banner .tag { background: #30a46c; color: #fff; border-radius: 12px; font-size: 30px; font-weight: 800; padding: 10px 22px; }
+  #sb-shine {
+    position: absolute; top: -20%; left: 0; width: 140px; height: 140%;
+    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  }
+  #sb-neon {
+    position: absolute; top: 268px; left: 0; right: 0;
+    margin: 0 auto; width: fit-content;
+    color: #46d390;
+    font-size: 96px; font-weight: 900; letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 18px rgba(70, 211, 144, 0.85), 0 0 48px rgba(70, 211, 144, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    will-change: transform;
+  }
+</style>
+
+<div id="sb-banner" data-layout-allow-overflow>
+  <span class="logo">【品牌A】</span><span class="x">×</span><span class="logo">【品牌B】</span>
+  <span class="tag" id="sb-tag">【方案标签】</span>
+  <div id="sb-shine" data-layout-ignore></div>
+</div>
+<div id="sb-neon">【霓虹关键词】</div>
+
+<script>
+tl.from("#sb-banner", { y: -130, autoAlpha: 0, duration: .55, ease: "back.out(1.4)" }, t0 + 0.15);
+tl.from("#sb-tag", { scale: 0, duration: .45, ease: "back.out(2)" }, t0 + 0.45);
+tl.fromTo("#sb-shine", { x: -220 }, { x: 1100 /* 横幅宽+余量 */, duration: .8, ease: "power2.inOut" }, t0 + 0.6);
+tl.from("#sb-neon", { scale: .3, autoAlpha: 0, duration: .65, ease: "elastic.out(1, 0.5)" }, t0 + 1.3);
+tl.to("#sb-neon", { scale: 1.06, duration: .3, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 2.0);
+tl.to("#sb-banner, #sb-neon", { y: -70, autoAlpha: 0, duration: .4, ease: "power2.in" }, tEnd - 0.5);
+</script>

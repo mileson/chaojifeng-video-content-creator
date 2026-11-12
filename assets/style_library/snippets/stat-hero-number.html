@@ -1,0 +1,61 @@
+<!--
+模式：大数字冲击卡（单一数据砸脸）【参数化框架】
+适用场景：一个数字就是全部论点时（95%、×1、30-54K、¥0.2）。
+  典型样式："95%" 红色大字和 "30-54K" 绿色大字。
+框架参数：
+  - 数字颜色按语义换：积极绿 #46d390 / 警示红 #ff5d61 / 薪资金额绿 / 中性白
+  - 数字形态：纯数字（95%）、倍数（×1）、区间（30-54K）、金额（¥0.2）
+  - 配 count-up 变体：数字是纯数值时可加 onUpdate count-up（参考 countup-price.html）
+结构要点：
+  - 数字 200px+ / font-weight 900 + 双层 text-shadow 光晕（近层强 + 远层弱），tabular-nums
+  - 必配 scrim（左深右透明），白底画面上发光大字也撑不住对比度
+  - 左上角 corner-tag（带深色底板）交代数据来源，增加可信度
+动画要点：
+  - 数字 elastic.out(1, 0.5) + scale 0.2→1 + 微旋转入场（弹性砸入）
+  - 说明行后进；数字 scale 1.05 yoyo 脉冲收尾
+-->
+<style>
+  #sh-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(5, 8, 14, 0.85) 0%, rgba(5, 8, 14, 0.6) 40%, transparent 68%);
+  }
+  .corner-tag {
+    position: absolute; top: 56px; left: 72px;
+    background: rgba(8, 10, 16, 0.8); border-radius: 12px;
+    padding: 14px 22px 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .corner-tag .row1 { display: flex; align-items: center; gap: 12px; }
+  .corner-tag .bar { width: 5px; height: 26px; background: #46d390; }
+  .corner-tag .en { font-size: 23px; font-weight: 800; letter-spacing: 6px; color: #46d390; text-shadow: 0 0 12px rgba(70,211,144,.6); }
+  .corner-tag .cn { color: #c8cad3; font-size: 21px; font-weight: 700; margin-top: 8px; letter-spacing: 2px; }
+  #sh-hero { position: absolute; top: 200px; left: 110px; }
+  #sh-hero .num {
+    color: #46d390; font-size: 210px; font-weight: 900; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 50px rgba(70, 211, 144, 0.55), 0 0 110px rgba(70, 211, 144, 0.3);
+    will-change: transform;
+  }
+  #sh-hero .cap { color: #fff; font-size: 34px; font-weight: 800; margin-top: 16px; letter-spacing: 2px; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+  #sh-hero .cap em { color: #46d390; font-style: normal; font-weight: 900; }
+</style>
+
+<div id="sh-scrim"></div>
+<div class="corner-tag" id="sh-tag">
+  <div class="row1"><div class="bar"></div><span class="en">【DATA TAG · 中文】</span></div>
+  <div class="cn">【数据来源说明】</div>
+</div>
+<div id="sh-hero">
+  <div class="num" id="sh-num">【×1】</div>
+  <div class="cap">【说明行 · <em>强调词</em>】</div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#sh-scrim", { autoAlpha: 0, duration: 0.5, ease: "power1.out" }, 0)
+   .from("#sh-tag", { x: -60, autoAlpha: 0, duration: 0.45 }, 0.1)
+   .from("#sh-num", { scale: 0.2, autoAlpha: 0, rotation: -8, duration: 0.7, ease: "elastic.out(1, 0.5)" }, 0.5)
+   .from("#sh-hero .cap", { y: 40, autoAlpha: 0, duration: 0.45 }, 1.1)
+   .to("#sh-num", { scale: 1.05, duration: 0.3, ease: "power1.inOut", repeat: 3, yoyo: true }, 1.9)
+   .to("#sh-tag, #sh-hero", { autoAlpha: 0, y: -50, duration: 0.4, ease: "power2.in" }, 3.4)
+   .to("#sh-scrim", { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, 3.55);
+</script>

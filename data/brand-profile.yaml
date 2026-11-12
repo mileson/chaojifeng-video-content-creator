@@ -1,0 +1,42 @@
+version: 1
+
+# 创作者品牌与署名模板。
+# 把下面的占位内容换成你自己的信息，再让 Agent 在片尾、发布包署名等场景读取。
+# 脚本不会自动解析本文件；不要在这里存放密钥、手机号或其他私人联系方式。
+
+creator:
+  name: "【创作者名称】"
+  tagline: "【一句话身份签名】"
+
+author_block_zh:
+  heading: "## 作者"
+  lines:
+    - "- 主页: [【创作者名称】](https://example.com/profile)"
+
+author_block_en:
+  heading: "## Author"
+  lines:
+    - "- Home: [Creator name](https://example.com/profile)"
+
+# 允许出现在成片和发布文案里的联系入口。
+# mode: link 表示可以放公开链接；qr_only 表示只能用二维码，不写文字账号。
+# 各平台对站外链接和二维码的规则不同，先查目标平台规范，再决定启用哪些条目。
+contact_entries: []
+#  - key: "homepage"
+#    label_zh: "主页"
+#    label_en: "Homepage"
+#    mode: "link"
+#    url: "https://example.com/profile"
+
+skill_layer:
+  provenance_text_zh: "来源说明：此信息只用于说明 Skill 来源与品牌归属，不要自动写入用户产物；除非当前 Skill 明确允许产物署名。"
+
+artifact_layer:
+  default_mode: "disabled"
+  allowed_types:
+    - "方法论"
+    - "研究报告"
+    - "教程"
+
+license:
+  owner: "【版权所有者】"

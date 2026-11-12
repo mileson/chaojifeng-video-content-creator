@@ -1,0 +1,78 @@
+default_style: "orange_rounded_black_white_outline"
+
+styles:
+  orange_rounded_black_white_outline:
+    font: "Hiragino Sans GB"
+    font_size: 50
+    primary_colour: "&H00201810"
+    outline_colour: "&H00FFFFFF"
+    back_colour: "&H002089FF"
+    bold: 1
+    outline: 3.25
+    shadow: 0
+    alignment: 2
+    margin_l: 120
+    margin_r: 120
+    margin_v: 38
+    max_line_chars: 23
+    max_lines: 2
+    background_mode: "rounded_vector"
+    background_colour: "&H002089FF"
+    background_colour_hex: "#FF8920"
+    text_colour_hex: "#101820"
+    outline_colour_hex: "#FFFFFF"
+    text_stroke_line_join: "round"
+    text_stroke_line_cap: "round"
+    vertical_align: "center"
+    letter_spacing_px: 8.0
+    line_height: 65
+    padding_h: 34
+    padding_v: 14
+    min_width: 320
+    max_width: 1480
+    corner_radius_ratio: 0.25
+  bilibili_white_heavy_outline:
+    font: "Hiragino Sans GB"
+    font_size: 58
+    primary_colour: "&H00FFFFFF"
+    outline_colour: "&H00000000"
+    back_colour: "&H66000000"
+    bold: 1
+    outline: 7
+    shadow: 1
+    alignment: 2
+    margin_l: 120
+    margin_r: 120
+    margin_v: 66
+    max_line_chars: 20
+    max_lines: 2
+  yellow_heavy_outline:
+    font: "Hiragino Sans GB"
+    font_size: 58
+    primary_colour: "&H0000DEFF"
+    outline_colour: "&H00000000"
+    back_colour: "&H66000000"
+    bold: 1
+    outline: 7
+    shadow: 1
+    alignment: 2
+    margin_l: 120
+    margin_r: 120
+    margin_v: 66
+    max_line_chars: 20
+    max_lines: 2
+  screen_recording_compact:
+    font: "Hiragino Sans GB"
+    font_size: 48
+    primary_colour: "&H00FFFFFF"
+    outline_colour: "&H00000000"
+    back_colour: "&H77000000"
+    bold: 1
+    outline: 5
+    shadow: 0
+    alignment: 2
+    margin_l: 140
+    margin_r: 140
+    margin_v: 48
+    max_line_chars: 22
+    max_lines: 2

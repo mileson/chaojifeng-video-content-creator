@@ -1,0 +1,54 @@
+<!--
+模式：macOS 通知堆叠（notification stack）【节拍层 · 事件播报】
+适用场景：模拟系统通知播报关键事件（"渲染完成 ✅ / 今日支出 ¥9.4"），真实感强、信息密度高。
+  借鉴 Hyperframes 官方 macos-notification 组件，扩展为多条堆叠。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - 通知条数（1~3）、每条的 app 名/图标渐变色/标题/正文/时间戳
+  - 入场间隔（默认 0.9s）、右上角停靠位置
+技术要点：
+  - 每条 x 480 从右滑入（macOS 原生方向），power3.out
+  - 第二条入场时第一条 scale 0.97 微缩（堆叠让位感）
+  - 退场整组 x 滑出 + stagger 0.12
+  - 卡片 rgba(30,30,32,.92) + inset 高光描边 = 毛玻璃质感（离线渲染 backdrop-filter 不依赖）
+-->
+<style>
+  .ns-card { position: absolute; right: 70px; width: 460px; background: rgba(30,30,32,.92);
+    border-radius: 18px; padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start;
+    box-shadow: 0 8px 32px rgba(0,0,0,.45), inset 0 0 0 .5px rgba(255,255,255,.12); }
+  #ns-c1 { top: 90px; } #ns-c2 { top: 218px; }
+  .ns-ico { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 22px; color: #fff; font-weight: 900; }
+  #ns-c1 .ns-ico { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  #ns-c2 .ns-ico { background: linear-gradient(135deg, #30a46c, #46d390); }
+  .ns-app { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.5); letter-spacing: .5px; display: flex; justify-content: space-between; }
+  .ns-app span:last-child { font-weight: 400; color: rgba(255,255,255,.35); }
+  .ns-t { font-size: 18px; font-weight: 800; color: #fff; margin-top: 3px; }
+  .ns-b { font-size: 15px; color: rgba(255,255,255,.62); line-height: 1.4; margin-top: 2px; }
+  .ns-content { flex: 1; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div class="ns-card" id="ns-c1">
+  <div class="ns-ico">【缩写】</div>
+  <div class="ns-content">
+    <div class="ns-app"><span>【APP 名】</span><span>now</span></div>
+    <div class="ns-t">【标题】</div>
+    <div class="ns-b">【正文一句话】</div>
+  </div>
+</div>
+<div class="ns-card" id="ns-c2">
+  <div class="ns-ico">【缩写】</div>
+  <div class="ns-content">
+    <div class="ns-app"><span>【APP 名】</span><span>1m ago</span></div>
+    <div class="ns-t">【标题】</div>
+    <div class="ns-b">【正文一句话】</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#ns-c1", { autoAlpha: 0, x: 480, duration: 0.55, ease: "power3.out" }, 0);
+  b.from("#ns-c2", { autoAlpha: 0, x: 480, duration: 0.55, ease: "power3.out" }, 0.9);
+  b.to("#ns-c1", { scale: 0.97, duration: 0.3, ease: "power2.inOut" }, 0.9);
+  b.to(["#ns-c1", "#ns-c2"], { autoAlpha: 0, x: 480, duration: 0.4, stagger: 0.12, ease: "power2.in" }, 3.8);
+</script>

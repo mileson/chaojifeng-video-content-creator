@@ -1,0 +1,48 @@
+<!--
+  模式：巨号数据直贴（无卡 overlay）⚙️
+  适用：「一句话砸一个数」节拍——40% / 30min / 6.8万 这类核心数字，
+    ~120px 极粗数字直接覆盖画面 + count-up + 右侧两行小注释。
+  适配铁律：亮色素材保留 .hgs-scrim；数字默认主题蓝，警示场景换红/橙。
+  参数化：数值与单位/侧注两行文案/主题色/count-up 时长。
+-->
+<style>
+  #hgs-wrap { position: absolute; left: 56px; bottom: 200px; display: flex; align-items: flex-end; gap: 22px; }
+  #hgs-scrim { position: absolute; left: -90px; bottom: -70px; width: 640px; height: 320px;
+    background: radial-gradient(ellipse at 35% 65%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  #hgs-numrow { display: flex; align-items: baseline; position: relative; }
+  #hgs-num { font-size: 128px; font-weight: 900; line-height: .9; color: #3e9eff;
+    text-shadow: 0 6px 36px rgba(62,158,255,.55), 0 2px 12px rgba(0,0,0,.85); }
+  #hgs-unit { font-size: 56px; font-weight: 900; color: #3e9eff; margin-left: 6px;
+    text-shadow: 0 4px 24px rgba(62,158,255,.5), 0 2px 10px rgba(0,0,0,.85); }
+  #hgs-side { position: relative; padding-bottom: 14px; }
+  #hgs-l1 { color: #fff; font-size: 26px; font-weight: 800; letter-spacing: 2px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  #hgs-l2 { color: #aeb4c2; font-size: 20px; font-weight: 600; letter-spacing: 2px;
+    margin-top: 6px; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+</style>
+
+<div id="hgs" class="clip beat" data-start="0.4" data-duration="5.0" data-track-index="0" data-layout-allow-overflow>
+  <div id="hgs-wrap">
+    <div id="hgs-scrim"></div>
+    <div id="hgs-numrow"><div id="hgs-num">40</div><div id="hgs-unit">%</div></div>
+    <div id="hgs-side">
+      <div id="hgs-l1">自媒体工作</div>
+      <div id="hgs-l2">交给 AI</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 巨号数据直贴（0.4 起，count-up）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hgs-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hgs-numrow", { autoAlpha: 0, y: 46, duration: 0.55, ease: "back.out(1.6)" }, t0 + 0.05);
+    countUp("#hgs-num", 40, 1.0, t0 + 0.2);
+    tl.fromTo("#hgs-num", { scale: 1 }, { scale: 1.06, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.inOut" }, t0 + 1.25);
+    tl.from("#hgs-l1", { autoAlpha: 0, x: -22, duration: 0.45 }, t0 + 0.5);
+    tl.from("#hgs-l2", { autoAlpha: 0, x: -18, duration: 0.4 }, t0 + 0.68);
+    tl.to("#hgs-wrap", { autoAlpha: 0, y: 26, duration: 0.4, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

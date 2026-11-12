@@ -1,0 +1,76 @@
+<!--
+模式：杂志风标题组 + 暗化 scrim
+适用场景：章节开场、概念定义、重磅信息宣告。杂志编辑风：
+  HUD 章节角标（彩色 pill + 发光英文 + 中文副行）+ 超大逐字标题 + 双语副标题 + 描边标签组。
+结构要点：
+  - 必须配 #scrim 暗化渐变层（左深右透明），否则白色大字在浅色视频画面上不可读
+  - 角标 pill 用品牌强调色（如 #d6409f），英文行加 border-left 竖线 + text-shadow 霓虹光
+  - 大标题 100px+ / font-weight 900，副标题用主题蓝 + 超宽 letter-spacing（7~9px）
+  - 标签组：1.5px 半透明白描边 + 深色半透明底，每个标签 ::before 一根彩色竖条
+动画要点：
+  - scrim 先 0.5s 淡入（power1.out），所有文字层都压在它上面
+  - 大标题 SplitText 逐字 y:90 power4.out 升起，each 0.06
+  - 角标从左滑入，标签组 back.out(1.5) + stagger 0.14 依次弹起
+  - 退场：文字层 y:-40 stagger 0.05 先走，scrim 最后淡出（错开 0.15s）
+-->
+<style>
+  #scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(5, 8, 14, 0.88) 0%, rgba(5, 8, 14, 0.72) 36%, rgba(5, 8, 14, 0.3) 58%, transparent 75%);
+  }
+  #hud-tag { position: absolute; top: 70px; left: 80px; }
+  #hud-tag .row1 { display: flex; align-items: center; gap: 14px; }
+  #hud-tag .pill { background: #d6409f; color: #fff; border-radius: 8px; font-size: 24px; font-weight: 900; letter-spacing: 3px; padding: 6px 16px; }
+  #hud-tag .en {
+    color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 7px;
+    border-left: 4px solid #3e9eff; padding-left: 14px;
+    text-shadow: 0 0 14px rgba(62, 158, 255, 0.55);
+  }
+  #hud-tag .cn { color: #c8cad3; font-size: 24px; font-weight: 700; margin-top: 10px; letter-spacing: 2px; }
+  #ed-title { position: absolute; top: 190px; left: 80px; }
+  #ed-title .big { color: #fff; font-size: 108px; font-weight: 900; line-height: 1.05; text-shadow: 0 6px 30px rgba(0,0,0,.55); }
+  #ed-title .sub { color: #3e9eff; font-size: 32px; font-weight: 800; letter-spacing: 9px; margin-top: 14px; text-shadow: 0 0 16px rgba(62,158,255,.55); }
+  #ed-title .cn { color: #e3e4e8; font-size: 30px; font-weight: 700; margin-top: 12px; letter-spacing: 3px; }
+  #ed-badges { position: absolute; top: 520px; left: 80px; display: flex; gap: 18px; }
+  #ed-badges .badge {
+    border: 1.5px solid rgba(255, 255, 255, 0.38); border-radius: 10px;
+    padding: 14px 22px 12px; background: rgba(10, 12, 18, 0.45); will-change: transform;
+  }
+  #ed-badges .badge .en { font-size: 22px; font-weight: 900; letter-spacing: 3px; display: flex; align-items: center; gap: 10px; }
+  #ed-badges .badge .en::before { content: ""; width: 4px; height: 22px; display: inline-block; }
+  #ed-badges .badge.b1 .en { color: #3e9eff; } #ed-badges .badge.b1 .en::before { background: #3e9eff; }
+  #ed-badges .badge.b2 .en { color: #46d390; } #ed-badges .badge.b2 .en::before { background: #46d390; }
+  #ed-badges .badge.b3 .en { color: #ffb224; } #ed-badges .badge.b3 .en::before { background: #ffb224; }
+  #ed-badges .badge .cn { color: #fff; font-size: 25px; font-weight: 700; margin-top: 8px; }
+</style>
+
+<div id="scrim"></div>
+<div id="hud-tag">
+  <div class="row1"><span class="pill">【章节 · 01】</span><span class="en">【ENGLISH TAG】</span></div>
+  <div class="cn">【中文角标说明】</div>
+</div>
+<div id="ed-title">
+  <div class="big">【超大标题】</div>
+  <div class="sub">【ENGLISH SUBTITLE · KEY FACT】</div>
+  <div class="cn">【中文副标题】</div>
+</div>
+<div id="ed-badges">
+  <div class="badge b1"><div class="en">【TAG ONE】</div><div class="cn">【标签一】</div></div>
+  <div class="badge b2"><div class="en">【TAG TWO】</div><div class="cn">【标签二】</div></div>
+  <div class="badge b3"><div class="en">【TAG THREE】</div><div class="cn">【标签三】</div></div>
+</div>
+
+<script>
+  // 需 gsap.registerPlugin(SplitText)
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const split = SplitText.create("#ed-title .big", { type: "chars" });
+  b.from("#scrim", { autoAlpha: 0, duration: 0.5, ease: "power1.out" }, 0)
+   .from("#hud-tag", { x: -60, autoAlpha: 0, duration: 0.45 }, 0.1)
+   .from(split.chars, { y: 90, autoAlpha: 0, duration: 0.55, ease: "power4.out", stagger: { each: 0.06, from: "start" } }, 0.35)
+   .from("#ed-title .sub", { x: -50, autoAlpha: 0, duration: 0.45 }, "<0.35")
+   .from("#ed-title .cn", { x: -40, autoAlpha: 0, duration: 0.4 }, "<0.12")
+   .from("#ed-badges .badge", { y: 50, autoAlpha: 0, duration: 0.45, ease: "back.out(1.5)", stagger: 0.14 }, 1.4)
+   // 退场：文字先走，scrim 殿后
+   .to("#hud-tag, #ed-title, #ed-badges", { autoAlpha: 0, y: -40, duration: 0.4, ease: "power2.in", stagger: 0.05 }, 4.6)
+   .to("#scrim", { autoAlpha: 0, duration: 0.45, ease: "power1.in" }, 4.75);
+</script>

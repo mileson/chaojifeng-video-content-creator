@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #sfp-panel { position: absolute; right: 70px; top: 50%; width: 700px; height: 760px;
+    margin-top: -380px; border-radius: 34px; overflow: hidden;
+    border: 3px solid rgba(229,72,77,.85);
+    box-shadow: 0 0 0 6px rgba(229,72,77,.18), 0 0 60px rgba(229,72,77,.4), 0 40px 90px rgba(0,0,0,.6);
+    background: #f6f7f9; }
+  #sfp-scroll { position: absolute; left: 0; top: 0; width: 100%; }
+  /* 演示内容：实际使用时整块替换为 <img src="..."> 长截图 */
+  .sfp-line { margin: 26px 34px 0; height: 18px; border-radius: 9px; background: #d8dde6; }
+  .sfp-line.w60 { width: 60%; } .sfp-line.w85 { width: 85%; } .sfp-line.w72 { width: 72%; }
+  .sfp-block { margin: 26px 34px 0; height: 150px; border-radius: 16px; background: #e6eaf1;
+    border: 1px solid #d4dae4; }
+  .sfp-title { margin: 30px 34px 0; font-size: 26px; font-weight: 900; color: #20242c; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="sfp" class="clip beat" data-start="0.4" data-duration="5.4" data-track-index="0" data-layout-ignore>
+  <div id="sfp-panel">
+    <div id="sfp-scroll">
+      <div class="sfp-title">【截图标题 · 整块可换 img】</div>
+      <div class="sfp-line w85"></div><div class="sfp-line w60"></div>
+      <div class="sfp-block"></div>
+      <div class="sfp-line w72"></div><div class="sfp-line w85"></div>
+      <div class="sfp-block"></div>
+      <div class="sfp-line w60"></div><div class="sfp-line w72"></div>
+      <div class="sfp-block"></div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  /* ===== 截图悬浮容器（0.4 起：右滑入 → 漂浮呼吸 + 内容停顿式滚动）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#sfp-panel", { autoAlpha: 0, x: 320, rotate: 2.5, duration: 0.7, ease: "power3.out" }, t0);
+    /* 驻留期缓慢上下漂浮 */
+    tl.to("#sfp-panel", { y: -14, duration: 1.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, t0 + 0.9);
+    /* 内容停顿式分段滚动（像真人浏览） */
+    tl.to("#sfp-scroll", { y: -180, duration: 0.8, ease: "power1.inOut" }, t0 + 1.4);
+    tl.to("#sfp-scroll", { y: -360, duration: 0.8, ease: "power1.inOut" }, t0 + 2.9);
+    tl.to("#sfp-panel", { autoAlpha: 0, x: 260, duration: 0.5, ease: "power2.in" }, t0 + 4.8);
+  })();
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

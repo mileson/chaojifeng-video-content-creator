@@ -1,0 +1,65 @@
+<!--
+模式：项目文件树逐级展开（讲代码项目结构教程必备）
+适用场景：讲解项目结构/「这个文件在哪」/架构导览。逐级缩进展开，讲到的文件高亮。
+结构要点：
+  - 编辑器侧栏风格深色卡：标题栏（项目名）+ 等宽字体文件行
+  - 每行 .row：缩进由 padding-left 控制（每级 34px），文件夹 ▸ 图标 + 名称
+  - 关键文件行加 .hot：高亮底色 + 右侧注释 chip（说明该文件做什么）
+动画要点：
+  - 行按树序 stagger 0.09 从左滑入（x-26），模拟逐级展开
+  - .hot 行入场后再补一拍：背景从透明到品牌色 10% + chip back.out 弹出
+  - 可选 cursor 高亮条从上往下扫到目标行后停住
+参数：树内容/层级缩进/高亮行序号与注释文案
+-->
+<style>
+  #ftr-card {
+    position: absolute; top: 160px; left: 50%; width: 760px;
+    background: rgba(13, 15, 22, 0.96); border: 1.5px solid rgba(255, 255, 255, 0.13);
+    border-radius: 18px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+    overflow: hidden; will-change: transform;
+  }
+  #ftr-bar { display: flex; align-items: center; gap: 10px; padding: 16px 22px;
+    background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  #ftr-bar i { width: 13px; height: 13px; border-radius: 50%; }
+  #ftr-bar b { margin-left: 8px; color: #c9d1e0; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  #ftr-tree { padding: 18px 26px 24px; font: 500 24px/1.9 "SF Mono", "Menlo", monospace; }
+  .ftr-row { display: flex; align-items: center; gap: 12px; color: #9aa3b5; border-radius: 8px;
+    padding: 2px 12px; will-change: transform; }
+  .ftr-row .ic { font-size: 20px; opacity: 0.8; }
+  .ftr-row.dir { color: #d7dce8; font-weight: 700; }
+  .ftr-row.hot { color: #fff; }
+  .ftr-hl { position: absolute; left: 0; right: 0; height: 0; background: transparent; }
+  .ftr-chip {
+    margin-left: auto; font: 700 18px/1 "PingFang SC", sans-serif; letter-spacing: 1px;
+    color: #0c1322; background: linear-gradient(135deg, #46d390, #3e9eff);
+    border-radius: 999px; padding: 7px 16px; will-change: transform;
+  }
+  .l1 { padding-left: 46px; } .l2 { padding-left: 80px; }
+</style>
+
+<div id="ftr-card">
+  <div id="ftr-bar">
+    <i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+    <b>【project-name】</b>
+  </div>
+  <div id="ftr-tree">
+    <div class="ftr-row dir"><span class="ic">▸</span>src/</div>
+    <div class="ftr-row l1 dir"><span class="ic">▸</span>components/</div>
+    <div class="ftr-row l2"><span class="ic">·</span>Player.tsx</div>
+    <div class="ftr-row l2 hot"><span class="ic">·</span>Timeline.tsx<span class="ftr-chip">【核心逻辑在这】</span></div>
+    <div class="ftr-row l1"><span class="ic">·</span>App.tsx</div>
+    <div class="ftr-row dir"><span class="ic">▸</span>scripts/</div>
+    <div class="ftr-row l1 hot"><span class="ic">·</span>render.py<span class="ftr-chip">【一键渲染】</span></div>
+    <div class="ftr-row"><span class="ic">·</span>package.json</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  gsap.set("#ftr-card", { xPercent: -50 });
+  b.from("#ftr-card", { y: 90, autoAlpha: 0, duration: 0.55 }, 0.15)
+    .from(".ftr-row", { x: -26, autoAlpha: 0, duration: 0.4, stagger: 0.09 }, 0.5)
+    .to(".ftr-row.hot", { backgroundColor: "rgba(62,158,255,.14)", duration: 0.35, stagger: 0.5 }, 1.7)
+    .from(".ftr-chip", { scale: 0, autoAlpha: 0, duration: 0.45, ease: "back.out(2)", stagger: 0.5 }, 1.8)
+    .to("#ftr-card", { y: -60, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.6);
+</script>

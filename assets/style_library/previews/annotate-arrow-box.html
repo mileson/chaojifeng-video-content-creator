@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  /* ===== B5 annotate-arrow-box 截图手绘标注 ===== */
+  #b5-card { position: absolute; top: 200px; left: 50%; transform: translateX(-50%); width: 1180px;
+    border-radius: 18px; overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.16); }
+  #b5-card img { width: 100%; display: block; }
+  #b5-svg { position: absolute; inset: 0; pointer-events: none; }
+  #b5-box { position: absolute; top: 295px; left: 510px; width: 430px; height: 96px; border: 5px solid #e5484d; border-radius: 12px;
+    box-shadow: 0 0 24px rgba(229,72,77,.45); }
+  #b5-tag { position: absolute; top: 130px; left: 50%; transform: translateX(-50%); background: rgba(8,10,16,.85);
+    border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 10px 22px; color: #fff; font-size: 24px; font-weight: 800; }
+  #b5-tag em { color: #ff8589; font-style: normal; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="b5" class="clip beat" data-start="26.5" data-duration="5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b5-tag">大家都在说：<em>太贵了</em></div>
+    <div id="b5-card"><img src="assets/kazike_comment.jpg" /></div>
+    <div id="b5-box" data-layout-ignore></div>
+    <svg id="b5-svg" viewBox="0 0 1920 1080" data-layout-ignore>
+      <defs>
+        <marker id="b5-ah" markerWidth="9" markerHeight="9" refX="6.4" refY="4.5" orient="auto">
+          <path d="M1,1 L7.5,4.5 L1,8" fill="none" stroke="#e5484d" stroke-width="1.8" stroke-linecap="round" />
+        </marker>
+      </defs>
+      <path id="b5-arrow" d="M 1430 720 C 1330 700, 1240 660, 1180 580" fill="none" stroke="#e5484d" stroke-width="8" stroke-linecap="round" marker-end="url(#b5-ah)" />
+    </svg>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B5 截图手绘标注（26.5 起） ===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#b5-card", { autoAlpha: 0, y: 50, scale: 0.95, duration: 0.6 }, t0);
+    tl.from("#b5-tag", { autoAlpha: 0, y: -24, duration: 0.45, ease: "back.out(1.7)" }, t0 + 0.35);
+    var path = document.getElementById("b5-arrow");
+    var len = path.getTotalLength();
+    tl.set(path, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } }, t0);
+    tl.to(path, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.inOut" }, t0 + 1.0);
+    tl.fromTo("#b5-box", { autoAlpha: 0, scale: 1.18 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, t0 + 1.45);
+    tl.to("#b5-box", { scale: 1.04, duration: 0.4, ease: "power2.inOut", yoyo: true, repeat: 3 }, t0 + 2.0);
+    tl.to("#b5", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.4);
+  })();
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

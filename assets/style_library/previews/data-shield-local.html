@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #dsl-stage { position: absolute; left: 0; right: 0; top: 26%; text-align: center; }
+  #dsl-shield { display: inline-flex; align-items: center; justify-content: center; width: 230px; height: 260px;
+    background: linear-gradient(165deg, rgba(77,208,225,.18), rgba(43,127,212,.1));
+    border: 2.5px solid rgba(77,208,225,.7); border-radius: 26px 26px 70px 70px;
+    box-shadow: 0 0 60px rgba(77,208,225,.25); color: #4dd0e1; font-size: 86px; }
+  #dsl-title { width: fit-content; margin: 34px auto 0; color: #fff; font-size: 56px; font-weight: 900;
+    background: rgba(10,14,22,.88); border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 18px 44px; }
+  #dsl-title em { color: #4dd0e1; font-style: normal; }
+  #dsl-sub { display: inline-block; margin-top: 18px; color: #cfd5e3; font-size: 24px; font-weight: 700;
+    background: rgba(10,14,22,.85); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 12px 30px; }
+  #dsl-cloud { position: absolute; left: 71%; top: 30%; width: 170px; height: 110px; border-radius: 60px;
+    background: rgba(139,147,163,.18); border: 2px dashed rgba(139,147,163,.6);
+    display: flex; align-items: center; justify-content: center; color: #8b93a3; font-size: 46px; }
+  #dsl-x { position: absolute; left: 71%; top: 30%; width: 170px; height: 110px;
+    display: flex; align-items: center; justify-content: center; color: #ff5c5c; font-size: 100px; font-weight: 900;
+    text-shadow: 0 0 24px rgba(255,92,92,.6); }
+  #dsl-link { position: absolute; left: 58%; top: 38%; width: 230px; height: 5px;
+    background: repeating-linear-gradient(90deg, rgba(139,147,163,.7) 0 14px, transparent 14px 26px); transform-origin: left; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="dsl-stage">
+  <div id="dsl-shield">🔒</div>
+  <div id="dsl-title">【数据只在 <em>你自己的电脑</em> 上】</div>
+  <div><span id="dsl-sub">【不经过任何第三方服务器】</span></div>
+</div>
+<div id="dsl-link"></div>
+<div id="dsl-cloud">☁️</div>
+<div id="dsl-x">✕</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  tl.from("#dsl-shield", { autoAlpha: 0, scale: 0.4, rotation: -8, duration: 0.55, ease: "back.out(1.8)" }, t0);
+  tl.from("#dsl-title", { autoAlpha: 0, y: 26, duration: 0.45 }, t0 + 0.4);
+  tl.from("#dsl-sub", { autoAlpha: 0, y: 18, duration: 0.4 }, t0 + 0.65);
+  tl.from("#dsl-link", { scaleX: 0, duration: 0.4, ease: "power2.inOut" }, t0 + 1.0);
+  tl.from("#dsl-cloud", { autoAlpha: 0, scale: 0.6, duration: 0.4 }, t0 + 1.3);
+  tl.from("#dsl-x", { autoAlpha: 0, scale: 2.4, duration: 0.3, ease: "power4.out" }, t0 + 1.9);
+  tl.to("#dsl-link", { opacity: 0.25, duration: 0.3 }, t0 + 2.0);
+  tl.to("#dsl-cloud", { opacity: 0.3, duration: 0.3 }, t0 + 2.0);
+  tl.to("#dsl-shield", { boxShadow: "0 0 90px rgba(77,208,225,.5)", duration: 0.45, yoyo: true, repeat: 1 }, t0 + 2.4);
+  tl.to(["#dsl-stage", "#dsl-cloud", "#dsl-x", "#dsl-link"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.0);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

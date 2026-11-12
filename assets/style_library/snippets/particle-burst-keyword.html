@@ -1,0 +1,52 @@
+<!--
+模式：关键词粒子爆裂（particle burst keyword）【节拍层 · 情绪峰值】
+适用场景：全片唯一情绪最高点（"就是 两毛钱"），关键词砸入瞬间彩色粒子径向爆出。
+  一支视频最多用 1 次，否则贬值。
+框架参数：
+  - 关键词文案（em 金色高亮部分）、粒子数（36 默认）/ 配色组 / 半径
+  - scrim 透明度（.6 默认）
+技术要点：
+  - 粒子黄金角度 i*2.39996 分布 + 半径分层（240+110xN）→ 自然圆形散布
+  - y 半径 x0.62 压扁成椭圆（匹配 16:9 画幅）
+  - 词 power4.out scale 1.7→1 砸入，粒子在词落定瞬间（+0.62s）爆出
+  - 词后续 sine.inOut yoyo 微缩放呼吸，维持热度
+-->
+<style>
+  #pb-scrim { position: absolute; inset: 0; background: rgba(4,5,8,.6); }
+  #pb-word { position: absolute; left: 0; right: 0; top: 42%; text-align: center; color: #fff;
+    font-size: 150px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 60px rgba(255,178,36,.5); }
+  #pb-word em { color: #ffb224; font-style: normal; }
+  #pb-burst { position: absolute; left: 50%; top: 50%; }
+  .pb-p { position: absolute; border-radius: 50%; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；scrim/burst 加 data-layout-ignore -->
+<div id="pb-scrim"></div>
+<div id="pb-word">【前缀】 <em>【关键词】</em></div>
+<div id="pb-burst"></div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#pb-scrim", { autoAlpha: 0, duration: 0.3 }, 0);
+  b.from("#pb-word", { autoAlpha: 0, scale: 1.7, duration: 0.4, ease: "power4.out" }, 0.3);
+  const burst = document.getElementById("pb-burst");
+  const colors = ["#ffb224", "#3e9eff", "#46d390", "#ff8589", "#8b5cf6"];
+  const ps = [];
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement("div");
+    p.className = "pb-p";
+    const s = 10 + (i % 4) * 8;
+    p.style.width = s + "px"; p.style.height = s + "px";
+    p.style.background = colors[i % colors.length];
+    burst.appendChild(p); ps.push(p);
+  }
+  gsap.set(ps, { x: 0, y: 0, xPercent: -50, yPercent: -50, opacity: 0 });
+  ps.forEach((p, i) => {
+    const ang = i * 2.39996;
+    const r = 240 + (i % 6) * 110;
+    b.to(p, { x: Math.cos(ang) * r, y: Math.sin(ang) * r * 0.62, opacity: 1, duration: 0.55, ease: "power4.out" }, 0.62 + (i % 5) * 0.02);
+    b.to(p, { opacity: 0, scale: 0.3, duration: 0.4, ease: "power2.in" }, 1.3 + (i % 5) * 0.04);
+  });
+  b.to("#pb-word", { scale: 1.05, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 2 }, 1.0);
+  b.to(["#pb-word", "#pb-scrim"], { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 3.4);
+</script>

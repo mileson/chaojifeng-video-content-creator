@@ -1,0 +1,42 @@
+<!--
+  模式：无卡图标双语清单（直贴 overlay）⚙️
+  适用：左侧竖排功能/要点清单，图标 chip + 中文粗体 + 英文小字距副标，逐条点亮；
+    无背景卡直接覆盖画面，常与 hud-kicker-overlay 同屏组成左列。
+  适配铁律：亮色素材保留 .hic-scrim 局部暗化；条目 3~5 条为宜，间距大留呼吸感。
+  参数化：条目数/图标字符/双语文案/主题色/点亮时间点数组。
+-->
+<style>
+  #hic-wrap { position: absolute; top: 200px; left: 56px; }
+  #hic-scrim { position: absolute; top: -40px; left: -80px; width: 520px; height: 460px;
+    background: radial-gradient(ellipse at 25% 50%, rgba(4,6,10,.5) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  .hic-item { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; position: relative; }
+  .hic-ico { width: 44px; height: 44px; border-radius: 12px; flex: none;
+    background: rgba(62,158,255,.16); border: 1.5px solid rgba(62,158,255,.65);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #6db4ff; box-shadow: 0 0 18px rgba(62,158,255,.35); }
+  .hic-t { color: #fff; font-size: 26px; font-weight: 800; letter-spacing: 2px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  .hic-e { color: #93a0b4; font-size: 13px; font-weight: 700; letter-spacing: 4px;
+    margin-top: 3px; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+</style>
+
+<div id="hic" class="clip beat" data-start="0.4" data-duration="5.4" data-track-index="0" data-layout-allow-overflow>
+  <div id="hic-wrap">
+    <div id="hic-scrim"></div>
+    <div class="hic-item"><div class="hic-ico">⇣</div><div><div class="hic-t">数据获取</div><div class="hic-e">INGEST</div></div></div>
+    <div class="hic-item"><div class="hic-ico">◔</div><div><div class="hic-t">数据可视化</div><div class="hic-e">VISUALIZE</div></div></div>
+    <div class="hic-item"><div class="hic-ico">∿</div><div><div class="hic-t">数据分析</div><div class="hic-e">ANALYZE</div></div></div>
+    <div class="hic-item"><div class="hic-ico">✦</div><div><div class="hic-t">选题分析</div><div class="hic-e">TOPIC PICK</div></div></div>
+  </div>
+</div>
+
+<script>
+  /* ===== 无卡图标清单（0.4 起，逐条点亮）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hic-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from(".hic-item", { autoAlpha: 0, x: -30, duration: 0.5, ease: "back.out(1.5)", stagger: 0.55 }, t0 + 0.2);
+    tl.to("#hic-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.8);
+  })();
+</script>

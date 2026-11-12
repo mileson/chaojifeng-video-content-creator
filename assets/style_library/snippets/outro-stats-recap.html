@@ -1,0 +1,63 @@
+<!--
+模式：公开构建数据回顾片尾（outro-stats-recap）【片尾层 · 拼接式结尾】
+适用场景：开发日志/复盘视频收尾 6~8s——「这期背后的数字」count-up 网格：
+  写了多少行代码、烧了多少 token、踩了几个坑；透明真实是独立开发者人设资产。
+框架参数：
+  - 指标格 4 个（数值/单位/标签/语义色）、底部一句感想
+技术要点：
+  - 无卡直贴形态：指标不加卡片底板，大数字 + 标签直接铺底色（text-shadow 兜底），列间用细分隔线
+  - 四格 stagger 弹入 + count-up 同步跑（共用 countUp 工具）
+  - 「踩坑数」用红色系自嘲（真实感来源）
+  - 底部感想手写引号风格，最后入
+-->
+<style>
+  #osr-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #16233a 0%, #0b121e 58%, #070b13 100%); }
+  #osr-head { position: absolute; left: 50%; top: 130px; transform: translateX(-50%); text-align: center; }
+  #osr-kicker { color: #4dd0e1; font-size: 22px; font-weight: 800; letter-spacing: 8px; }
+  #osr-title { color: #f4f7ff; font-size: 52px; font-weight: 900; margin-top: 10px; }
+  #osr-grid { position: absolute; left: 50%; top: 360px; transform: translateX(-50%);
+    display: grid; grid-template-columns: repeat(4, 360px); }
+  .osr-cell { padding: 22px 26px; text-align: center; position: relative; }
+  .osr-cell + .osr-cell::before { content: ""; position: absolute; left: 0; top: 22px; bottom: 22px;
+    width: 1px; background: rgba(255,255,255,.14); }
+  .osr-val { font-size: 76px; font-weight: 900; letter-spacing: 1px;
+    text-shadow: 0 2px 18px rgba(0,0,0,.55); }
+  .osr-val small { font-size: 28px; font-weight: 800; margin-left: 5px; }
+  .osr-label { color: #9aa8c0; font-size: 22px; font-weight: 700; margin-top: 14px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.5); }
+  #osr-c1 .osr-val { color: #3e9eff; } #osr-c2 .osr-val { color: #46d390; }
+  #osr-c3 .osr-val { color: #ffb224; } #osr-c4 .osr-val { color: #e5484d; }
+  #osr-quote { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%);
+    color: #aab6cc; font-size: 28px; font-weight: 700; white-space: nowrap; }
+  #osr-quote b { color: #4dd0e1; }
+</style>
+
+<div id="osr-bg" data-layout-allow-overflow></div>
+<div id="osr-head">
+  <div id="osr-kicker">BEHIND THIS VIDEO</div>
+  <div id="osr-title">这期视频背后的数字</div>
+</div>
+<div id="osr-grid">
+  <div class="osr-cell" id="osr-c1"><div class="osr-val"><span id="osr-v1">0</span><small>行</small></div>
+    <div class="osr-label">AI 生成的特效代码</div></div>
+  <div class="osr-cell" id="osr-c2"><div class="osr-val"><span id="osr-v2">0</span><small>万</small></div>
+    <div class="osr-label">消耗 Token 数</div></div>
+  <div class="osr-cell" id="osr-c3"><div class="osr-val"><span id="osr-v3">0</span><small>h</small></div>
+    <div class="osr-label">从想法到成片</div></div>
+  <div class="osr-cell" id="osr-c4"><div class="osr-val"><span id="osr-v4">0</span><small>个</small></div>
+    <div class="osr-label">踩过的坑（都帮你踩了）</div></div>
+</div>
+<div id="osr-quote">每一期都是一次 <b>Build in Public</b> · 下期继续</div>
+
+<script>
+  tl.from("#osr-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from(["#osr-kicker", "#osr-title"], { autoAlpha: 0, y: 22, duration: 0.5, stagger: 0.12 }, t0 + 0.35);
+  tl.from(".osr-cell", { autoAlpha: 0, y: 46, scale: 0.92, duration: 0.5,
+    ease: "back.out(1.5)", stagger: 0.15 }, t0 + 0.9);
+  countUp("#osr-v1", 2400, 1.4, t0 + 1.1);
+  countUp("#osr-v2", 86, 1.4, t0 + 1.25);
+  countUp("#osr-v3", 6, 1.2, t0 + 1.4);
+  countUp("#osr-v4", 9, 1.2, t0 + 1.55);
+  tl.from("#osr-quote", { autoAlpha: 0, y: 22, duration: 0.5 }, t0 + 3.0);
+</script>

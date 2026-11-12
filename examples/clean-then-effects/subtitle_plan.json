@@ -1,0 +1,16 @@
+{
+  "global_replacements": [],
+  "word_cut_ranges": [
+    {"start": 2.7, "end": 3.3, "text": "然后的话", "reason": "拖尾口癖，不表达条件"},
+    {"start": 5.6, "end": 5.95, "text": "呃", "reason": "无效语气词"},
+    {"start": 8.96, "end": 9.12, "text": "都", "reason": "重复词，删前保后"},
+    {"start": 13.3, "end": 13.7, "text": "整条", "reason": "重复词，删前保后"}
+  ],
+  "event_overrides": [
+    {"source_start": 0.35, "source_end": 4.9, "parts": [{"text": "你录完口播先加了特效再回头删口水词"}]},
+    {"source_start": 10.9, "source_end": 14.8, "parts": [{"text": "特效还留在原来的时间上整条就错位了"}]}
+  ],
+  "review_required": [
+    {"range": "6.95-7.30", "text": "嗯", "reason": "这里是被引用的词，属于口播内容，保留"}
+  ]
+}

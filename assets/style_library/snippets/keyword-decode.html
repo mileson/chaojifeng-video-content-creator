@@ -1,0 +1,56 @@
+<!--
+模式：关键词矩阵解码（matrix decode scramble）【节拍层 · 科技揭示】
+适用场景：揭示产品名/方案名（"NOVA 5 → 已解锁"），强 AI/黑客感。
+  借鉴 Hyperframes 官方 caption-matrix-decode：乱码字符逐位锁定为目标文本。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - TARGET 目标文本（建议纯英文/数字，等宽字体效果最佳）
+  - 完成色（默认绿 #46d390）、解码时长（1.4s 默认）、底部 tag 文案
+技术要点：
+  - 用 state 对象 + onUpdate 渲染：进度 p 决定锁定位数，未锁定位用伪随机字符
+  - 伪随机用确定性公式（p*997 + i*31），离线逐帧渲染下每帧稳定可重现
+  - 解码完成后整体变绿 + 发光 → tag back.out 弹出（解锁仪式感）
+  - 大字必须 ui-monospace 等宽 + min-width 固定（防止乱码期抖动）
+-->
+<style>
+  #dc-card { position: absolute; left: 50%; top: 38%; background: rgba(8,10,16,.88);
+    border: 1px solid rgba(70,211,144,.4); border-radius: 18px; padding: 40px 70px; text-align: center;
+    box-shadow: 0 0 50px rgba(70,211,144,.2), 0 30px 80px rgba(0,0,0,.5); }
+  #dc-label { color: #46d390; font-size: 17px; font-weight: 800; letter-spacing: 6px; }
+  #dc-big { color: #fff; font-size: 92px; font-weight: 900; letter-spacing: 4px; margin-top: 14px;
+    font-family: ui-monospace, Menlo, monospace; min-width: 640px; }
+  #dc-tag { display: inline-block; margin-top: 18px; color: #46d390; border: 1.5px solid rgba(70,211,144,.6);
+    border-radius: 99px; padding: 8px 26px; font-size: 20px; font-weight: 800; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="dc-card">
+  <div id="dc-label">DECODING · 解锁中</div>
+  <div id="dc-big">【目标词】</div>
+  <div><span id="dc-tag">【结论标签】</span></div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  gsap.set("#dc-card", { xPercent: -50 });
+  const TARGET = "【目标词】";
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&";
+  const st = { p: 0 };
+  const big = document.getElementById("dc-big");
+  b.from("#dc-card", { autoAlpha: 0, y: 50, scale: 0.94, duration: 0.55, ease: "power3.out" }, 0);
+  b.to(st, {
+    p: 1, duration: 1.4, ease: "power2.inOut",
+    onUpdate() {
+      const done = Math.floor(st.p * TARGET.length);
+      let out = "";
+      for (let i = 0; i < TARGET.length; i++) {
+        if (TARGET[i] === " ") { out += " "; continue; }
+        out += i < done ? TARGET[i] : CHARS[Math.floor((st.p * 997 + i * 31) % CHARS.length)];
+      }
+      big.textContent = out;
+    },
+    onComplete() { big.textContent = TARGET; },
+  }, 0.5);
+  b.to("#dc-big", { color: "#46d390", textShadow: "0 0 36px rgba(70,211,144,.7)", duration: 0.3 }, 1.95);
+  b.from("#dc-tag", { autoAlpha: 0, scale: 0.6, duration: 0.45, ease: "back.out(2)" }, 2.3);
+  b.to("#dc-card", { autoAlpha: 0, y: -30, duration: 0.4, ease: "power2.in" }, 4.0);
+</script>

@@ -1,0 +1,54 @@
+<!--
+  模式：无卡章节标识（直贴 overlay）⚙️
+  适用：左上角章节/主题标识，文字直接覆盖在画面暗部，无背景卡。
+    两种形态：A 纯标识（竖条+EN 大字距+CN 副标）；B 章节编号（巨号 01~04 + 章节名）。
+  适配铁律：素材为亮色画面时必须保留 .hko-scrim（局部线性暗化，非卡片）；暗部构图可关。
+  参数化：EN/CN 文案、主题色、是否显示编号、scrim 开关。
+-->
+<style>
+  #hko-wrap { position: absolute; top: 44px; left: 56px; }
+  #hko-scrim { position: absolute; top: -60px; left: -80px; width: 620px; height: 280px;
+    background: radial-gradient(ellipse at 30% 35%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 70%);
+    pointer-events: none; }
+  #hko-row { display: flex; align-items: flex-end; gap: 18px; position: relative; }
+  #hko-num { font-size: 84px; font-weight: 900; line-height: .9; color: #3e9eff;
+    text-shadow: 0 4px 26px rgba(62,158,255,.5), 0 2px 10px rgba(0,0,0,.8); }
+  #hko-block { position: relative; padding-bottom: 6px; }
+  #hko-chip { display: flex; align-items: center; gap: 12px; }
+  #hko-bar { width: 4px; height: 20px; background: #3e9eff; border-radius: 2px;
+    box-shadow: 0 0 12px rgba(62,158,255,.8); }
+  #hko-en { color: #3e9eff; font-size: 22px; font-weight: 800; letter-spacing: 7px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.85); }
+  #hko-cn { color: #fff; font-size: 26px; font-weight: 800; letter-spacing: 3px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  #hko-sub { margin-top: 10px; color: #aeb4c2; font-size: 17px; font-weight: 600;
+    letter-spacing: 3px; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+</style>
+
+<div id="hko" class="clip beat" data-start="0.4" data-duration="5.0" data-track-index="0" data-layout-allow-overflow>
+  <div id="hko-wrap">
+    <div id="hko-scrim"></div>
+    <div id="hko-row">
+      <div id="hko-num">01</div>
+      <div id="hko-block">
+        <div id="hko-chip"><div id="hko-bar"></div><div id="hko-en">CORE FEATURE · 01/04</div></div>
+        <div id="hko-cn" style="margin-top:8px">数据中枢 · 全链路</div>
+      </div>
+    </div>
+    <div id="hko-sub">数据 → 获客 一条龙</div>
+  </div>
+</div>
+
+<script>
+  /* ===== 无卡章节 kicker（0.4 起）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hko-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hko-num", { autoAlpha: 0, y: 40, duration: 0.55, ease: "back.out(1.7)" }, t0 + 0.05);
+    tl.from("#hko-bar", { scaleY: 0, duration: 0.35, ease: "power2.out" }, t0 + 0.25);
+    tl.from("#hko-en", { autoAlpha: 0, x: -26, duration: 0.45 }, t0 + 0.3);
+    tl.from("#hko-cn", { autoAlpha: 0, x: -22, duration: 0.45 }, t0 + 0.45);
+    tl.from("#hko-sub", { autoAlpha: 0, y: 12, duration: 0.4 }, t0 + 0.65);
+    tl.to("#hko-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

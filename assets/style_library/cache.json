@@ -1,0 +1,895 @@
+{
+  "built_at": "2026-11-12T08:19:13.370572+00:00",
+  "build_epoch": 1794471553,
+  "count": 148,
+  "effects": [
+    {
+      "id": "stamp-hook",
+      "name": "盖章钩子",
+      "category": "beat",
+      "path": "snippets/stamp-hook.html"
+    },
+    {
+      "id": "countup-price",
+      "name": "数字滚动印章",
+      "category": "beat",
+      "path": "snippets/countup-price.html"
+    },
+    {
+      "id": "follow-pill",
+      "name": "关注引导",
+      "category": "beat",
+      "path": "snippets/follow-pill.html"
+    },
+    {
+      "id": "title-card",
+      "name": "大标题卡片",
+      "category": "beat",
+      "path": "snippets/title-card.html"
+    },
+    {
+      "id": "workflow-list",
+      "name": "流程清单",
+      "category": "beat",
+      "path": "snippets/workflow-list.html"
+    },
+    {
+      "id": "hud-title-corner",
+      "name": "常驻标题 HUD",
+      "category": "skeleton",
+      "path": "snippets/hud-title-corner.html"
+    },
+    {
+      "id": "hud-step-checklist",
+      "name": "步骤编号+渐进清单 HUD",
+      "category": "skeleton",
+      "path": "snippets/hud-step-checklist.html"
+    },
+    {
+      "id": "hud-progress-meter",
+      "name": "指标进度条 HUD",
+      "category": "skeleton",
+      "path": "snippets/hud-progress-meter.html"
+    },
+    {
+      "id": "lower-third-id",
+      "name": "人物身份下三分条",
+      "category": "skeleton",
+      "path": "snippets/lower-third-id.html"
+    },
+    {
+      "id": "kpi-ticker-strip",
+      "name": "KPI 行情滚动条",
+      "category": "skeleton",
+      "path": "snippets/kpi-ticker-strip.html"
+    },
+    {
+      "id": "window-pip-desktop",
+      "name": "桌面窗口画中画",
+      "category": "container",
+      "path": "snippets/window-pip-desktop.html"
+    },
+    {
+      "id": "device-pip-phone",
+      "name": "手机样机画中画",
+      "category": "container",
+      "path": "snippets/device-pip-phone.html"
+    },
+    {
+      "id": "bento-dashboard",
+      "name": "Bento 数据仪表盘",
+      "category": "container",
+      "path": "snippets/bento-dashboard.html"
+    },
+    {
+      "id": "code-editor-typing",
+      "name": "代码编辑器打字",
+      "category": "container",
+      "path": "snippets/code-editor-typing.html"
+    },
+    {
+      "id": "flow-decision-tree",
+      "name": "决策树流程图",
+      "category": "container",
+      "path": "snippets/flow-decision-tree.html"
+    },
+    {
+      "id": "praise-stack",
+      "name": "截图瀑布",
+      "category": "beat",
+      "path": "snippets/praise-stack.html"
+    },
+    {
+      "id": "quote-card",
+      "name": "引用大卡",
+      "category": "beat",
+      "path": "snippets/quote-card.html"
+    },
+    {
+      "id": "evidence-grid-stamp",
+      "name": "证据网格+盖章",
+      "category": "beat",
+      "path": "snippets/evidence-grid-stamp.html"
+    },
+    {
+      "id": "brand-banner",
+      "name": "品牌组合横幅",
+      "category": "beat",
+      "path": "snippets/brand-banner.html"
+    },
+    {
+      "id": "calc-card",
+      "name": "算账卡",
+      "category": "beat",
+      "path": "snippets/calc-card.html"
+    },
+    {
+      "id": "vs-compare",
+      "name": "VS 对比",
+      "category": "beat",
+      "path": "snippets/vs-compare.html"
+    },
+    {
+      "id": "flow-panels",
+      "name": "流程对比面板",
+      "category": "beat",
+      "path": "snippets/flow-panels.html"
+    },
+    {
+      "id": "summary-card",
+      "name": "总结清单卡",
+      "category": "beat",
+      "path": "snippets/summary-card.html"
+    },
+    {
+      "id": "split-char-headline",
+      "name": "逐字翻入标题",
+      "category": "beat",
+      "path": "snippets/split-char-headline.html"
+    },
+    {
+      "id": "typewriter-terminal",
+      "name": "终端打字机卡",
+      "category": "beat",
+      "path": "snippets/typewriter-terminal.html"
+    },
+    {
+      "id": "glass-hud-card",
+      "name": "玻璃 HUD 卡",
+      "category": "beat",
+      "path": "snippets/glass-hud-card.html"
+    },
+    {
+      "id": "bar-chart-compare",
+      "name": "对比条形图",
+      "category": "beat",
+      "path": "snippets/bar-chart-compare.html"
+    },
+    {
+      "id": "transition-chapter-card",
+      "name": "章节卡转场",
+      "category": "transition",
+      "path": "snippets/transition-chapter-card.html"
+    },
+    {
+      "id": "transition-wipe-band",
+      "name": "色带扫屏转场",
+      "category": "transition",
+      "path": "snippets/transition-wipe-band.html"
+    },
+    {
+      "id": "transition-circle-iris",
+      "name": "圆形敞开转场",
+      "category": "transition",
+      "path": "snippets/transition-circle-iris.html"
+    },
+    {
+      "id": "transition-grid-flip",
+      "name": "格子翻转转场",
+      "category": "transition",
+      "path": "snippets/transition-grid-flip.html"
+    },
+    {
+      "id": "transition-countdown",
+      "name": "数字倒计时转场",
+      "category": "transition",
+      "path": "snippets/transition-countdown.html"
+    },
+    {
+      "id": "transition-blinds",
+      "name": "百叶窗转场",
+      "category": "transition",
+      "path": "snippets/transition-blinds.html"
+    },
+    {
+      "id": "transition-shader-glitch",
+      "name": "shader glitch 转场",
+      "category": "transition",
+      "path": "snippets/transition-shader-glitch.html"
+    },
+    {
+      "id": "shader-whip-pan",
+      "name": "whip-pan 横甩转场",
+      "category": "transition",
+      "path": "snippets/shader-whip-pan.html"
+    },
+    {
+      "id": "motion-blur-util",
+      "name": "运动模糊工具",
+      "category": "util",
+      "path": "snippets/motion-blur-util.html"
+    },
+    {
+      "id": "film-grain-vignette",
+      "name": "胶片颗粒+暗角",
+      "category": "util",
+      "path": "snippets/film-grain-vignette.html"
+    },
+    {
+      "id": "timelapse-timer-badge",
+      "name": "延时计时角标",
+      "category": "util",
+      "path": "snippets/timelapse-timer-badge.html"
+    },
+    {
+      "id": "privacy-blur-patch",
+      "name": "隐私打码贴片",
+      "category": "util",
+      "path": "snippets/privacy-blur-patch.html"
+    },
+    {
+      "id": "zoom-punch-rig",
+      "name": "推近强调 rig",
+      "category": "util",
+      "path": "snippets/zoom-punch-rig.html"
+    },
+    {
+      "id": "outro-follow-endscreen",
+      "name": "关注引导片尾",
+      "category": "outro",
+      "path": "snippets/outro-follow-endscreen.html"
+    },
+    {
+      "id": "outro-next-episode",
+      "name": "下期预告片尾",
+      "category": "outro",
+      "path": "snippets/outro-next-episode.html"
+    },
+    {
+      "id": "outro-takeaway-recap",
+      "name": "要点回顾片尾",
+      "category": "outro",
+      "path": "snippets/outro-takeaway-recap.html"
+    },
+    {
+      "id": "outro-credits-roll",
+      "name": "工具链制作名单",
+      "category": "outro",
+      "path": "snippets/outro-credits-roll.html"
+    },
+    {
+      "id": "agent-team-grid",
+      "name": "Agent 团队卡片墙",
+      "category": "container",
+      "path": "snippets/agent-team-grid.html"
+    },
+    {
+      "id": "ai-chat-stream",
+      "name": "AI 对话流式输出",
+      "category": "container",
+      "path": "snippets/ai-chat-stream.html"
+    },
+    {
+      "id": "annotate-arrow-box",
+      "name": "截图手绘标注",
+      "category": "beat",
+      "path": "snippets/annotate-arrow-box.html"
+    },
+    {
+      "id": "app-store-rating",
+      "name": "App Store 评分卡",
+      "category": "beat",
+      "path": "snippets/app-store-rating.html"
+    },
+    {
+      "id": "app-triple-screens",
+      "name": "三机浮动产品展示",
+      "category": "container",
+      "path": "snippets/app-triple-screens.html"
+    },
+    {
+      "id": "arc-sway-camera",
+      "name": "Arc Sway Camera",
+      "category": "util",
+      "path": "snippets/arc-sway-camera.html"
+    },
+    {
+      "id": "arrow-scribble-pack",
+      "name": "手绘标注三件套",
+      "category": "util",
+      "path": "snippets/arrow-scribble-pack.html"
+    },
+    {
+      "id": "before-after-flow",
+      "name": "Before→After 流程",
+      "category": "beat",
+      "path": "snippets/before-after-flow.html"
+    },
+    {
+      "id": "before-after-split",
+      "name": "Before/After 分屏对照",
+      "category": "beat",
+      "path": "snippets/before-after-split.html"
+    },
+    {
+      "id": "block-headline-mixed",
+      "name": "混色块大字标题",
+      "category": "beat",
+      "path": "snippets/block-headline-mixed.html"
+    },
+    {
+      "id": "camera-shake-impact",
+      "name": "震屏冲击",
+      "category": "util",
+      "path": "snippets/camera-shake-impact.html"
+    },
+    {
+      "id": "caption-karaoke",
+      "name": "逐词卡拉OK字幕",
+      "category": "beat",
+      "path": "snippets/caption-karaoke.html"
+    },
+    {
+      "id": "caption-kinetic-slam",
+      "name": "全屏关键词砸入",
+      "category": "beat",
+      "path": "snippets/caption-kinetic-slam.html"
+    },
+    {
+      "id": "changelog-ship-card",
+      "name": "版本发布清单卡",
+      "category": "beat",
+      "path": "snippets/changelog-ship-card.html"
+    },
+    {
+      "id": "chapter-step-card",
+      "name": "章节步骤卡",
+      "category": "beat",
+      "path": "snippets/chapter-step-card.html"
+    },
+    {
+      "id": "chart-forecast-curve",
+      "name": "预测曲线",
+      "category": "beat",
+      "path": "snippets/chart-forecast-curve.html"
+    },
+    {
+      "id": "code-diff-card",
+      "name": "代码 Diff 卡",
+      "category": "container",
+      "path": "snippets/code-diff-card.html"
+    },
+    {
+      "id": "color-wash-mood",
+      "name": "情绪调色滤镜",
+      "category": "util",
+      "path": "snippets/color-wash-mood.html"
+    },
+    {
+      "id": "combo-chart",
+      "name": "柱状+折线复合图",
+      "category": "beat",
+      "path": "snippets/combo-chart.html"
+    },
+    {
+      "id": "confetti-burst",
+      "name": "庆祝彩带爆发",
+      "category": "util",
+      "path": "snippets/confetti-burst.html"
+    },
+    {
+      "id": "continuous-slide-loop",
+      "name": "连续滑屏动画工具",
+      "category": "util",
+      "path": "snippets/continuous-slide-loop.html"
+    },
+    {
+      "id": "cursor-click-spotlight",
+      "name": "光标点击强调",
+      "category": "beat",
+      "path": "snippets/cursor-click-spotlight.html"
+    },
+    {
+      "id": "data-shield-local",
+      "name": "数据主权卡",
+      "category": "beat",
+      "path": "snippets/data-shield-local.html"
+    },
+    {
+      "id": "donut-share-chart",
+      "name": "环形占比图",
+      "category": "beat",
+      "path": "snippets/donut-share-chart.html"
+    },
+    {
+      "id": "drift-camera-motion",
+      "name": "Drift Camera Motion",
+      "category": "util",
+      "path": "snippets/drift-camera-motion.html"
+    },
+    {
+      "id": "dual-column-list",
+      "name": "双栏清单对比",
+      "category": "beat",
+      "path": "snippets/dual-column-list.html"
+    },
+    {
+      "id": "editorial-headline-scrim",
+      "name": "Editorial 标题组",
+      "category": "beat",
+      "path": "snippets/editorial-headline-scrim.html"
+    },
+    {
+      "id": "elastic-focus-zoom",
+      "name": "弹簧聚焦缩放工具",
+      "category": "util",
+      "path": "snippets/elastic-focus-zoom.html"
+    },
+    {
+      "id": "excerpt-strip",
+      "name": "证据摘录侧条+规则清单",
+      "category": "beat",
+      "path": "snippets/excerpt-strip.html"
+    },
+    {
+      "id": "file-tree-reveal",
+      "name": "项目文件树展开",
+      "category": "container",
+      "path": "snippets/file-tree-reveal.html"
+    },
+    {
+      "id": "gauge-ring-mini",
+      "name": "迷你环形仪表",
+      "category": "beat",
+      "path": "snippets/gauge-ring-mini.html"
+    },
+    {
+      "id": "github-repo-card",
+      "name": "GitHub 仓库卡",
+      "category": "beat",
+      "path": "snippets/github-repo-card.html"
+    },
+    {
+      "id": "glass-panel-network",
+      "name": "玻璃面板虚线网络",
+      "category": "container",
+      "path": "snippets/glass-panel-network.html"
+    },
+    {
+      "id": "glow-timeline-vertical",
+      "name": "垂直发光时间轴",
+      "category": "beat",
+      "path": "snippets/glow-timeline-vertical.html"
+    },
+    {
+      "id": "hud-corner-brackets",
+      "name": "四角括号圈注",
+      "category": "beat",
+      "path": "snippets/hud-corner-brackets.html"
+    },
+    {
+      "id": "hud-cross-points",
+      "name": "红✕否定清单",
+      "category": "beat",
+      "path": "snippets/hud-cross-points.html"
+    },
+    {
+      "id": "hud-giant-stat",
+      "name": "巨号数据直贴",
+      "category": "beat",
+      "path": "snippets/hud-giant-stat.html"
+    },
+    {
+      "id": "hud-icon-checklist-overlay",
+      "name": "无卡图标双语清单",
+      "category": "skeleton",
+      "path": "snippets/hud-icon-checklist-overlay.html"
+    },
+    {
+      "id": "hud-kicker-overlay",
+      "name": "无卡章节 Kicker",
+      "category": "skeleton",
+      "path": "snippets/hud-kicker-overlay.html"
+    },
+    {
+      "id": "hud-numbered-rules",
+      "name": "编号规则结论列",
+      "category": "beat",
+      "path": "snippets/hud-numbered-rules.html"
+    },
+    {
+      "id": "hud-progress-overlay",
+      "name": "无卡成长进度条",
+      "category": "beat",
+      "path": "snippets/hud-progress-overlay.html"
+    },
+    {
+      "id": "hud-takeaway-overlay",
+      "name": "要点+结论标语直贴",
+      "category": "beat",
+      "path": "snippets/hud-takeaway-overlay.html"
+    },
+    {
+      "id": "icon-chip-row",
+      "name": "图标 chip 组",
+      "category": "beat",
+      "path": "snippets/icon-chip-row.html"
+    },
+    {
+      "id": "identity-tags-card",
+      "name": "身份名片清单卡",
+      "category": "beat",
+      "path": "snippets/identity-tags-card.html"
+    },
+    {
+      "id": "install-progress-checklist",
+      "name": "一键安装打勾流",
+      "category": "container",
+      "path": "snippets/install-progress-checklist.html"
+    },
+    {
+      "id": "keyboard-shortcut-combo",
+      "name": "快捷键按压",
+      "category": "beat",
+      "path": "snippets/keyboard-shortcut-combo.html"
+    },
+    {
+      "id": "keyword-decode",
+      "name": "关键词矩阵解码",
+      "category": "beat",
+      "path": "snippets/keyword-decode.html"
+    },
+    {
+      "id": "leaderboard-rank",
+      "name": "排行榜名次竞速",
+      "category": "beat",
+      "path": "snippets/leaderboard-rank.html"
+    },
+    {
+      "id": "letterbox-cinema",
+      "name": "电影黑边引言条",
+      "category": "util",
+      "path": "snippets/letterbox-cinema.html"
+    },
+    {
+      "id": "light-leak-overlay",
+      "name": "电影漏光叠加",
+      "category": "util",
+      "path": "snippets/light-leak-overlay.html"
+    },
+    {
+      "id": "line-chart-dynamic",
+      "name": "动态折线图",
+      "category": "beat",
+      "path": "snippets/line-chart-dynamic.html"
+    },
+    {
+      "id": "logo-outro-assemble",
+      "name": "片尾 logo 装配",
+      "category": "beat",
+      "path": "snippets/logo-outro-assemble.html"
+    },
+    {
+      "id": "logo-reveal-impact",
+      "name": "产品 logo 全屏揭幕",
+      "category": "beat",
+      "path": "snippets/logo-reveal-impact.html"
+    },
+    {
+      "id": "macos-notification-stack",
+      "name": "macOS 通知堆叠",
+      "category": "beat",
+      "path": "snippets/macos-notification-stack.html"
+    },
+    {
+      "id": "magnifier-loupe",
+      "name": "放大镜局部细看",
+      "category": "util",
+      "path": "snippets/magnifier-loupe.html"
+    },
+    {
+      "id": "map-markers",
+      "name": "地图标记",
+      "category": "beat",
+      "path": "snippets/map-markers.html"
+    },
+    {
+      "id": "marquee-keyword-belt",
+      "name": "无限跑马灯横带",
+      "category": "util",
+      "path": "snippets/marquee-keyword-belt.html"
+    },
+    {
+      "id": "mesh-gradient-bg",
+      "name": "流动网格渐变背景",
+      "category": "util",
+      "path": "snippets/mesh-gradient-bg.html"
+    },
+    {
+      "id": "message-feed-stack",
+      "name": "消息流弹入堆叠",
+      "category": "container",
+      "path": "snippets/message-feed-stack.html"
+    },
+    {
+      "id": "money-count-burst",
+      "name": "金额计数+粒子爆发",
+      "category": "beat",
+      "path": "snippets/money-count-burst.html"
+    },
+    {
+      "id": "news-breaking-banner",
+      "name": "突发资讯横幅",
+      "category": "beat",
+      "path": "snippets/news-breaking-banner.html"
+    },
+    {
+      "id": "opinion-clash-card",
+      "name": "观点对峙卡",
+      "category": "beat",
+      "path": "snippets/opinion-clash-card.html"
+    },
+    {
+      "id": "outro-author-works",
+      "name": "作者作品墙片尾",
+      "category": "outro",
+      "path": "snippets/outro-author-works.html"
+    },
+    {
+      "id": "outro-bento-works",
+      "name": "Bento 作品墙片尾",
+      "category": "outro",
+      "path": "snippets/outro-bento-works.html"
+    },
+    {
+      "id": "outro-brand-signoff",
+      "name": "品牌签收片尾",
+      "category": "outro",
+      "path": "snippets/outro-brand-signoff.html"
+    },
+    {
+      "id": "outro-countdown-tease",
+      "name": "彩蛋倒计时片尾",
+      "category": "outro",
+      "path": "snippets/outro-countdown-tease.html"
+    },
+    {
+      "id": "outro-minimal-signature",
+      "name": "极简签名片尾",
+      "category": "outro",
+      "path": "snippets/outro-minimal-signature.html"
+    },
+    {
+      "id": "outro-question-comment",
+      "name": "评论互动片尾",
+      "category": "outro",
+      "path": "snippets/outro-question-comment.html"
+    },
+    {
+      "id": "outro-search-cta",
+      "name": "搜索引导片尾",
+      "category": "outro",
+      "path": "snippets/outro-search-cta.html"
+    },
+    {
+      "id": "outro-series-nav",
+      "name": "系列导航片尾",
+      "category": "outro",
+      "path": "snippets/outro-series-nav.html"
+    },
+    {
+      "id": "outro-stats-recap",
+      "name": "数据回顾片尾",
+      "category": "outro",
+      "path": "snippets/outro-stats-recap.html"
+    },
+    {
+      "id": "particle-burst-keyword",
+      "name": "关键词粒子爆裂",
+      "category": "beat",
+      "path": "snippets/particle-burst-keyword.html"
+    },
+    {
+      "id": "persona-card-trio",
+      "name": "人群对号入座卡",
+      "category": "beat",
+      "path": "snippets/persona-card-trio.html"
+    },
+    {
+      "id": "pricing-tier-cards",
+      "name": "三档定价卡",
+      "category": "beat",
+      "path": "snippets/pricing-tier-cards.html"
+    },
+    {
+      "id": "progress-ring",
+      "name": "SVG 进度环",
+      "category": "beat",
+      "path": "snippets/progress-ring.html"
+    },
+    {
+      "id": "screen-flash-impact",
+      "name": "白闪冲击帧",
+      "category": "util",
+      "path": "snippets/screen-flash-impact.html"
+    },
+    {
+      "id": "screen-studio-frame",
+      "name": "屏录壁纸框+自动变焦",
+      "category": "container",
+      "path": "snippets/screen-studio-frame.html"
+    },
+    {
+      "id": "screenshot-float-panel",
+      "name": "截图悬浮容器",
+      "category": "container",
+      "path": "snippets/screenshot-float-panel.html"
+    },
+    {
+      "id": "screenshot-takeover-wall",
+      "name": "全屏截图接管+水印墙",
+      "category": "container",
+      "path": "snippets/screenshot-takeover-wall.html"
+    },
+    {
+      "id": "search-query-suggest",
+      "name": "搜索框联想下拉",
+      "category": "beat",
+      "path": "snippets/search-query-suggest.html"
+    },
+    {
+      "id": "shimmer-sweep-util",
+      "name": "高光扫过提质感",
+      "category": "util",
+      "path": "snippets/shimmer-sweep-util.html"
+    },
+    {
+      "id": "shine-banner-neon",
+      "name": "高光横幅+霓虹词",
+      "category": "beat",
+      "path": "snippets/shine-banner-neon.html"
+    },
+    {
+      "id": "social-post-card",
+      "name": "社交推文卡+点赞",
+      "category": "beat",
+      "path": "snippets/social-post-card.html"
+    },
+    {
+      "id": "speed-lines-radial",
+      "name": "放射速度线",
+      "category": "util",
+      "path": "snippets/speed-lines-radial.html"
+    },
+    {
+      "id": "spotlight-dim",
+      "name": "聚焦调暗",
+      "category": "beat",
+      "path": "snippets/spotlight-dim.html"
+    },
+    {
+      "id": "spotlight-follow-mask",
+      "name": "聚光追踪遮罩",
+      "category": "util",
+      "path": "snippets/spotlight-follow-mask.html"
+    },
+    {
+      "id": "stat-hero-number",
+      "name": "大数字冲击卡",
+      "category": "beat",
+      "path": "snippets/stat-hero-number.html"
+    },
+    {
+      "id": "state-cards-arrow",
+      "name": "转化对比卡组",
+      "category": "beat",
+      "path": "snippets/state-cards-arrow.html"
+    },
+    {
+      "id": "terminal-error-hell",
+      "name": "终端报错地狱",
+      "category": "container",
+      "path": "snippets/terminal-error-hell.html"
+    },
+    {
+      "id": "transition-parallax-zoom",
+      "name": "网格聚焦展示",
+      "category": "beat",
+      "path": "snippets/transition-parallax-zoom.html"
+    },
+    {
+      "id": "transition-pixel-dissolve",
+      "name": "像素溶解转场",
+      "category": "transition",
+      "path": "snippets/transition-pixel-dissolve.html"
+    },
+    {
+      "id": "typewriter-keyword-card",
+      "name": "打字机关键词字卡",
+      "category": "beat",
+      "path": "snippets/typewriter-keyword-card.html"
+    },
+    {
+      "id": "ui-3d-reveal-card",
+      "name": "透视 3D 翻入功能卡",
+      "category": "beat",
+      "path": "snippets/ui-3d-reveal-card.html"
+    },
+    {
+      "id": "url-cta-bar",
+      "name": "官网 CTA 行动条",
+      "category": "beat",
+      "path": "snippets/url-cta-bar.html"
+    },
+    {
+      "id": "swing-pan-rig",
+      "name": "荡秋千运镜 Rig",
+      "category": "util",
+      "path": "snippets/swing-pan-rig.html"
+    },
+    {
+      "id": "transition-shader-pack",
+      "name": "Shader 转场包 · 四形态",
+      "category": "transition",
+      "path": "snippets/transition-shader-pack.html"
+    },
+    {
+      "id": "shader-cinematic-zoom",
+      "name": "径向变焦转场",
+      "category": "transition",
+      "path": "snippets/shader-cinematic-zoom.html"
+    },
+    {
+      "id": "shader-flash-white",
+      "name": "闪白转场",
+      "category": "transition",
+      "path": "snippets/shader-flash-white.html"
+    },
+    {
+      "id": "light-route-flow-panel",
+      "name": "浅色路由流程浮层",
+      "category": "container",
+      "path": "snippets/light-route-flow-panel.html"
+    },
+    {
+      "id": "shader-sdf-iris",
+      "name": "金圈虹膜转场",
+      "category": "transition",
+      "path": "snippets/shader-sdf-iris.html"
+    },
+    {
+      "id": "product-card-app",
+      "name": "产品介绍卡 · 应用",
+      "category": "product",
+      "path": "snippets/product-card-app.html"
+    },
+    {
+      "id": "product-card-web",
+      "name": "产品介绍卡 · 网站",
+      "category": "product",
+      "path": "snippets/product-card-web.html"
+    },
+    {
+      "id": "product-card-opensource",
+      "name": "产品介绍卡 · 开源项目",
+      "category": "product",
+      "path": "snippets/product-card-opensource.html"
+    },
+    {
+      "id": "product-card-desktop",
+      "name": "产品介绍卡 · 客户端",
+      "category": "product",
+      "path": "snippets/product-card-desktop.html"
+    }
+  ]
+}

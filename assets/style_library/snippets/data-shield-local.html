@@ -1,0 +1,53 @@
+<!--
+模式：数据主权卡（data-shield-local）【节拍层 · 隐私/本地化卖点】
+适用场景：「数据只在你自己的电脑上 / 不上传云端」的隐私安全卖点。
+框架参数：
+  - 盾牌 emoji（🔒/🛡️）、标题（em 高亮）、副标；云端图标位置
+技术要点：
+  - 盾牌 scale 0.4 + rotation -8 back.out(1.8) 弹出 → 标题/副标依次上浮
+  - 切断叙事：虚线 scaleX 描出连接 → 云朵浮现 → 红 ✕ scale 2.4 砸下 → 虚线+云变暗
+  - 标题白字必须带深底面板（width:fit-content + margin auto 居中，铁律：裸白字禁止）
+  - 盾牌 boxShadow yoyo 脉冲 = 「受保护」确认
+-->
+<style>
+  #dsl-stage { position: absolute; left: 0; right: 0; top: 26%; text-align: center; }
+  #dsl-shield { display: inline-flex; align-items: center; justify-content: center; width: 230px; height: 260px;
+    background: linear-gradient(165deg, rgba(77,208,225,.18), rgba(43,127,212,.1));
+    border: 2.5px solid rgba(77,208,225,.7); border-radius: 26px 26px 70px 70px;
+    box-shadow: 0 0 60px rgba(77,208,225,.25); color: #4dd0e1; font-size: 86px; }
+  #dsl-title { width: fit-content; margin: 34px auto 0; color: #fff; font-size: 56px; font-weight: 900;
+    background: rgba(10,14,22,.88); border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 18px 44px; }
+  #dsl-title em { color: #4dd0e1; font-style: normal; }
+  #dsl-sub { display: inline-block; margin-top: 18px; color: #cfd5e3; font-size: 24px; font-weight: 700;
+    background: rgba(10,14,22,.85); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 12px 30px; }
+  #dsl-cloud { position: absolute; left: 71%; top: 30%; width: 170px; height: 110px; border-radius: 60px;
+    background: rgba(139,147,163,.18); border: 2px dashed rgba(139,147,163,.6);
+    display: flex; align-items: center; justify-content: center; color: #8b93a3; font-size: 46px; }
+  #dsl-x { position: absolute; left: 71%; top: 30%; width: 170px; height: 110px;
+    display: flex; align-items: center; justify-content: center; color: #ff5c5c; font-size: 100px; font-weight: 900;
+    text-shadow: 0 0 24px rgba(255,92,92,.6); }
+  #dsl-link { position: absolute; left: 58%; top: 38%; width: 230px; height: 5px;
+    background: repeating-linear-gradient(90deg, rgba(139,147,163,.7) 0 14px, transparent 14px 26px); transform-origin: left; }
+</style>
+
+<div id="dsl-stage">
+  <div id="dsl-shield">🔒</div>
+  <div id="dsl-title">【数据只在 <em>你自己的电脑</em> 上】</div>
+  <div><span id="dsl-sub">【不经过任何第三方服务器】</span></div>
+</div>
+<div id="dsl-link"></div>
+<div id="dsl-cloud">☁️</div>
+<div id="dsl-x">✕</div>
+
+<script>
+  tl.from("#dsl-shield", { autoAlpha: 0, scale: 0.4, rotation: -8, duration: 0.55, ease: "back.out(1.8)" }, t0);
+  tl.from("#dsl-title", { autoAlpha: 0, y: 26, duration: 0.45 }, t0 + 0.4);
+  tl.from("#dsl-sub", { autoAlpha: 0, y: 18, duration: 0.4 }, t0 + 0.65);
+  tl.from("#dsl-link", { scaleX: 0, duration: 0.4, ease: "power2.inOut" }, t0 + 1.0);
+  tl.from("#dsl-cloud", { autoAlpha: 0, scale: 0.6, duration: 0.4 }, t0 + 1.3);
+  tl.from("#dsl-x", { autoAlpha: 0, scale: 2.4, duration: 0.3, ease: "power4.out" }, t0 + 1.9);
+  tl.to("#dsl-link", { opacity: 0.25, duration: 0.3 }, t0 + 2.0);
+  tl.to("#dsl-cloud", { opacity: 0.3, duration: 0.3 }, t0 + 2.0);
+  tl.to("#dsl-shield", { boxShadow: "0 0 90px rgba(77,208,225,.5)", duration: 0.45, yoyo: true, repeat: 1 }, t0 + 2.4);
+  tl.to(["#dsl-stage", "#dsl-cloud", "#dsl-x", "#dsl-link"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.0);
+</script>

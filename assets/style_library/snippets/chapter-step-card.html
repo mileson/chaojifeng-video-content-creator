@@ -1,0 +1,56 @@
+<!--
+模式：章节步骤卡（STEP · N/M 宣告）【参数化框架】
+适用场景：章节切换、步骤宣告、"接下来做什么"。典型文案："STEP · 03/03 + Ship a project."。
+框架参数：
+  - pill 文案 "STEP · 02 / 03" 按实际章节数改；只有一章时可改成 "CASE IN POINT" / "ANALOGY" 等语义词
+  - 底部描边 pill 标签可 0~2 个；多于 1 个时改 flex 横排
+结构要点：
+  - 必配左深右透明 scrim（白色大字压浅色画面必翻车）
+  - pill 用高亮黄底黑字（与大标题白字形成层级）；大标题带英文句点结尾（"真实跑一单."）质感更编辑风
+  - 底部描边 pill：2px 主题绿描边 + 半透明深绿底 + 同色 glow
+动画要点：
+  - scrim 先入 → pill 行左滑 → SplitText 逐字 y:100 power4.out 升起 → 副标跟进 → 描边 pill back.out 弹出 + yoyo 脉冲
+  - 退场文字层 stagger 先走，scrim 殿后
+-->
+<style>
+  #ch-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(5, 8, 14, 0.9) 0%, rgba(5, 8, 14, 0.74) 38%, rgba(5, 8, 14, 0.3) 60%, transparent 78%);
+  }
+  #ch-step { position: absolute; top: 120px; left: 80px; display: flex; align-items: center; gap: 16px; }
+  #ch-step .pill { background: #ffb224; color: #1a1a1a; border-radius: 8px; font-size: 25px; font-weight: 900; letter-spacing: 4px; padding: 7px 18px; }
+  #ch-step .note { color: #c8cad3; font-size: 23px; font-weight: 700; letter-spacing: 2px; }
+  #ch-title { position: absolute; top: 210px; left: 80px; }
+  #ch-title .big { color: #fff; font-size: 118px; font-weight: 900; line-height: 1.04; text-shadow: 0 6px 30px rgba(0,0,0,.55); }
+  #ch-title .sub { color: #ffb224; font-size: 36px; font-weight: 800; margin-top: 16px; letter-spacing: 4px; text-shadow: 0 0 16px rgba(255,178,36,.5); }
+  #ch-tag {
+    position: absolute; top: 520px; left: 80px;
+    border: 2px solid #46d390; border-radius: 12px;
+    color: #46d390; font-size: 26px; font-weight: 800; letter-spacing: 3px;
+    padding: 12px 24px; background: rgba(13, 35, 24, 0.55);
+    text-shadow: 0 0 12px rgba(70, 211, 144, 0.6);
+    will-change: transform;
+  }
+</style>
+
+<div id="ch-scrim"></div>
+<div id="ch-step"><span class="pill">【STEP · 02 / 03】</span><span class="note">【章节副注释】</span></div>
+<div id="ch-title">
+  <div class="big">【大标题.】</div>
+  <div class="sub">【副标题说明】</div>
+</div>
+<div id="ch-tag">【+ 关键词 → 卖点 · 卖点】</div>
+
+<script>
+  // 需 gsap.registerPlugin(SplitText)
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const split = SplitText.create("#ch-title .big", { type: "chars" });
+  b.from("#ch-scrim", { autoAlpha: 0, duration: 0.5, ease: "power1.out" }, 0)
+   .from("#ch-step", { x: -60, autoAlpha: 0, duration: 0.45 }, 0.1)
+   .from(split.chars, { y: 100, autoAlpha: 0, duration: 0.55, ease: "power4.out", stagger: { each: 0.055, from: "start" } }, 0.35)
+   .from("#ch-title .sub", { x: -50, autoAlpha: 0, duration: 0.45 }, "<0.4")
+   .from("#ch-tag", { scale: 0.6, autoAlpha: 0, duration: 0.5, ease: "back.out(1.8)" }, 1.5)
+   .to("#ch-tag", { scale: 1.04, duration: 0.3, ease: "power1.inOut", repeat: 3, yoyo: true }, 2.1)
+   .to("#ch-step, #ch-title, #ch-tag", { autoAlpha: 0, y: -40, duration: 0.4, ease: "power2.in", stagger: 0.05 }, 3.6)
+   .to("#ch-scrim", { autoAlpha: 0, duration: 0.45, ease: "power1.in" }, 3.75);
+</script>

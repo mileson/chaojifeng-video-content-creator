@@ -1,0 +1,66 @@
+<!--
+模式：金额计数 + 货币粒子爆发（money count burst）【节拍层 · 成本爆点】
+适用场景：算账结论时刻（"今天 47 次调用一共才 ¥9.4"），金额滚动 + 绿闪 + ¥ 粒子喷出。
+  借鉴 Hyperframes 官方 apple-money-count 组件。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - 目标金额/小数位、说明文案、粒子字符（¥/$/✓）与个数（26 默认）
+  - 绿闪强度（radial-gradient alpha）
+技术要点：
+  - count-up 用 state + onUpdate + toFixed，ease "none" 匀速（钱要一分分涨）
+  - 到达目标：金额变绿 + scale 1.07 back.out 弹 + 全屏绿闪（data-layout-ignore）
+  - 粒子用黄金角度 i*2.39996 分布，rx/ry 椭圆半径错开 → 自然散开不重叠
+  - 粒子两段式：power4.out 爆出 → y+60 下坠淡出（有重力感）
+-->
+<style>
+  #mc-flash { position: absolute; inset: 0; background: radial-gradient(circle, rgba(48,209,88,.35), rgba(48,209,88,0) 70%); opacity: 0; }
+  #mc-wrap { position: absolute; left: 0; right: 0; top: 36%; text-align: center; }
+  #mc-amount { color: #fff; font-size: 220px; font-weight: 900; font-variant-numeric: tabular-nums;
+    text-shadow: 0 3px 0 rgba(255,255,255,.4), 0 24px 60px rgba(0,0,0,.55); }
+  #mc-cap { display: inline-block; margin-top: 10px; color: #cfd2dc; font-size: 26px; font-weight: 800;
+    background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.16); border-radius: 12px; padding: 10px 26px; }
+  #mc-burst { position: absolute; left: 50%; top: 46%; }
+  .mc-p { position: absolute; width: 54px; height: 54px; border-radius: 50%; background: #30d158;
+    color: #04240f; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(48,209,88,.5); }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；flash/burst 加 data-layout-ignore -->
+<div id="mc-flash"></div>
+<div id="mc-wrap">
+  <div id="mc-amount">¥0.0</div>
+  <div id="mc-cap">【说明文案】</div>
+</div>
+<div id="mc-burst"></div>
+
+<script>
+  const b = gsap.timeline();
+  const st = { v: 0 };
+  const TARGET = 9.4; // 【目标金额】
+  const amount = document.getElementById("mc-amount");
+  b.from("#mc-wrap", { autoAlpha: 0, y: 40, duration: 0.5, ease: "power3.out" }, 0);
+  b.to(st, {
+    v: TARGET, duration: 2.0, ease: "none",
+    onUpdate() { amount.textContent = "¥" + st.v.toFixed(1); },
+  }, 0.4);
+  b.to("#mc-amount", { color: "#30d158", textShadow: "0 3px 0 rgba(255,255,255,.4), 0 18px 50px rgba(48,209,88,.45)", duration: 0.2 }, 2.4);
+  b.to("#mc-amount", { scale: 1.07, duration: 0.16, ease: "back.out(2.2)" }, 2.4);
+  b.to("#mc-amount", { scale: 1, duration: 0.25 }, 2.58);
+  b.to("#mc-flash", { opacity: 1, duration: 0.1 }, 2.4);
+  b.to("#mc-flash", { opacity: 0, duration: 0.8 }, 2.6);
+  const burst = document.getElementById("mc-burst");
+  const ps = [];
+  for (let i = 0; i < 26; i++) {
+    const p = document.createElement("div");
+    p.className = "mc-p"; p.textContent = "¥";
+    burst.appendChild(p); ps.push(p);
+  }
+  gsap.set(ps, { x: 0, y: 0, xPercent: -50, yPercent: -50, opacity: 0, scale: 0.2 });
+  ps.forEach((p, i) => {
+    const ang = i * 2.39996;
+    const rx = 300 + (i % 5) * 130, ry = 180 + (i % 4) * 90;
+    const x = Math.cos(ang) * rx, y = Math.sin(ang * 1.13) * ry;
+    b.to(p, { x, y, opacity: 1, scale: 0.7 + (i % 4) * 0.12, rotation: ((i * 47) % 140) - 70, duration: 0.7, ease: "power4.out" }, 2.45 + (i % 7) * 0.03);
+    b.to(p, { y: y + 60, opacity: 0, scale: 0.4, duration: 0.4, ease: "power2.in" }, 3.4 + (i % 5) * 0.05);
+  });
+  b.to("#mc-wrap", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 4.4);
+</script>

@@ -1,0 +1,47 @@
+<!--
+模式：前后对比升级流程（旧方式 vs 新方式）
+适用场景：讲规则变更、版本升级、方式切换。比方案对比更强调"演进方向"。
+结构要点：
+  - 旧卡：灰底灰字 + 红色 line-through 删除线（en/cn 两行都划）
+  - 新卡：深绿底 + 绿描边 + 外发光 box-shadow + inset 内发光，双重光晕制造"正确答案"感
+  - 中间箭头：超大字号 + 绿色 text-shadow 光晕
+  - 顶部一行 UPGRADED 字样小字宽 letter-spacing 做氛围
+动画要点：
+  - 叙事顺序：旧卡先从左入 → 箭头 back.out(2) 弹出并 x:14 yoyo 平移 5 次（指向感）→
+    新卡从右入 + back.out(1.5) → 新卡 scale 1.04 yoyo 强调
+  - 旧卡不要加强调动画，让视觉权重全部偏向新卡
+-->
+<style>
+  #ba-up { position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto; width: fit-content; color: #46d390; font-size: 24px; font-weight: 800; letter-spacing: 6px; text-shadow: 0 0 14px rgba(70,211,144,.6); }
+  #ba-flow { position: absolute; top: 200px; left: 0; right: 0; margin: 0 auto; width: fit-content; display: flex; align-items: center; gap: 34px; }
+  #ba-flow .step { border-radius: 16px; padding: 24px 34px; will-change: transform; }
+  #ba-old { background: rgba(24, 26, 34, 0.88); border: 1.5px solid rgba(255, 255, 255, 0.14); }
+  #ba-old .en { color: #8b8d98; font-size: 24px; font-weight: 800; letter-spacing: 3px; text-decoration: line-through; text-decoration-color: #e5484d; text-decoration-thickness: 3px; }
+  #ba-old .cn { color: #a0a3ad; font-size: 30px; font-weight: 700; margin-top: 8px; text-decoration: line-through; text-decoration-color: #e5484d; text-decoration-thickness: 3px; }
+  #ba-arrow { color: #46d390; font-size: 64px; font-weight: 900; text-shadow: 0 0 22px rgba(70, 211, 144, 0.8); will-change: transform; }
+  #ba-new {
+    background: rgba(13, 35, 24, 0.9);
+    border: 2px solid #30a46c;
+    box-shadow: 0 0 36px rgba(48, 164, 108, 0.55), inset 0 0 24px rgba(48, 164, 108, 0.15);
+  }
+  #ba-new .en { color: #46d390; font-size: 24px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 0 12px rgba(70, 211, 144, 0.7); }
+  #ba-new .cn { color: #fff; font-size: 30px; font-weight: 800; margin-top: 8px; }
+</style>
+
+<div id="ba-up">【UPGRADED · 变更主题】</div>
+<div id="ba-flow">
+  <div class="step" id="ba-old"><div class="en">【OLD WAY】</div><div class="cn">【旧方式描述】</div></div>
+  <div id="ba-arrow">→</div>
+  <div class="step" id="ba-new"><div class="en">【NEW WAY】</div><div class="cn">【新方式描述】</div></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#ba-up", { y: -40, autoAlpha: 0, duration: 0.4 }, 0.15)
+   .from("#ba-old", { x: -120, autoAlpha: 0, duration: 0.5 }, 0.4)
+   .from("#ba-arrow", { scale: 0, autoAlpha: 0, duration: 0.45, ease: "back.out(2)" }, 1.0)
+   .to("#ba-arrow", { x: 14, duration: 0.35, ease: "power1.inOut", repeat: 5, yoyo: true }, 1.45)
+   .from("#ba-new", { x: 120, autoAlpha: 0, scale: 0.9, duration: 0.55, ease: "back.out(1.5)" }, 1.35)
+   .to("#ba-new", { scale: 1.04, duration: 0.3, ease: "power1.inOut", repeat: 3, yoyo: true }, 2.2)
+   .to("#ba-up, #ba-flow", { y: -60, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 5.1);
+</script>

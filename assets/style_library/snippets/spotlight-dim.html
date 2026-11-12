@@ -1,0 +1,37 @@
+<!--
+模式：聚焦调暗（spotlight）
+适用：引导观众看底层视频画面里的某个具体 UI 元素（按钮、选项、数字）
+要点：核心 trick = 透明洞框 + `box-shadow: 0 0 0 9999px rgba(0,0,0,.5)` 把洞以外全部调暗；
+     洞坐标按 1920x1080 设计稿对底层画面抽帧测量；入场洞框从 scale 1.7 收缩聚焦；
+     节拍容器要 data-layout-allow-overflow，洞框要 data-layout-ignore（9999px 阴影必然溢出）
+-->
+<style>
+  #spot-hole {
+    position: absolute; top: 585px; left: 770px;   /* 按底层画面实测调整 */
+    width: 230px; height: 62px;
+    border: 4px solid #ffb224;
+    border-radius: 14px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.52), 0 0 32px rgba(255, 178, 36, 0.6);
+    will-change: transform;
+  }
+  #spot-label {
+    position: absolute; top: 480px; left: 660px;   /* 洞上方/侧方，避开洞 */
+    background: #ffb224; color: #1a1a1a;
+    border-radius: 14px; padding: 14px 30px;
+    font-size: 34px; font-weight: 900;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    transform: rotate(-3deg);
+    will-change: transform;
+  }
+</style>
+
+<!-- 节拍容器需 data-layout-allow-overflow -->
+<div id="spot-hole" data-layout-ignore></div>
+<div id="spot-label">【聚焦说明文案】</div>
+
+<script>
+tl.from("#spot-hole", { scale: 1.7, autoAlpha: 0, duration: .55, ease: "power3.out" }, t0 + 0.1);
+tl.from("#spot-label", { y: -50, autoAlpha: 0, duration: .45, ease: "back.out(1.7)" }, t0 + 0.35);
+tl.to("#spot-hole", { scale: 1.04, duration: .3, ease: "power1.inOut", repeat: 2, yoyo: true }, t0 + 1.0);
+tl.to("#spot-hole, #spot-label", { autoAlpha: 0, duration: .35, ease: "power2.in" }, tEnd - 0.45);
+</script>

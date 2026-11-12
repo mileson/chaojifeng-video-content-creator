@@ -1,0 +1,51 @@
+<!--
+模式：图标标签组（能力点 / 要素横排）【参数化框架】
+适用场景：罗列 2~5 个并列要素（能力点、特性、角色），每个 = emoji 图标 + 英文 + 中文。
+  典型文案："HANDS-ON / COMMUNICATION" chip 和 "READ → INTERNALIZE" 链。
+框架参数：
+  - chip 数量 2~5 个；数量多时缩小 padding 和字号
+  - 色调 class 按需增减：c-blue / c-purple / c-yellow / c-green / c-red（三件套：border + box-shadow + en 颜色）
+  - 链式变体：chip 之间插入 "→" 箭头 span 即变成流程链（如 READ → INTERNALIZE）
+结构要点：
+  - chip：深色底 + 2px 彩色描边 + 同色外发光，图标 + 双行文字横排
+  - emoji 当图标用（⚡🧠💰🔧💬），离线渲染下显示稳定、不需要素材
+动画要点：
+  - 入场 from:center 荡开 + distribute scale（中间大两边小）+ back.out
+  - 入场后做轻微 y 浮动（sine.inOut yoyo + stagger 0.1）保持画面活性
+-->
+<style>
+  #icr-row { position: absolute; top: 200px; left: 0; right: 0; margin: 0 auto; width: fit-content; display: flex; gap: 26px; }
+  .chip-card {
+    display: flex; align-items: center; gap: 16px;
+    border-radius: 14px; padding: 18px 28px;
+    background: rgba(12, 14, 22, 0.88);
+    will-change: transform;
+  }
+  .chip-card .ico { font-size: 40px; }
+  .chip-card .en { font-size: 24px; font-weight: 900; letter-spacing: 3px; }
+  .chip-card .cn { color: #fff; font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .chip-card.c-blue { border: 2px solid #3e9eff; box-shadow: 0 0 24px rgba(62,158,255,.35); }
+  .chip-card.c-blue .en { color: #3e9eff; text-shadow: 0 0 10px rgba(62,158,255,.6); }
+  .chip-card.c-purple { border: 2px solid #b478f1; box-shadow: 0 0 24px rgba(180,120,241,.35); }
+  .chip-card.c-purple .en { color: #b478f1; text-shadow: 0 0 10px rgba(180,120,241,.6); }
+  .chip-card.c-yellow { border: 2px solid #ffb224; box-shadow: 0 0 24px rgba(255,178,36,.35); }
+  .chip-card.c-yellow .en { color: #ffb224; text-shadow: 0 0 10px rgba(255,178,36,.6); }
+</style>
+
+<div id="icr-row">
+  <div class="chip-card c-blue"><span class="ico">【⚡】</span><span><div class="en">【WORD A】</div><div class="cn">【要素一】</div></span></div>
+  <div class="chip-card c-purple"><span class="ico">【🧠】</span><span><div class="en">【WORD B】</div><div class="cn">【要素二】</div></span></div>
+  <div class="chip-card c-yellow"><span class="ico">【💰】</span><span><div class="en">【WORD C】</div><div class="cn">【要素三】</div></span></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#icr-row .chip-card", {
+      y: 70, autoAlpha: 0,
+      scale: gsap.utils.distribute({ base: 0.7, amount: 0.25, from: "center" }),
+      duration: 0.5, ease: "back.out(1.6)",
+      stagger: { each: 0.16, from: "center" }
+    }, 0.45)
+   .to("#icr-row .chip-card", { y: -5, duration: 0.9, ease: "sine.inOut", repeat: 1, yoyo: true, stagger: 0.1 }, 1.5)
+   .to("#icr-row", { y: -50, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 3.0);
+</script>

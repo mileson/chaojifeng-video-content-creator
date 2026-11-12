@@ -1,0 +1,60 @@
+<!--
+模式：人群对号入座卡（persona-card-trio）【节拍层 · 受众定位】
+适用场景：「如果你是 XX」三类目标人群逐个点名（独立开发者/老板/工程师），让观众对号入座。
+框架参数：
+  - 卡片数（3 张典型，2~4 可调）：emoji 图标 + accent / 人群名 / 痛点（em 高亮）
+  - 每卡顶部 3px accent 边条区分人群
+技术要点：
+  - 三卡 stagger 0.22 + 各自微倾 rotation [-2,1.5,-1] 入场（手作感）
+  - 逐张聚焦：每 0.9s 全体 opacity .45 + scale .97，当前卡 opacity 1 + scale 1.04 back.out(2)
+  - 聚焦循环结束后全体恢复 → 整行退场
+  - 行容器居中 gsap.set xPercent/yPercent -50
+-->
+<style>
+  #pct-row { position: absolute; left: 50%; top: 50%; display: flex; gap: 30px; }
+  .pct-card { width: 400px; background: rgba(13,17,26,.95); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 20px; padding: 36px 34px; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+  .pct-ico { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .pct-q { color: #8b93a3; font-size: 17px; font-weight: 800; letter-spacing: 3px; margin-top: 22px; }
+  .pct-name { color: #fff; font-size: 34px; font-weight: 900; margin-top: 8px; }
+  .pct-pain { color: #9aa3b5; font-size: 19px; line-height: 1.55; margin-top: 14px; }
+  .pct-pain em { color: #ffa48c; font-style: normal; font-weight: 800; }
+  #pct-p1 .pct-ico { background: rgba(77,208,225,.16); border: 1.5px solid rgba(77,208,225,.6); }
+  #pct-p2 .pct-ico { background: rgba(255,122,89,.14); border: 1.5px solid rgba(255,122,89,.6); }
+  #pct-p3 .pct-ico { background: rgba(139,92,246,.16); border: 1.5px solid rgba(139,92,246,.6); }
+  #pct-p1 { border-top: 3px solid #4dd0e1; } #pct-p2 { border-top: 3px solid #ff7a59; } #pct-p3 { border-top: 3px solid #8b5cf6; }
+</style>
+
+<div id="pct-row">
+  <div class="pct-card" id="pct-p1">
+    <div class="pct-ico">【emoji】</div>
+    <div class="pct-q">如果你是</div>
+    <div class="pct-name">【人群1】</div>
+    <div class="pct-pain">【痛点描述，<em>关键痛点高亮</em>】</div>
+  </div>
+  <div class="pct-card" id="pct-p2">
+    <div class="pct-ico">【emoji】</div>
+    <div class="pct-q">如果你是</div>
+    <div class="pct-name">【人群2】</div>
+    <div class="pct-pain">【痛点描述，<em>关键痛点高亮</em>】</div>
+  </div>
+  <div class="pct-card" id="pct-p3">
+    <div class="pct-ico">【emoji】</div>
+    <div class="pct-q">如果你是</div>
+    <div class="pct-name">【人群3】</div>
+    <div class="pct-pain">【痛点描述，<em>关键痛点高亮</em>】</div>
+  </div>
+</div>
+
+<script>
+  gsap.set("#pct-row", { xPercent: -50, yPercent: -50 });
+  tl.from(".pct-card", { autoAlpha: 0, y: 70, rotation: function (i) { return [-2, 1.5, -1][i]; },
+    duration: 0.55, ease: "back.out(1.5)", stagger: 0.22 }, t0);
+  [0, 1, 2].forEach(function (i) {
+    var sel = ["#pct-p1", "#pct-p2", "#pct-p3"][i];
+    tl.to(".pct-card", { opacity: 0.45, scale: 0.97, duration: 0.3 }, t0 + 1.4 + i * 0.9);
+    tl.to(sel, { opacity: 1, scale: 1.04, duration: 0.3, ease: "back.out(2)" }, t0 + 1.4 + i * 0.9);
+  });
+  tl.to(".pct-card", { opacity: 1, scale: 1, duration: 0.3 }, t0 + 4.1);
+  tl.to("#pct-row", { autoAlpha: 0, y: -30, duration: 0.45, ease: "power2.in" }, t0 + 4.5);
+</script>

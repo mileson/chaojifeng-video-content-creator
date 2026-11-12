@@ -1,0 +1,50 @@
+# 屏录地址与冗余动作案例。仅保留去标识化的可复用判断；具体坐标和时间由每条视频重新测量。
+schema_version: 1
+cases:
+  - id: browser-address-bar
+    status: validated
+    signal: "浏览器顶部出现可识别的 URL、域名、路径或查询参数"
+    default_action: "只在地址栏可见的帧内做与栏底色相配的局部遮盖"
+    false_positive_guard: "页面放大、裁切或切换后地址栏已不可见时立即停用；不得盖正文"
+    verification: "检查出现/消失边界及区间中段，在成片确认地址不可读且页面未误遮"
+    origin: "多版口播屏录视频的修订：初剪遮盖后，复核中修正过一次长遮罩误盖页面内容"
+
+  - id: hover-link-status
+    status: validated
+    signal: "悬停链接使左下角短暂出现 http(s) 地址状态条"
+    default_action: "按状态条真实出现帧做贴近背景的小面积遮盖；无信息的悬停片段可裁剪"
+    false_positive_guard: "状态条消失即停用，不用全片固定左下角贴片"
+    verification: "检查每次悬停的进入/退出帧，并抽查没有状态条的负样本"
+    origin: "口播屏录视频初剪后的反馈与成片检查"
+
+  - id: incidental-inline-http
+    status: candidate
+    signal: "正文、弹窗、文件名或提示中偶然露出 HTTP/HTTPS、URL 或路径"
+    default_action: "先判断该段能否无损裁剪；需保留时只处理实际文字区域并随画面移动"
+    false_positive_guard: "明确作为教学概念且不含地址的 HTTP 字样，结合上下文判断；不遮关键步骤"
+    verification: "成片检查文字不可识别且正文、按钮和字幕仍可读"
+    origin: "口播屏录视频的复核反馈；具体出现帧仍需逐片核验"
+
+  - id: moving-address-in-page
+    status: candidate
+    signal: "页面滚动、变焦或弹窗移动时，地址文字的位置随画面变化"
+    default_action: "保留必要演示时对文字区域跟踪遮盖；无信息的移动片段优先裁剪"
+    false_positive_guard: "跟踪遮罩不得滞留原位或盖住新的操作目标"
+    verification: "抽查移动前、中、后与转场边界，确认没有露出或多余贴片"
+    origin: "由地址处理规范扩展的待验证场景"
+
+  - id: round-trip-scroll
+    status: validated
+    signal: "切换后上滚、回到原状态又下滚，期间没有新内容或有效口播"
+    default_action: "主动标记并删除无信息往返动作，保留接入下一步的稳定画面"
+    false_positive_guard: "若滚动展示了独有证据、关键操作或讲解，保留必要过程"
+    verification: "复看剪口前后页面状态、音频、字幕和遮罩时间轴"
+    origin: "口播屏录视频中切换后上滚再下滚的修订"
+
+  - id: repeated-explanation
+    status: validated
+    signal: "同一操作先解释一遍，紧接着又以完整句子重复说明"
+    default_action: "确认语义完全重复后按完整句子边界删去较弱一遍"
+    false_positive_guard: "两遍若有不同信息或剪后语义不连贯，列评审候选"
+    verification: "复听剪口、核对成片字幕与画面动作"
+    origin: "口播屏录视频中同一操作讲解两遍的修订"

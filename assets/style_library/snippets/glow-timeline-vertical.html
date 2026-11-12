@@ -1,0 +1,60 @@
+<!--
+模式：垂直发光时间轴（算账 / 推导 / 步骤链）
+适用场景：分步推导一笔账、时间线叙事、流程递进。比静态算账卡更有"逐步揭晓"感。
+结构要点：
+  - 左侧一根渐变发光竖线（多色 linear-gradient + box-shadow 光晕），transform-origin: top
+  - 每行 item：彩色发光 dot + 标签列（等宽对齐）+ 内容列
+  - 最后一行是结论行，字号更大 + 主题绿 + 发光，与前面行形成层级差
+  - 竖线是装饰元素，标 data-layout-ignore 防 inspect 误报
+动画要点：
+  - 竖线 scaleY 0→1 自顶向下生长（1.6s power2.inOut），与行入场同步推进
+  - 行 x:-50 + stagger 0.35（节奏放慢，跟上口播逐句节奏）
+  - 结论行文字 scale yoyo 强调（transformOrigin: left center 防止跳位）
+-->
+<style>
+  #tlv-card {
+    position: absolute; top: 130px; left: 110px;
+    width: 760px;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px; padding: 34px 44px 38px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #tlv-card h3 { color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 5px; margin-bottom: 26px; text-shadow: 0 0 14px rgba(62,158,255,.5); }
+  #tlv-line {
+    position: absolute; left: 57px; top: 110px; width: 4px; height: 372px;
+    background: linear-gradient(180deg, #3e9eff, #46d390, #ffb224, #46d390);
+    border-radius: 2px;
+    box-shadow: 0 0 16px rgba(62, 158, 255, 0.5);
+    transform-origin: top center;
+  }
+  #tlv-card .item { display: flex; align-items: center; gap: 22px; margin-bottom: 28px; position: relative; }
+  #tlv-card .item:last-child { margin-bottom: 0; }
+  #tlv-card .dot { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; border: 4px solid rgba(10, 12, 18, 0.9); }
+  #tlv-card .item.i1 .dot { background: #3e9eff; box-shadow: 0 0 14px rgba(62,158,255,.8); }
+  #tlv-card .item.i2 .dot { background: #46d390; box-shadow: 0 0 14px rgba(70,211,144,.8); }
+  #tlv-card .item.i3 .dot { background: #ffb224; box-shadow: 0 0 14px rgba(255,178,36,.8); }
+  #tlv-card .item.i4 .dot { background: #46d390; box-shadow: 0 0 18px rgba(70,211,144,1); }
+  #tlv-card .item .date { width: 150px; flex-shrink: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #8b8d98; font-variant-numeric: tabular-nums; }
+  #tlv-card .item .txt { color: #e8e8ec; font-size: 30px; font-weight: 700; }
+  #tlv-card .item.i4 .txt { color: #46d390; font-size: 36px; font-weight: 900; text-shadow: 0 0 16px rgba(70,211,144,.55); }
+</style>
+
+<div id="tlv-card" data-layout-allow-overflow>
+  <h3>【ENGLISH LABEL · 中文标题】</h3>
+  <div id="tlv-line" data-layout-ignore></div>
+  <div class="item i1"><div class="dot"></div><span class="date">【步骤一】</span><span class="txt">【内容一】</span></div>
+  <div class="item i2"><div class="dot"></div><span class="date">【步骤二】</span><span class="txt">【内容二】</span></div>
+  <div class="item i3"><div class="dot"></div><span class="date">【步骤三】</span><span class="txt">【内容三】</span></div>
+  <div class="item i4"><div class="dot"></div><span class="date">【结论】</span><span class="txt">【结论内容（强调）】</span></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#tlv-card", { y: 80, autoAlpha: 0, duration: 0.55 }, 0.15)
+   .from("#tlv-line", { scaleY: 0, duration: 1.6, ease: "power2.inOut" }, 0.6)
+   .from("#tlv-card .item", { x: -50, autoAlpha: 0, duration: 0.45, stagger: 0.35 }, 0.7)
+   .to("#tlv-card .item.i4 .txt", { scale: 1.08, transformOrigin: "left center", duration: 0.28, ease: "power1.inOut", repeat: 3, yoyo: true }, 2.6)
+   .to("#tlv-card", { y: 70, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 5.05);
+</script>

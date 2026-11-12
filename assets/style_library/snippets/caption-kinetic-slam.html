@@ -1,0 +1,46 @@
+<!--
+模式：全屏关键词交替砸入（kinetic slam）【节拍层 · 高能强调】
+适用场景：4~6 个短词高密度交替砸满屏（"贵？/不存在/两毛钱/搞定"），口播爆点段。
+  借鉴 Hyperframes 官方 caption-kinetic-slam，中文化改造：固定大字号 + 交替方向。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - words 数组：{ t 文案, at, hold, dir 入场方向 {x|y 偏移}, key 是否金色关键词 }
+  - 字号（200px 默认，词长 >4 字酌减）、scrim 透明度（.72 默认）
+技术要点：
+  - 全屏 scrim（data-layout-ignore）先入，词在 scrim 上交替砸入
+  - 每词：scale 1.6→1 + 方向位移，power4.out 0.32s（快进慢收 = "砸"感）
+  - 方向交替：上/下/左/右轮换，避免视觉疲劳
+  - key 词金色 #ffb224 + 大发光，留给真正的关键词
+  - 词都绝对定位同一位置（visibility hidden 初始 + yPercent -50 居中）
+-->
+<style>
+  #ks-scrim { position: absolute; inset: 0; background: rgba(4,5,8,.72); }
+  .ks-w { position: absolute; left: 0; width: 100%; top: 44%; text-align: center; color: #fff;
+    font-size: 200px; font-weight: 900; letter-spacing: 6px; visibility: hidden;
+    text-shadow: 0 10px 50px rgba(0,0,0,.6); }
+  .ks-key { color: #ffb224; text-shadow: 0 0 60px rgba(255,178,36,.7); }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；scrim 加 data-layout-ignore -->
+<div id="ks-scrim"></div>
+<div id="ks-stage"></div>
+
+<script>
+  const b = gsap.timeline();
+  const words = [
+    { t: "【词1】", at: 0.3, hold: 0.8, dir: { y: -260 }, key: false },
+    { t: "【词2】", at: 1.25, hold: 0.8, dir: { y: 260 }, key: false },
+    { t: "【关键词】", at: 2.2, hold: 1.0, dir: { x: -420 }, key: true },
+  ];
+  const stage = document.getElementById("ks-stage");
+  b.from("#ks-scrim", { autoAlpha: 0, duration: 0.35 }, 0);
+  words.forEach((w, i) => {
+    const el = document.createElement("div");
+    el.className = "ks-w" + (w.key ? " ks-key" : ""); el.id = "ks-w" + i;
+    el.textContent = w.t;
+    stage.appendChild(el);
+    b.set("#ks-w" + i, { visibility: "visible", yPercent: -50 }, w.at);
+    b.from("#ks-w" + i, Object.assign({ autoAlpha: 0, scale: 1.6, duration: 0.32, ease: "power4.out" }, w.dir), w.at);
+    b.to("#ks-w" + i, { autoAlpha: 0, scale: 0.92, duration: 0.18, ease: "power2.in" }, w.at + w.hold);
+  });
+  b.to("#ks-scrim", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 4.5);
+</script>

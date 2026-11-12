@@ -1,0 +1,231 @@
+<!--
+模式：横摆运镜（arc-sway-camera）【工具层 · 组合动画】
+适用场景：整帧画面在黑底上做一次缓慢横向摆动和小角度旋转，适合录屏/产品片段作为整段运镜复用。
+框架参数：
+  - arcSwayCameraAt(t, opts)：在主 timeline 的 t 秒触发横摆运镜
+  - opts.target：包住底片内容的容器，默认 #asc-stage
+  - opts.duration：默认 1s
+  - opts.startXNorm / opts.midXNorm / opts.endXNorm：默认 0.6 → 0.1 → 0.6，按 norm * 0.25 * 画布宽度换算
+  - opts.rotation：默认 -3deg → 3deg
+  - opts.scale：默认 1.12，给旋转/横摆留一点全屏余量，避免大片硬黑边
+  - opts.edgeMode：默认 "mirror"，用三角波折返采样感补边；传 "black" 保留纯黑露边
+  - opts.blurMax：默认按 duration 反比换算，前半段水平运动拖影收掉
+  - opts.restore：默认 false，保持整段运镜终态；做短促节奏点时可传 true 复位
+技术要点：
+  - 这是整帧组合动画，不是素材之间的转场；边缘默认用镜像采样补空，舞台底色仍是黑色。
+  - 位移只走 x 轴，不制造 y 轴弧线；默认约等于 +15%w → +2.5%w → +15%w。
+  - 不做流光、不做额外放大镜；只移动和旋转一个带镜像延展的完整底片层。
+  - 水平模糊只覆盖前半段，长时长运镜会自动减弱模糊。
+-->
+<style>
+  #asc-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    transform-origin: 50% 50%;
+  }
+
+  .asc-motion,
+  .asc-motion-grid {
+    position: absolute;
+    will-change: transform, filter;
+    transform-origin: 50% 50%;
+  }
+
+  .asc-motion {
+    inset: 0;
+  }
+
+  .asc-motion-grid {
+    left: -100%;
+    top: -100%;
+    width: 300%;
+    height: 300%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  .asc-tile {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .asc-tile-content {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 50%;
+  }
+
+  .asc-filter-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
+
+<svg class="asc-filter-defs" aria-hidden="true" focusable="false">
+  <filter id="asc-horizontal-blur" x="-60%" y="-20%" width="220%" height="140%">
+    <feGaussianBlur id="asc-horizontal-blur-node" in="SourceGraphic" stdDeviation="0 0" />
+  </filter>
+</svg>
+<div id="asc-stage" data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    function cubicBezierEase(x1, y1, x2, y2) {
+      function value(t) {
+        var mt = 1 - t;
+        return {
+          x: 3 * x1 * mt * mt * t + 3 * x2 * mt * t * t + t * t * t,
+          y: 3 * y1 * mt * mt * t + 3 * y2 * mt * t * t + t * t * t,
+        };
+      }
+      return function (p) {
+        var lo = 0;
+        var hi = 1;
+        for (var i = 0; i < 14; i++) {
+          var mid = (lo + hi) / 2;
+          if (value(mid).x > p) hi = mid;
+          else lo = mid;
+        }
+        return value((lo + hi) / 2).y;
+      };
+    }
+
+    var swingOut = cubicBezierEase(0.21, 0.93, 0.48, 0.97);
+    var swingBack = cubicBezierEase(0.73, 0.02, 0.86, 0.10);
+
+    function resolveTarget(target) {
+      if (target instanceof Element) return target;
+      return document.querySelector(target || "#asc-stage");
+    }
+
+    function prepareMotionLayer(root) {
+      if (!root) return null;
+      if (root.classList && root.classList.contains("asc-motion")) return root;
+      var existing = root.querySelector(":scope > .asc-motion");
+      if (existing) return existing;
+      var layer = document.createElement("div");
+      layer.className = "asc-motion";
+      while (root.firstChild) layer.appendChild(root.firstChild);
+      root.appendChild(layer);
+      return layer;
+    }
+
+    function prepareMirrorLayer(root) {
+      if (!root) return null;
+      if (root.classList && root.classList.contains("asc-motion-grid")) return root;
+      var existing = root.querySelector(":scope > .asc-motion-grid");
+      if (existing) return existing;
+
+      var source = document.createElement("div");
+      source.className = "asc-tile-content";
+      while (root.firstChild) source.appendChild(root.firstChild);
+
+      var grid = document.createElement("div");
+      grid.className = "asc-motion-grid";
+      for (var row = 0; row < 3; row++) {
+        for (var col = 0; col < 3; col++) {
+          var tile = document.createElement("div");
+          tile.className = "asc-tile";
+          var content = row === 1 && col === 1 ? source : source.cloneNode(true);
+          var sx = col === 1 ? 1 : -1;
+          var sy = row === 1 ? 1 : -1;
+          content.style.transform = "scale(" + sx + ", " + sy + ")";
+          tile.appendChild(content);
+          grid.appendChild(tile);
+        }
+      }
+      root.appendChild(grid);
+      return grid;
+    }
+
+    function setBlur(el, amount) {
+      var node = document.getElementById("asc-horizontal-blur-node");
+      if (!node) return;
+      if (amount > 0.12) {
+        node.setAttribute("stdDeviation", amount.toFixed(2) + " 0");
+        el.style.filter = "url(#asc-horizontal-blur)";
+      } else {
+        node.setAttribute("stdDeviation", "0 0");
+        el.style.filter = "";
+      }
+    }
+
+    window.arcSwayCameraAt = function (t, opts) {
+      opts = opts || {};
+      var container = resolveTarget(opts.target);
+      var el = opts.edgeMode === "black" ? prepareMotionLayer(container) : prepareMirrorLayer(container);
+      if (!el) return null;
+
+      var dur = opts.duration || 1.0;
+      var width = container.getBoundingClientRect().width || window.innerWidth || 1280;
+      function xFromNorm(norm) { return norm * 0.25 * width; }
+      var startX = opts.startX !== undefined ? opts.startX :
+        (opts.startXRatio !== undefined ? width * opts.startXRatio : xFromNorm(opts.startXNorm !== undefined ? opts.startXNorm : 0.6));
+      var midX = opts.midX !== undefined ? opts.midX :
+        (opts.midXRatio !== undefined ? width * opts.midXRatio : xFromNorm(opts.midXNorm !== undefined ? opts.midXNorm : 0.1));
+      var endX = opts.endX !== undefined ? opts.endX :
+        (opts.endXRatio !== undefined ? width * opts.endXRatio : xFromNorm(opts.endXNorm !== undefined ? opts.endXNorm : 0.6));
+      var rotation = opts.rotation !== undefined ? opts.rotation : 3;
+      var scale = opts.scale !== undefined ? opts.scale : 1.12;
+      var blurMax = opts.blurMax !== undefined ? opts.blurMax : Math.min(6, 2 / Math.max(0.001, dur * 0.5));
+      var blurState = { v: blurMax };
+      var local = gsap.timeline();
+
+      local.set(el, {
+        x: startX,
+        y: 0,
+        rotation: -rotation,
+        scale: scale,
+        transformOrigin: opts.origin || "50% 50%",
+        force3D: true,
+      }, 0);
+
+      local.to(el, {
+        x: midX,
+        duration: dur * 0.5,
+        ease: swingOut,
+      }, 0);
+
+      local.to(el, {
+        x: endX,
+        duration: dur * 0.5,
+        ease: swingBack,
+      }, dur * 0.5);
+
+      local.to(el, {
+        rotation: rotation,
+        duration: dur,
+        ease: "none",
+      }, 0);
+
+      local.to(blurState, {
+        v: 0,
+        duration: dur * 0.5,
+        ease: swingOut,
+        onStart: function () { setBlur(el, blurMax); },
+        onUpdate: function () { setBlur(el, blurState.v); },
+        onComplete: function () { setBlur(el, 0); },
+      }, 0);
+
+      if (opts.restore === true) {
+        local.set(el, { x: 0, y: 0, rotation: 0, scale: 1, clearProps: "filter" }, dur + 0.02);
+      }
+
+      tl.add(local, t);
+      return local;
+    };
+
+    window.horizontalSwayCameraAt = window.arcSwayCameraAt;
+    window.horizontalSwayTransitionAt = window.arcSwayCameraAt;
+  })();
+
+  // 演示节奏：一次横摆运镜
+  requestAnimationFrame(function () {
+    arcSwayCameraAt(t0, { duration: 4.8 });
+  });
+</script>

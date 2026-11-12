@@ -1,0 +1,57 @@
+<!--
+模式：高光扫过提质感（shimmer-sweep-util）【工具层 · 质感点缀】
+适用场景：给任意文字/卡片/logo 加一道斜向光带扫过（AI 感/高级感点缀），
+  参考 Hyperframes 官方 shimmer-sweep 思路的通用化收录（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）；驻留元素每隔几秒扫一次。
+框架参数：
+  - shimmerOn(selector, t, opts)：目标、时间点；opts.angle 角度 / opts.width 光带宽 / opts.dur
+  - 文字用 background-clip 渐变模式；卡片用叠加光带模式（自动判断）
+技术要点：
+  - 卡片模式：往目标内插入 overflow:hidden 的光带层，x 从 -宽 扫到 目标宽+宽
+  - 文字模式（data-shimmer-text）：背景渐变 200% 宽，background-position 从 100% 扫到 0%
+  - 光带 105deg 斜角 + 两侧透明渐变；扫速 0.8s power2.inOut（太快像 bug，太慢像舞台灯）
+-->
+<style>
+  .ssw-band { position: absolute; top: -30%; height: 160%; pointer-events: none;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.34), transparent);
+    transform: skewX(-16deg); }
+  .ssw-text { background-image: linear-gradient(105deg, currentColor 42%, #ffffff 50%, currentColor 58%);
+    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; }
+  /* 演示元素（工程里删掉，shimmerOn 指向真实元素） */
+  #ssw-demo-card { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #1c2742, #131a2c); border: 1px solid #3e9eff55;
+    border-radius: 22px; padding: 34px 60px; overflow: hidden;
+    color: #eef2fb; font-size: 44px; font-weight: 900; letter-spacing: 2px; }
+  #ssw-demo-text { position: absolute; left: 50%; top: 62%; transform: translateX(-50%);
+    color: #3e9eff; font-size: 56px; font-weight: 900; letter-spacing: 3px; }
+</style>
+
+<div id="ssw-demo-card">成本直降 90% 的方案</div>
+<div id="ssw-demo-text" class="ssw-text">SHIMMER SWEEP</div>
+
+<script>
+  (function () {
+    window.shimmerOn = function (selector, t, opts) {
+      opts = opts || {};
+      var el = document.querySelector(selector);
+      var dur = opts.dur || 0.8;
+      if (el.classList.contains("ssw-text")) {
+        gsap.set(el, { backgroundPosition: "120% 0%" });
+        tl.to(el, { backgroundPosition: "-20% 0%", duration: dur, ease: "power2.inOut" }, t);
+        return;
+      }
+      var band = document.createElement("div");
+      band.className = "ssw-band";
+      var w = opts.width || 120;
+      band.style.width = w + "px";
+      el.appendChild(band);
+      var tw = el.getBoundingClientRect().width;
+      gsap.set(band, { x: -w * 2 });
+      tl.to(band, { x: tw + w, duration: dur, ease: "power2.inOut" }, t);
+    };
+  })();
+  tl.from(["#ssw-demo-card", "#ssw-demo-text"], { autoAlpha: 0, y: 26, duration: 0.5, stagger: 0.15 }, t0);
+  shimmerOn("#ssw-demo-card", t0 + 0.9);
+  shimmerOn("#ssw-demo-text", t0 + 1.6);
+  shimmerOn("#ssw-demo-card", t0 + 3.4);
+</script>

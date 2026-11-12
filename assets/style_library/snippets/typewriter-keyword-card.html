@@ -1,0 +1,39 @@
+<!--
+模式：打字机关键词字卡（typewriter-keyword-card）【节拍层 · 概念引入】
+适用场景：口播引出核心概念时（如「AI 员工团队」），单关键词驻留 4~5s。
+框架参数：
+  - TEXT 关键词（中文 4~8 字最佳）、顶部小标签（KEYWORD / 概念 等）
+  - 完成色（默认青 #4dd0e1）
+技术要点：
+  - state 对象 n 0→length 匀速 tween，onUpdate 用 slice 截取（中文按字符逐个打出）
+  - 光标闪烁用 yoyo repeat + steps(1)（确定性，离线渲染逐帧一致）
+  - 打完后整词变 accent 色 + textShadow 发光 = 「确认」节拍
+  - 卡片居中用 gsap.set xPercent -50（铁律）；min-height 防打字过程高度跳动
+-->
+<style>
+  #twk-card { position: absolute; left: 50%; top: 40%; background: rgba(10,14,22,.9);
+    border: 1px solid rgba(77,208,225,.35); border-radius: 18px; padding: 44px 70px;
+    box-shadow: 0 0 60px rgba(77,208,225,.14), 0 30px 80px rgba(0,0,0,.5); }
+  #twk-label { color: #4dd0e1; font-size: 17px; font-weight: 800; letter-spacing: 6px; }
+  #twk-line { display: flex; align-items: center; margin-top: 16px; }
+  #twk-text { color: #fff; font-size: 84px; font-weight: 900; letter-spacing: 3px;
+    font-family: ui-monospace, Menlo, "PingFang SC", monospace; white-space: nowrap; min-height: 110px; }
+  #twk-cursor { width: 8px; height: 78px; background: #4dd0e1; margin-left: 10px; box-shadow: 0 0 14px rgba(77,208,225,.8); }
+</style>
+
+<div id="twk-card">
+  <div id="twk-label">【KEYWORD】</div>
+  <div id="twk-line"><div id="twk-text"></div><div id="twk-cursor"></div></div>
+</div>
+
+<script>
+  gsap.set("#twk-card", { xPercent: -50 });
+  var TEXT = "【关键词】";
+  var st = { n: 0 }, el = null;
+  tl.from("#twk-card", { autoAlpha: 0, y: 50, duration: 0.5 }, t0);
+  tl.to(st, { n: TEXT.length, duration: 1.1, ease: "none",
+    onUpdate: function () { el = el || document.getElementById("twk-text"); el.textContent = TEXT.slice(0, Math.floor(st.n)); } }, t0 + 0.5);
+  tl.to("#twk-cursor", { opacity: 0, duration: 0.4, yoyo: true, repeat: 7, ease: "steps(1)" }, t0 + 0.5);
+  tl.to("#twk-text", { color: "#4dd0e1", textShadow: "0 0 30px rgba(77,208,225,.6)", duration: 0.35 }, t0 + 2.0);
+  tl.to("#twk-card", { autoAlpha: 0, y: -28, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+</script>

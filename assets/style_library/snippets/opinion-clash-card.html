@@ -1,0 +1,69 @@
+<!--
+模式：观点对峙卡（评论类「两派吵起来了」）
+适用场景：科技评论呈现争议：「一派说 A，另一派说 B」。与 vs-compare（参数对比）不同，
+  这是观点/立场的引用级对峙，适合资讯评论的冲突铺垫。
+结构要点：
+  - 左右两张引用卡相向撞入，中缝立一个 VS 徽章（圆形 + 闪电描边）
+  - 每卡：立场 tag（顶部色条胶囊）+ 大引号 + 观点文案 + 署名（阵营名/代表人物）
+  - 左卡蓝系右卡橙系，色彩对立强化冲突
+动画要点：
+  - 左右卡 x∓260 相向撞入（power4.out），到位瞬间 VS 徽章 scale 0→1 弹出 + 震屏微抖
+  - 引号先于文字浮现；署名行最后入
+  - 驻留期两卡轻微相向倾斜（rotate ∓1.2°）保持张力
+参数：两侧立场 tag/观点文案/署名/双色
+-->
+<style>
+  #ocl-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 0; }
+  .ocl-card { width: 540px; border-radius: 24px; padding: 36px 40px 32px; position: relative;
+    background: rgba(14, 17, 26, 0.96); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    will-change: transform; }
+  #ocl-l { border: 1.5px solid rgba(62, 158, 255, 0.4); margin-right: 46px; }
+  #ocl-r { border: 1.5px solid rgba(255, 138, 71, 0.4); margin-left: 46px; }
+  .ocl-tag { display: inline-block; font-size: 21px; font-weight: 900; letter-spacing: 2px;
+    border-radius: 999px; padding: 8px 20px; }
+  #ocl-l .ocl-tag { color: #07131f; background: #3e9eff; }
+  #ocl-r .ocl-tag { color: #1f0e02; background: #ff8a47; }
+  .ocl-quote { margin-top: 20px; color: #e8ecf4; font-size: 30px; line-height: 1.6; font-weight: 700; }
+  .ocl-mark { position: absolute; top: 18px; right: 28px; font-size: 90px; font-weight: 900;
+    line-height: 1; opacity: 0.16; }
+  #ocl-l .ocl-mark { color: #3e9eff; } #ocl-r .ocl-mark { color: #ff8a47; }
+  .ocl-by { margin-top: 18px; color: #8b93a6; font-size: 23px; }
+  #ocl-vs { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #232a3c, #11141f);
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7), 0 0 26px rgba(179, 136, 255, 0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 42px; font-weight: 900; font-style: italic; will-change: transform; }
+</style>
+
+<div id="ocl-wrap">
+  <div class="ocl-card" id="ocl-l">
+    <span class="ocl-tag">【立场 A】</span>
+    <div class="ocl-mark">“</div>
+    <div class="ocl-quote">【A 派观点，20~36 字】</div>
+    <div class="ocl-by">—— 【阵营/代表者】</div>
+  </div>
+  <div class="ocl-card" id="ocl-r">
+    <span class="ocl-tag">【立场 B】</span>
+    <div class="ocl-mark">”</div>
+    <div class="ocl-quote">【B 派观点，20~36 字】</div>
+    <div class="ocl-by">—— 【阵营/代表者】</div>
+  </div>
+  <div id="ocl-vs">VS</div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power4.out" } });
+  gsap.set("#ocl-vs", { xPercent: -50, yPercent: -50 });
+  b.from("#ocl-l", { x: -280, autoAlpha: 0, duration: 0.6 }, 0.2)
+    .from("#ocl-r", { x: 280, autoAlpha: 0, duration: 0.6 }, 0.32)
+    .from("#ocl-vs", { scale: 0, autoAlpha: 0, duration: 0.45, ease: "back.out(2.4)" }, 0.8)
+    .fromTo("#ocl-wrap", { x: "-=0" }, { keyframes: [{ x: "+=7", duration: 0.05 }, { x: "-=11", duration: 0.06 }, { x: "+=4", duration: 0.05 }], ease: "none" }, 0.86)
+    .from(".ocl-quote", { y: 22, autoAlpha: 0, duration: 0.45, stagger: 0.12 }, 1.05)
+    .from(".ocl-by", { autoAlpha: 0, duration: 0.4, stagger: 0.12 }, 1.5)
+    .to("#ocl-l", { rotate: -1.2, duration: 1.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.0)
+    .to("#ocl-r", { rotate: 1.2, duration: 1.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.0)
+    .to("#ocl-wrap", { y: 70, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.6);
+</script>

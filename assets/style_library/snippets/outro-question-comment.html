@@ -1,0 +1,60 @@
+<!--
+模式：评论互动片尾（outro-question-comment）【片尾层 · 拼接式结尾】
+适用场景：观点/测评视频收尾 6~8s——抛一个争议性问题大卡，周围飞入几条
+  立场不同的「观众评论」气泡，引导观众下场评论；互动率发动机。
+框架参数：
+  - 问题文案（一句话，带二选一或开放争议）、评论气泡 3~4 条（立场要对立）
+  - 气泡飞入方向与时间点
+技术要点：
+  - 问题卡居中大字 + 问号单独 elastic 弹出放大（争议感）
+  - 气泡从四角斜飞入 + 轻微各自漂浮（随机相位 sine）
+  - 「评论区聊聊」pill 最后入 + 光晕脉冲；不写「点赞投币」等平台特定话术
+-->
+<style>
+  #oqc-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #201a33 0%, #100d1e 58%, #090712 100%); }
+  #oqc-kicker { position: absolute; left: 50%; top: 170px; transform: translateX(-50%);
+    color: #b388ff; font-size: 24px; font-weight: 800; letter-spacing: 8px; }
+  #oqc-q { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%);
+    color: #f4f7ff; font-size: 76px; font-weight: 900; white-space: nowrap; letter-spacing: 2px; }
+  #oqc-q b { color: #b388ff; display: inline-block; font-size: 96px; }
+  .oqc-bubble { position: absolute; max-width: 430px; padding: 18px 26px; border-radius: 20px;
+    font-size: 24px; font-weight: 700; line-height: 1.5; color: #dde4f0;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 16px 44px rgba(0,0,0,.4); }
+  .oqc-bubble i { display: block; font-style: normal; font-size: 18px; color: #8b96ac; margin-bottom: 6px; }
+  #oqc-b1 { left: 160px; top: 230px; }
+  #oqc-b2 { right: 170px; top: 280px; }
+  #oqc-b3 { left: 230px; bottom: 230px; }
+  #oqc-b4 { right: 220px; bottom: 200px; border-color: rgba(179,136,255,.45); }
+  #oqc-cta { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%);
+    color: #fff; font-size: 28px; font-weight: 900; letter-spacing: 4px; white-space: nowrap;
+    background: linear-gradient(135deg, #7c4dff, #b388ff); border-radius: 99px; padding: 17px 52px;
+    box-shadow: 0 14px 44px rgba(124,77,255,.4); }
+</style>
+
+<div id="oqc-bg" data-layout-allow-overflow></div>
+<div id="oqc-kicker">YOUR TURN · 该你说了</div>
+<div id="oqc-q">AI 成本，该省还是该花<b>？</b></div>
+<div class="oqc-bubble" id="oqc-b1"><i>@读者甲</i>能省一块是一块，现金流才是命</div>
+<div class="oqc-bubble" id="oqc-b2"><i>@读者乙</i>省出来的都是体验债，迟早要还</div>
+<div class="oqc-bubble" id="oqc-b3"><i>@读者丙</i>先跑通再优化，顺序别搞反了</div>
+<div class="oqc-bubble" id="oqc-b4"><i>@你</i>评论区等你的答案……</div>
+<div id="oqc-cta">评论区聊聊你的选择</div>
+
+<script>
+  tl.from("#oqc-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from("#oqc-kicker", { autoAlpha: 0, y: -20, duration: 0.45 }, t0 + 0.35);
+  tl.from("#oqc-q", { autoAlpha: 0, scale: 0.85, duration: 0.6, ease: "back.out(1.6)" }, t0 + 0.55);
+  tl.from("#oqc-q b", { scale: 0, rotation: 24, duration: 0.7, ease: "elastic.out(1, 0.45)" }, t0 + 1.0);
+  var dirs = [{ x: -90, y: -50 }, { x: 90, y: -50 }, { x: -90, y: 60 }, { x: 90, y: 60 }];
+  ["#oqc-b1", "#oqc-b2", "#oqc-b3", "#oqc-b4"].forEach(function (sel, i) {
+    tl.from(sel, { autoAlpha: 0, x: dirs[i].x, y: dirs[i].y, duration: 0.55, ease: "power3.out" },
+      t0 + 1.5 + i * 0.35);
+    tl.to(sel, { y: "+=" + (i % 2 ? 8 : -8), duration: 1.4 + i * 0.2, yoyo: true, repeat: 3,
+      ease: "sine.inOut" }, t0 + 2.2 + i * 0.35);
+  });
+  tl.from("#oqc-cta", { autoAlpha: 0, y: 26, scale: 0.9, duration: 0.5, ease: "back.out(2)" }, t0 + 3.4);
+  tl.to("#oqc-cta", { boxShadow: "0 14px 60px rgba(124,77,255,.75)", duration: 0.7,
+    yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 4.0);
+</script>

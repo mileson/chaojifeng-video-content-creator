@@ -1,0 +1,83 @@
+<!--
+  模式：预测曲线（实线→虚线，无卡 overlay）⚙️
+  适用：「按这个趋势预测…」类口播——已发生数据画实线，预测段画虚线，
+    端点圆点脉冲；下方巨号预测值 + 箭头 → 结论 chip（量级徽章）+ 置信度徽章。
+    全套直贴画面暗部，预测/趋势类节拍的杀手锏。
+  适配铁律：亮色素材保留 .cfc-scrim；曲线用 SVG path，实线段与虚线段分开 draw。
+  参数化：曲线形状/分界点标注/预测值/结论 chip 文案/置信度。
+-->
+<style>
+  #cfc-wrap { position: absolute; top: 120px; left: 56px; width: 600px; }
+  #cfc-scrim { position: absolute; top: -50px; left: -80px; width: 760px; height: 520px;
+    background: radial-gradient(ellipse at 35% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  #cfc-svg { width: 600px; height: 240px; position: relative; }
+  #cfc-solid { fill: none; stroke: #3e9eff; stroke-width: 5; stroke-linecap: round;
+    filter: drop-shadow(0 0 8px rgba(62,158,255,.6)); }
+  #cfc-dash { fill: none; stroke: #6db4ff; stroke-width: 5; stroke-linecap: round;
+    stroke-dasharray: 14 12; opacity: .9; }
+  #cfc-dot { fill: #3e9eff; filter: drop-shadow(0 0 12px rgba(62,158,255,.9)); }
+  #cfc-mark { position: absolute; left: 218px; top: 196px; font-size: 16px; font-weight: 700;
+    color: #aeb4c2; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #cfc-vline { position: absolute; left: 248px; top: 20px; width: 0; height: 170px;
+    border-left: 2px dashed rgba(255,255,255,.28); }
+  #cfc-result { margin-top: 26px; position: relative; display: flex; align-items: center; gap: 22px;
+    white-space: nowrap; width: max-content; }
+  #cfc-kick { position: absolute; top: -24px; left: 2px; font-size: 14px; font-weight: 800;
+    letter-spacing: 4px; color: #93a0b4; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #cfc-val { font-size: 86px; font-weight: 900; line-height: 1; color: #3e9eff;
+    text-shadow: 0 5px 30px rgba(62,158,255,.55), 0 2px 12px rgba(0,0,0,.85); }
+  #cfc-arrow { font-size: 40px; color: #93a0b4; font-weight: 900; }
+  #cfc-tier { padding: 12px 22px; border-radius: 14px; border: 1.5px solid rgba(255,178,36,.7);
+    background: rgba(255,178,36,.12); color: #ffd47e; font-size: 26px; font-weight: 900;
+    box-shadow: 0 0 22px rgba(255,178,36,.3); text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+  #cfc-conf { padding: 8px 16px; border-radius: 999px; background: rgba(70,211,144,.15);
+    border: 1.5px solid rgba(70,211,144,.65); color: #7fe3ae; font-size: 20px; font-weight: 900;
+    text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+</style>
+
+<div id="cfc" class="clip beat" data-start="0.4" data-duration="5.6" data-track-index="0" data-layout-allow-overflow>
+  <div id="cfc-wrap">
+    <div id="cfc-scrim"></div>
+    <svg id="cfc-svg" viewBox="0 0 600 240">
+      <path id="cfc-solid" d="M 20 210 C 100 195, 180 160, 248 130"></path>
+      <path id="cfc-dash" d="M 248 130 C 330 95, 460 60, 560 42"></path>
+      <circle id="cfc-dot" cx="560" cy="42" r="9"></circle>
+    </svg>
+    <div id="cfc-vline"></div>
+    <div id="cfc-mark">第 4 小时</div>
+    <div id="cfc-result">
+      <div id="cfc-kick">FORECAST · 预测最终</div>
+      <div id="cfc-val">6.8万</div>
+      <div id="cfc-arrow">→</div>
+      <div id="cfc-tier">🏆 5-10万</div>
+      <div id="cfc-conf">92% 置信度</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 预测曲线（0.4 起：实线 draw → 虚线 draw → 端点脉冲 → 结论组）===== */
+  (function () {
+    var t0 = 0.4;
+    var solid = document.querySelector("#cfc-solid"), dash = document.querySelector("#cfc-dash");
+    var sLen = solid.getTotalLength(), dLen = dash.getTotalLength();
+    gsap.set(solid, { strokeDasharray: sLen, strokeDashoffset: sLen });
+    /* 虚线段：外层包一个 dashoffset 动画会破坏 14/12 虚线样式，改用裁切式 draw */
+    gsap.set(dash, { clipPath: "inset(0 100% 0 0)" });
+    gsap.set("#cfc-dot", { scale: 0, transformOrigin: "center" });
+
+    tl.from("#cfc-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.to(solid, { strokeDashoffset: 0, duration: 0.9, ease: "power1.inOut" }, t0 + 0.2);
+    tl.from(["#cfc-vline", "#cfc-mark"], { autoAlpha: 0, duration: 0.4 }, t0 + 0.95);
+    tl.to(dash, { clipPath: "inset(0 0% 0 0)", duration: 1.0, ease: "power1.inOut" }, t0 + 1.15);
+    tl.to("#cfc-dot", { scale: 1, duration: 0.4, ease: "back.out(2.5)" }, t0 + 2.1);
+    tl.to("#cfc-dot", { scale: 1.5, opacity: 0.5, duration: 0.5, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 2.5);
+    tl.from("#cfc-kick", { autoAlpha: 0, duration: 0.35 }, t0 + 2.3);
+    tl.from("#cfc-val", { autoAlpha: 0, y: 30, duration: 0.5, ease: "back.out(1.6)" }, t0 + 2.4);
+    tl.from("#cfc-arrow", { autoAlpha: 0, x: -14, duration: 0.35 }, t0 + 2.75);
+    tl.from("#cfc-tier", { autoAlpha: 0, scale: 0.6, duration: 0.5, ease: "back.out(1.8)" }, t0 + 2.9);
+    tl.from("#cfc-conf", { autoAlpha: 0, scale: 0.6, duration: 0.45, ease: "back.out(1.8)" }, t0 + 3.15);
+    tl.to("#cfc-wrap", { autoAlpha: 0, y: 24, duration: 0.45, ease: "power2.in" }, t0 + 5.0);
+  })();
+</script>

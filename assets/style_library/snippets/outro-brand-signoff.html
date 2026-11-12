@@ -1,0 +1,43 @@
+<!--
+模式：品牌签收片尾（outro-brand-signoff）【片尾层 · 拼接式结尾】
+适用场景：所有内容的「最后 4~5 秒」——黑场上品牌字标从光晕中浮出，
+  tagline 渐入，光环收束，干净利落地收束全片；可接在任何其他片尾之后兜底。
+框架参数：
+  - 品牌名、tagline、主题色光晕
+技术要点：
+  - 字标 SplitText 逐字从模糊（blur 18px）+ 位移聚拢成型（光学对焦感）
+  - 背后径向光晕先涨后收（呼一口气的节奏）
+  - 末尾整体亮度轻微下压（-8%）给黑场过渡留坡度
+-->
+<style>
+  #obs-bg { position: absolute; inset: 0; background: #05070c; }
+  #obs-halo { position: absolute; left: 50%; top: 50%; width: 1200px; height: 700px;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(62,158,255,.16) 0%, transparent 65%); }
+  #obs-name { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+    color: #f4f7ff; font-size: 110px; font-weight: 900; letter-spacing: 10px; white-space: nowrap; }
+  #obs-tagline { position: absolute; left: 50%; top: 58%; transform: translateX(-50%);
+    color: #8b96ac; font-size: 28px; font-weight: 700; letter-spacing: 8px; white-space: nowrap; }
+  #obs-line { position: absolute; left: 50%; top: 53.5%; transform: translateX(-50%);
+    width: 320px; height: 2px; background: linear-gradient(90deg, transparent, #3e9eff, transparent); }
+</style>
+
+<div id="obs-bg" data-layout-allow-overflow></div>
+<div id="obs-halo" data-layout-ignore></div>
+<div id="obs-name">【创作者名称】</div>
+<div id="obs-line" data-layout-ignore></div>
+<div id="obs-tagline">【一句话身份签名】</div>
+
+<script>
+  tl.from("#obs-bg", { autoAlpha: 0, duration: 0.5 }, t0);
+  tl.fromTo("#obs-halo", { autoAlpha: 0, scale: 0.6 },
+    { autoAlpha: 1, scale: 1.15, duration: 1.2, ease: "power2.out" }, t0 + 0.2);
+  var obsSplit = new SplitText("#obs-name", { type: "chars" });
+  tl.from(obsSplit.chars, { autoAlpha: 0, filter: "blur(18px)", y: 22, letterSpacing: "30px",
+    duration: 0.9, stagger: 0.1, ease: "power3.out" }, t0 + 0.5);
+  tl.from("#obs-line", { scaleX: 0, duration: 0.7, ease: "power2.inOut" }, t0 + 1.4);
+  tl.from("#obs-tagline", { autoAlpha: 0, y: 14, letterSpacing: "16px", duration: 0.8 }, t0 + 1.7);
+  // 光环收束 + 整体压暗（给黑场留坡度）
+  tl.to("#obs-halo", { scale: 0.85, autoAlpha: 0.5, duration: 1.4, ease: "power2.inOut" }, t0 + 2.8);
+  tl.to(["#obs-name", "#obs-tagline", "#obs-line"], { autoAlpha: 0.92, duration: 1.2 }, t0 + 3.2);
+</script>

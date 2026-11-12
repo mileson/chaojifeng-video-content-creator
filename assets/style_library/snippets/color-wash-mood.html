@@ -1,0 +1,46 @@
+<!--
+模式：情绪调色滤镜（color-wash-mood）【工具层 · 质感滤镜】
+适用场景：给底片整体罩一层情绪色——黑白闪回（回忆/过去式）、红色警示（踩坑/报错）、
+  青橙电影感（高光时刻）。叠独立 track 上 3~15s。
+框架参数：
+  - mode：washTo("bw" | "alert" | "teal", t, dur)，washOff(t) 复原
+  - 强度可在 MODES 表里调（saturate/色罩透明度）
+技术要点：
+  - 用 mix-blend-mode: color/multiply 的全屏色罩 + CSS filter 组合（离线渲染稳定）
+  - 黑白模式：灰度罩 + 对比微提；警示模式：红罩 multiply + 边缘暗角
+  - 切换走 autoAlpha 渐变 0.5s，不要瞬切（瞬切像 bug）
+  - 全部 data-layout-ignore，不参与布局检查
+-->
+<style>
+  .cwm-layer { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  #cwm-bw { backdrop-filter: grayscale(1) contrast(1.08) brightness(.96);
+    -webkit-backdrop-filter: grayscale(1) contrast(1.08) brightness(.96); }
+  #cwm-alert { background: radial-gradient(ellipse at center, rgba(229,72,77,.18) 30%, rgba(120,8,16,.5) 100%);
+    mix-blend-mode: multiply; }
+  #cwm-alert-edge { background: radial-gradient(ellipse at center, transparent 55%, rgba(60,0,4,.55) 100%); }
+  #cwm-teal { background: linear-gradient(160deg, rgba(0,96,128,.22), rgba(255,148,54,.14));
+    mix-blend-mode: color; }
+</style>
+
+<div class="cwm-layer" id="cwm-bw" data-layout-ignore></div>
+<div class="cwm-layer" id="cwm-alert" data-layout-ignore></div>
+<div class="cwm-layer" id="cwm-alert-edge" data-layout-ignore></div>
+<div class="cwm-layer" id="cwm-teal" data-layout-ignore></div>
+
+<script>
+  (function () {
+    var MODES = { bw: ["#cwm-bw"], alert: ["#cwm-alert", "#cwm-alert-edge"], teal: ["#cwm-teal"] };
+    var ALL = [].concat(MODES.bw, MODES.alert, MODES.teal);
+    window.washTo = function (mode, t, dur) {
+      tl.to(ALL, { autoAlpha: 0, duration: dur || 0.5 }, t);
+      tl.to(MODES[mode], { autoAlpha: 1, duration: dur || 0.5 }, t);
+    };
+    window.washOff = function (t, dur) {
+      tl.to(ALL, { autoAlpha: 0, duration: dur || 0.5 }, t);
+    };
+  })();
+  // 演示：警示红 → 黑白回忆 → 复原
+  washTo("alert", t0);
+  washTo("bw", t0 + 2.2);
+  washOff(t0 + 4.6);
+</script>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #tpz-stage { position: absolute; inset: 0; overflow: hidden; background: rgba(7, 8, 12, 0.92); }
+  #tpz-grid { position: absolute; top: 50%; left: 50%; width: 1560px; height: 920px;
+    margin: -460px 0 0 -780px; display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr); gap: 26px; will-change: transform; }
+  .tpz-card { border-radius: 22px; background: linear-gradient(160deg, #1b2235, #11182a);
+    border: 1.5px solid rgba(255, 255, 255, 0.12); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; will-change: transform;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+  .tpz-card i { font-size: 52px; font-style: normal; }
+  .tpz-card span { color: #9aa3b8; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+  .tpz-hero { background: linear-gradient(160deg, #1d2c4a, #142038); z-index: 3;
+    border: 2px solid rgba(62, 158, 255, 0.55); box-shadow: 0 0 60px rgba(62, 158, 255, 0.25); }
+  .tpz-hero b { color: #fff; font-size: 40px; font-weight: 900; letter-spacing: 2px; }
+  .tpz-hero span { color: #7aa2ff; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="tpz-stage">
+  <div id="tpz-grid">
+    <div class="tpz-card" data-px="-1" data-py="-1"><i>🧩</i><span>【模块 1】</span></div>
+    <div class="tpz-card" data-px="0" data-py="-1.4"><i>⚙️</i><span>【模块 2】</span></div>
+    <div class="tpz-card" data-px="1" data-py="-1"><i>📊</i><span>【模块 3】</span></div>
+    <div class="tpz-card" data-px="-1.4" data-py="0"><i>🔌</i><span>【模块 4】</span></div>
+    <div class="tpz-card tpz-hero"><b>【聚焦项】</b><span>【一句话 · 接下来细讲】</span></div>
+    <div class="tpz-card" data-px="1.4" data-py="0"><i>🛡️</i><span>【模块 6】</span></div>
+    <div class="tpz-card" data-px="-1" data-py="1"><i>📦</i><span>【模块 7】</span></div>
+    <div class="tpz-card" data-px="0" data-py="1.4"><i>🚀</i><span>【模块 8】</span></div>
+    <div class="tpz-card" data-px="1" data-py="1"><i>💡</i><span>【模块 9】</span></div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#tpz-stage", { autoAlpha: 0, duration: 0.4 }, 0)
+    .from(".tpz-card", { y: 60, autoAlpha: 0, duration: 0.5, stagger: { each: 0.06, from: "center" } }, 0.2)
+    // 聚焦放大：网格整体放大，陪衬卡按方向系数向外视差飞出
+    .to("#tpz-grid", { scale: 3.2, duration: 1.1, ease: "power3.inOut" }, 1.5)
+    .to(".tpz-card[data-px]", {
+      x: (i, el) => +el.dataset.px * 620,
+      y: (i, el) => +el.dataset.py * 430,
+      autoAlpha: 0.0, duration: 1.1, ease: "power3.inOut" }, 1.5)
+    // 中心卡充满期：此时底层切到下一段素材
+    .to("#tpz-stage", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 3.1);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!--
+模式：社交推文卡 + 点赞动画（X post card）【节拍层 · 舆论引用】
+适用场景：引用大 V/官方推文佐证观点，比纯截图更干净可控、字号可读。
+  借鉴 Hyperframes 官方 x-post 组件：完整推文卡结构 + 心形点赞微交互。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - 头像字符/名字/handle/正文（em 高亮话题词）/四项互动数据
+  - 点赞触发时刻（默认入场后 1.6s）、点赞后数字
+技术要点：
+  - 卡片 y 90 浮入；点赞 = 心形 scale 0.7 压下 → elastic.out 回弹 + 🤍→❤️ + 数字变红
+  - 卡片底色 #15202b（X 深色主题），白字在任何底片上可读
+  - 正文字号 25px 起（视频里要能读清）
+  - 居中用 gsap.set xPercent/yPercent -50（不要写 CSS transform）
+-->
+<style>
+  #xp-card { position: absolute; left: 50%; top: 50%; width: 880px;
+    background: #15202b; border: 1px solid rgba(255,255,255,.14); border-radius: 20px; padding: 30px 34px;
+    box-shadow: 0 36px 90px rgba(0,0,0,.6); }
+  #xp-head { display: flex; align-items: center; gap: 14px; }
+  #xp-ava { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #1d9bf0, #8b5cf6);
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 22px; }
+  #xp-name { color: #fff; font-size: 21px; font-weight: 800; }
+  #xp-handle { color: #8b98a5; font-size: 16px; margin-top: 2px; }
+  #xp-x { margin-left: auto; color: #fff; font-size: 26px; font-weight: 900; }
+  #xp-body { color: #e7e9ea; font-size: 25px; line-height: 1.55; margin-top: 18px; }
+  #xp-body em { color: #1d9bf0; font-style: normal; }
+  #xp-metrics { display: flex; gap: 56px; margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.1); }
+  .xp-m { display: flex; align-items: center; gap: 8px; color: #8b98a5; font-size: 18px; font-weight: 700; }
+  #xp-heart { font-size: 22px; }
+  #xp-likes { font-variant-numeric: tabular-nums; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="xp-card">
+  <div id="xp-head">
+    <div id="xp-ava">【首字】</div>
+    <div><div id="xp-name">【名字】</div><div id="xp-handle">@【handle】 · 2h</div></div>
+    <div id="xp-x">𝕏</div>
+  </div>
+  <div id="xp-body">【推文正文，<em>#话题词</em> 用 em 高亮】</div>
+  <div id="xp-metrics">
+    <div class="xp-m">💬 482</div>
+    <div class="xp-m">🔁 1.2K</div>
+    <div class="xp-m"><span id="xp-heart">🤍</span><span id="xp-likes">10.9K</span></div>
+    <div class="xp-m">📊 150K</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  gsap.set("#xp-card", { xPercent: -50, yPercent: -50 });
+  b.from("#xp-card", { autoAlpha: 0, y: 90, duration: 0.6, ease: "power3.out" }, 0);
+  b.to("#xp-heart", { scale: 0.7, duration: 0.12, ease: "power2.out" }, 1.6);
+  b.to("#xp-heart", {
+    scale: 1, duration: 0.45, ease: "elastic.out(1, 0.4)",
+    onStart() {
+      document.getElementById("xp-heart").textContent = "❤️";
+      const lk = document.getElementById("xp-likes");
+      lk.textContent = "11.0K"; lk.style.color = "#f91880";
+    },
+  }, 1.72);
+  b.to("#xp-card", { autoAlpha: 0, y: 60, duration: 0.45, ease: "power2.in" }, 4.4);
+</script>

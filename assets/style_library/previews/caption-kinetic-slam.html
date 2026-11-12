@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #ks-scrim { position: absolute; inset: 0; background: rgba(4,5,8,.72); }
+  .ks-w { position: absolute; left: 0; width: 100%; top: 44%; text-align: center; color: #fff;
+    font-size: 200px; font-weight: 900; letter-spacing: 6px; visibility: hidden;
+    text-shadow: 0 10px 50px rgba(0,0,0,.6); }
+  .ks-key { color: #ffb224; text-shadow: 0 0 60px rgba(255,178,36,.7); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="ks-scrim"></div>
+<div id="ks-stage"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline();
+  const words = [
+    { t: "【词1】", at: 0.3, hold: 0.8, dir: { y: -260 }, key: false },
+    { t: "【词2】", at: 1.25, hold: 0.8, dir: { y: 260 }, key: false },
+    { t: "【关键词】", at: 2.2, hold: 1.0, dir: { x: -420 }, key: true },
+  ];
+  const stage = document.getElementById("ks-stage");
+  b.from("#ks-scrim", { autoAlpha: 0, duration: 0.35 }, 0);
+  words.forEach((w, i) => {
+    const el = document.createElement("div");
+    el.className = "ks-w" + (w.key ? " ks-key" : ""); el.id = "ks-w" + i;
+    el.textContent = w.t;
+    stage.appendChild(el);
+    b.set("#ks-w" + i, { visibility: "visible", yPercent: -50 }, w.at);
+    b.from("#ks-w" + i, Object.assign({ autoAlpha: 0, scale: 1.6, duration: 0.32, ease: "power4.out" }, w.dir), w.at);
+    b.to("#ks-w" + i, { autoAlpha: 0, scale: 0.92, duration: 0.18, ease: "power2.in" }, w.at + w.hold);
+  });
+  b.to("#ks-scrim", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 4.5);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

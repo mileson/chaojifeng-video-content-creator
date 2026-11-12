@@ -1,0 +1,45 @@
+<!--
+模式：产品 logo 全屏揭幕（logo-reveal-impact）【节拍层 · 发布宣告】
+适用场景：产品正式发布 / 视频开场 3~5s 品牌定调 / 章节级产品亮相。
+框架参数：
+  - logo 标识字符（或换成 <img>）、产品名、底部徽章文案（如「正式发布」）
+  - 配色：mark 渐变 + 徽章 accent（默认青/珊瑚橙，跟 BROLL-STYLE）
+技术要点：
+  - 全屏 scrim 渐变深底先入 → mark scale 2.2 + rotation 砸入 → 名称 x 滑入
+  - 冲击波 ring：fromTo scale 0.3→2.6 + opacity 0.9→0（power2.out），与名称同刻触发
+  - 徽章 back.out(2.2) 弹出后 boxShadow yoyo 呼吸 2 次
+  - ring 需 gsap.set xPercent/yPercent -50 居中（铁律：不写 CSS transform）
+-->
+<style>
+  #lri-scrim { position: absolute; inset: 0; background: linear-gradient(160deg, #0d1117, #1a2233); }
+  #lri-ring { position: absolute; left: 50%; top: 44%; width: 360px; height: 360px; border-radius: 50%;
+    border: 3px solid rgba(77,208,225,.8); }
+  #lri-stage { position: absolute; left: 0; right: 0; top: 34%; text-align: center; }
+  #lri-logo { display: inline-flex; align-items: center; gap: 22px; }
+  #lri-mark { width: 110px; height: 110px; border-radius: 26px; background: linear-gradient(135deg, #4dd0e1, #2b7fd4);
+    display: flex; align-items: center; justify-content: center; color: #06121a; font-size: 56px; font-weight: 900;
+    box-shadow: 0 0 60px rgba(77,208,225,.5); }
+  #lri-name { color: #fff; font-size: 120px; font-weight: 900; letter-spacing: 2px; }
+  #lri-badge { display: inline-block; margin-top: 28px; background: rgba(255,122,89,.16); border: 1.5px solid rgba(255,122,89,.7);
+    color: #ffa48c; border-radius: 99px; padding: 12px 40px; font-size: 30px; font-weight: 900; letter-spacing: 6px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；scrim/ring 加 data-layout-ignore -->
+<div id="lri-scrim" data-layout-ignore></div>
+<div id="lri-ring" data-layout-ignore></div>
+<div id="lri-stage">
+  <div id="lri-logo"><div id="lri-mark">【首字母】</div><div id="lri-name">【产品名】</div></div>
+  <div><span id="lri-badge">【正 式 发 布】</span></div>
+</div>
+
+<script>
+  // t0 = beat 起点
+  gsap.set("#lri-ring", { xPercent: -50, yPercent: -50 });
+  tl.from("#lri-scrim", { autoAlpha: 0, duration: 0.35 }, t0);
+  tl.from("#lri-mark", { autoAlpha: 0, scale: 2.2, rotation: -14, duration: 0.45, ease: "power4.out" }, t0 + 0.4);
+  tl.from("#lri-name", { autoAlpha: 0, x: 90, duration: 0.5, ease: "power4.out" }, t0 + 0.55);
+  tl.fromTo("#lri-ring", { scale: 0.3, opacity: 0.9 }, { scale: 2.6, opacity: 0, duration: 0.9, ease: "power2.out" }, t0 + 0.55);
+  tl.from("#lri-badge", { autoAlpha: 0, scale: 0.5, duration: 0.5, ease: "back.out(2.2)" }, t0 + 1.2);
+  tl.to("#lri-badge", { boxShadow: "0 0 36px rgba(255,122,89,.6)", duration: 0.45, yoyo: true, repeat: 2, ease: "sine.inOut" }, t0 + 1.8);
+  tl.to(["#lri-stage", "#lri-scrim"], { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.0);
+</script>

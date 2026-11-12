@@ -1,0 +1,58 @@
+<!--
+模式：网格聚焦放大转场（parallax-zoom，eBay Playbook 范式）
+适用场景：从「全景网格」聚焦进某一项（功能矩阵→单功能详解）；reverse 反向用于
+  结尾从单项缩回全景做总结。半接管转场：网格盖在画面上→中心卡放大充满全屏→切下一段。
+结构要点：
+  - 3×3 卡片网格：中心卡 .tpz-hero 是聚焦目标（放标题/截图），周围 8 张陪衬卡
+  - 网格容器 #tpz-grid 整体 scale 驱动放大；陪衬卡各自再乘视差系数向外飞（离中心越远飞越快）
+  - 中心卡放大到充满后保持 0.4s（此时切换底层素材），再整体淡出
+动画要点：
+  - 网格浮入 → 停 0.5s 看清全景 → grid scale 1→3.2（power3.inOut 1.1s）
+    同拍陪衬卡按方向向外 x/y 位移（视差），中心卡 z-index 顶层无位移
+  - 反向（unzoom 总结）：把时间轴 reverse 或交换 from/to 即可
+参数：中心卡内容/陪衬卡数量与内容/放大倍率（3.2 默认，保证中心卡盖满 1920）
+-->
+<style>
+  #tpz-stage { position: absolute; inset: 0; overflow: hidden; background: rgba(7, 8, 12, 0.92); }
+  #tpz-grid { position: absolute; top: 50%; left: 50%; width: 1560px; height: 920px;
+    margin: -460px 0 0 -780px; display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr); gap: 26px; will-change: transform; }
+  .tpz-card { border-radius: 22px; background: linear-gradient(160deg, #1b2235, #11182a);
+    border: 1.5px solid rgba(255, 255, 255, 0.12); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; will-change: transform;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+  .tpz-card i { font-size: 52px; font-style: normal; }
+  .tpz-card span { color: #9aa3b8; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+  .tpz-hero { background: linear-gradient(160deg, #1d2c4a, #142038); z-index: 3;
+    border: 2px solid rgba(62, 158, 255, 0.55); box-shadow: 0 0 60px rgba(62, 158, 255, 0.25); }
+  .tpz-hero b { color: #fff; font-size: 40px; font-weight: 900; letter-spacing: 2px; }
+  .tpz-hero span { color: #7aa2ff; }
+</style>
+
+<div id="tpz-stage">
+  <div id="tpz-grid">
+    <div class="tpz-card" data-px="-1" data-py="-1"><i>🧩</i><span>【模块 1】</span></div>
+    <div class="tpz-card" data-px="0" data-py="-1.4"><i>⚙️</i><span>【模块 2】</span></div>
+    <div class="tpz-card" data-px="1" data-py="-1"><i>📊</i><span>【模块 3】</span></div>
+    <div class="tpz-card" data-px="-1.4" data-py="0"><i>🔌</i><span>【模块 4】</span></div>
+    <div class="tpz-card tpz-hero"><b>【聚焦项】</b><span>【一句话 · 接下来细讲】</span></div>
+    <div class="tpz-card" data-px="1.4" data-py="0"><i>🛡️</i><span>【模块 6】</span></div>
+    <div class="tpz-card" data-px="-1" data-py="1"><i>📦</i><span>【模块 7】</span></div>
+    <div class="tpz-card" data-px="0" data-py="1.4"><i>🚀</i><span>【模块 8】</span></div>
+    <div class="tpz-card" data-px="1" data-py="1"><i>💡</i><span>【模块 9】</span></div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#tpz-stage", { autoAlpha: 0, duration: 0.4 }, 0)
+    .from(".tpz-card", { y: 60, autoAlpha: 0, duration: 0.5, stagger: { each: 0.06, from: "center" } }, 0.2)
+    // 聚焦放大：网格整体放大，陪衬卡按方向系数向外视差飞出
+    .to("#tpz-grid", { scale: 3.2, duration: 1.1, ease: "power3.inOut" }, 1.5)
+    .to(".tpz-card[data-px]", {
+      x: (i, el) => +el.dataset.px * 620,
+      y: (i, el) => +el.dataset.py * 430,
+      autoAlpha: 0.0, duration: 1.1, ease: "power3.inOut" }, 1.5)
+    // 中心卡充满期：此时底层切到下一段素材
+    .to("#tpz-stage", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 3.1);
+</script>

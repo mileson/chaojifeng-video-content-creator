@@ -1,0 +1,32 @@
+# 专名和 ASR 修正记忆。
+# 条目要小、明确、可复用；不要在这里存放密钥。
+#
+# literal_replacements 是全局无条件替换，只放长期稳定、不会误伤正常用词的条目。
+# 上下文型同音错词（例如“一件”与“一键”）写进单条视频的 subtitle_plan.json，不进全局替换。
+# 把你自己的名字、品牌名和产品名加进 preferred_terms，并把它们常见的同音错词加进 literal_replacements。
+
+literal_replacements:
+  - from: "文檔"
+    to: "文档"
+    reason: "繁简不一致。"
+  # 创作者名称的同音错词示例，按你的名字替换后取消注释：
+  # - from: "错误写法"
+  #   to: "正确写法"
+  #   reason: "创作者名称的常见 ASR 同音错词。"
+
+preferred_terms:
+  - "Skill"
+  - "AGENTS.md"
+  - "MCP"
+  - "GitHub"
+  - "B站"
+
+review_required_patterns:
+  - pattern: "人名/账号/公司名"
+    instruction: "始终优先对照用户提供的词典或标题确认。"
+  - pattern: "英文技术词"
+    instruction: "优先使用 preferred_terms 里的标准写法。"
+  - pattern: "上下文型同音错词"
+    instruction: "当听感和上下文指向某个同音词、近音词或专有表达时，由 Agent 写入单条视频的 subtitle_plan，不作为无条件全局替换。"
+  - pattern: "截断型识别"
+    instruction: "当 ASR 把一个完整词组截断成半句话时，先听音频并看前后句；只在当前视频 subtitle_plan 中修正，不进入全局 literal_replacements。"

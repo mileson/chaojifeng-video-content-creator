@@ -1,0 +1,46 @@
+<!--
+  模式：小型环形仪表（无卡 overlay）⚙️
+  适用：「完播率 40%」「CPU 占用 80%」等阈值/比率口播——小 donut 进度环
+    悬浮在画面任意空位（默认右上偏中），SVG 弧线 draw + 中心数字 count-up。
+  适配铁律：体积小（默认 150px）不抢人物；达标用绿、踩线用红、中性用蓝。
+  参数化：目标百分比/环色/尺寸/停靠位置/标签文案。
+-->
+<style>
+  #grm-wrap { position: absolute; top: 130px; right: 200px; width: 150px; text-align: center; }
+  #grm-svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+  #grm-bg { fill: none; stroke: rgba(255,255,255,.16); stroke-width: 12; }
+  #grm-arc { fill: none; stroke: #e5484d; stroke-width: 12; stroke-linecap: round;
+    filter: drop-shadow(0 0 10px rgba(229,72,77,.65)); }
+  #grm-center { position: absolute; top: 0; left: 0; width: 150px; height: 150px;
+    display: flex; align-items: center; justify-content: center; }
+  #grm-pct { font-size: 38px; font-weight: 900; color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,.85); }
+  #grm-label { margin-top: 8px; font-size: 17px; font-weight: 800; letter-spacing: 2px;
+    color: #dfe6f2; text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+</style>
+
+<div id="grm" class="clip beat" data-start="0.4" data-duration="4.6" data-track-index="0" data-layout-allow-overflow>
+  <div id="grm-wrap">
+    <svg id="grm-svg" viewBox="0 0 150 150">
+      <circle id="grm-bg" cx="75" cy="75" r="64"></circle>
+      <circle id="grm-arc" cx="75" cy="75" r="64"></circle>
+    </svg>
+    <div id="grm-center"><div id="grm-pct">0%</div></div>
+    <div id="grm-label">完播率</div>
+  </div>
+</div>
+
+<script>
+  /* ===== 小型环形仪表（0.4 起，弧 draw + count-up 同步）===== */
+  (function () {
+    var t0 = 0.4, target = 40;                       // 目标百分比
+    var C = 2 * Math.PI * 64;                        // 周长
+    gsap.set("#grm-arc", { attr: { "stroke-dasharray": C, "stroke-dashoffset": C } });
+    tl.from("#grm-wrap", { autoAlpha: 0, scale: 0.6, duration: 0.5, ease: "back.out(1.8)" }, t0);
+    tl.to("#grm-arc", { attr: { "stroke-dashoffset": C * (1 - target / 100) },
+      duration: 1.1, ease: "power2.out" }, t0 + 0.3);
+    countUp("#grm-pct", target, 1.1, t0 + 0.3, 0, "%");
+    tl.fromTo("#grm-wrap", { scale: 1 }, { scale: 1.07, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.inOut" }, t0 + 1.5);
+    tl.to("#grm-wrap", { autoAlpha: 0, scale: 0.7, duration: 0.35, ease: "power2.in" }, t0 + 4.1);
+  })();
+</script>

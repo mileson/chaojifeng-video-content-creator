@@ -1,0 +1,58 @@
+<!--
+模式：庆祝彩带爆发（confetti-burst）【工具层 · 节奏点缀】
+适用场景：产品上线/审核通过/数据破纪录的庆祝时刻，两侧斜上抛彩带 + 重力下落，
+  1.5~2.5s 一波；配合 count-up 数字或「通过」印章使用。
+框架参数：
+  - confettiAt(t, fromSide)：触发时间与发射侧（"left" / "right" / "both"）
+  - 颜色组（默认品牌四色）、粒子数（默认每侧 26）
+技术要点：
+  - 粒子参数全部确定性伪随机（k*素数 取模），离线逐帧渲染稳定
+  - 物理：初速度斜上抛 + 重力 y 加速（gsap custom：x 线性 / y power2.in 下坠）
+  - 每片彩带 rotationX/rotationZ 持续翻转（纸片感核心）
+  - 矩形/圆形/条形三种形状混合，纯色无渐变（纸屑质感）
+-->
+<style>
+  #cfb-stage { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .cfb-p { position: absolute; left: 0; top: 0; }
+</style>
+
+<div id="cfb-stage" data-layout-ignore data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    var COLORS = ["#3e9eff", "#46d390", "#ffb224", "#e5484d", "#b388ff", "#4dd0e1"];
+    var stage = document.getElementById("cfb-stage");
+    window.confettiAt = function (t, fromSide) {
+      var sides = fromSide === "both" || !fromSide ? ["left", "right"] : [fromSide];
+      sides.forEach(function (side, si) {
+        for (var k = 0; k < 26; k++) {
+          var p = document.createElement("div");
+          p.className = "cfb-p";
+          var sz = 10 + ((k * 31) % 14);
+          var shape = k % 3;
+          p.style.width = sz + "px";
+          p.style.height = (shape === 2 ? sz * 2.2 : sz) + "px";
+          p.style.background = COLORS[(k + si) % COLORS.length];
+          p.style.borderRadius = shape === 1 ? "50%" : "2px";
+          stage.appendChild(p);
+          var x0 = side === "left" ? -30 : 1950;
+          var y0 = 880 + ((k * 53) % 140);
+          var dir = side === "left" ? 1 : -1;
+          var vx = dir * (480 + ((k * 67) % 620));
+          var peak = 380 + ((k * 41) % 420);
+          var dur = 1.7 + ((k * 23) % 10) / 14;
+          gsap.set(p, { x: x0, y: y0, autoAlpha: 0 });
+          tl.set(p, { autoAlpha: 1 }, t);
+          tl.to(p, { x: x0 + vx * dur, duration: dur, ease: "none" }, t);
+          tl.to(p, { y: y0 - peak, duration: dur * 0.42, ease: "power2.out" }, t);
+          tl.to(p, { y: 1160, duration: dur * 0.58, ease: "power2.in" }, t + dur * 0.42);
+          tl.to(p, { rotationZ: 360 + ((k * 97) % 540), rotationX: 540 + ((k * 71) % 360),
+            duration: dur, ease: "none" }, t);
+          tl.to(p, { autoAlpha: 0, duration: 0.3 }, t + dur - 0.3);
+        }
+      });
+    };
+  })();
+  confettiAt(t0 + 0.4, "both");
+  confettiAt(t0 + 2.8, "left");
+</script>

@@ -1,0 +1,76 @@
+<!--
+模式：Bento 作品墙片尾（outro-bento-works）【片尾层 · 拼接式结尾】
+适用场景：作品矩阵收尾的「设计感版本」：不规则 Bento 网格，主推作品占大格，
+  其余作品小格围绕；比均匀网格（outro-author-works）更有视觉层级，适合发布/盘点视频。
+框架参数：
+  - 大格主推作品（图标 + 名 + 一句话 + 徽章）、小格作品 3~5 个
+  - 主推格主题色光晕；格子排布 4 列 x 2 行（大格占 2x2）
+技术要点：
+  - 大格先 scale 入 → 小格绕大格顺时针 stagger 弹入（from:"start"）
+  - 大格内图标微弹 + 光晕呼吸（主角待遇）
+  - 图标：默认取名称首字做字标；有 logo 时放进项目 assets/，把 .obw-icon 换成 <img>
+-->
+<style>
+  #obw-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #18243a 0%, #0b111e 58%, #070b14 100%); }
+  #obw-head { position: absolute; left: 50%; top: 86px; transform: translateX(-50%); text-align: center; }
+  #obw-kicker { color: #ffb224; font-size: 22px; font-weight: 800; letter-spacing: 7px; }
+  #obw-title { color: #f4f7ff; font-size: 50px; font-weight: 900; margin-top: 8px; }
+  #obw-grid { position: absolute; left: 50%; top: 250px; transform: translateX(-50%);
+    display: grid; grid-template-columns: repeat(4, 360px); grid-auto-rows: 280px; gap: 24px; }
+  .obw-cell { border-radius: 24px; padding: 28px; position: relative; overflow: hidden;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); }
+  #obw-hero { grid-column: 1 / span 2; grid-row: 1 / span 2;
+    border: 2px solid rgba(255,178,36,.55); box-shadow: 0 0 70px rgba(255,178,36,.14);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .obw-icon { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900;
+    border: 1px solid rgba(255,255,255,.22); }
+  #obw-hero .obw-icon { width: 150px; height: 150px; border-radius: 32px; font-size: 76px;
+    background: linear-gradient(145deg, #ffb224, #ffb22499); box-shadow: 0 18px 50px rgba(0,0,0,.5); }
+  #obw-hero-name { color: #f4f7ff; font-size: 44px; font-weight: 900; margin-top: 26px; }
+  #obw-hero-desc { color: #a8b3c8; font-size: 24px; font-weight: 700; margin-top: 12px; }
+  #obw-hero-badge { display: inline-block; margin-top: 18px; font-size: 18px; font-weight: 800;
+    color: #ffd58a; background: rgba(255,178,36,.14); border: 1px solid rgba(255,178,36,.45);
+    border-radius: 99px; padding: 6px 20px; letter-spacing: 2px; }
+  .obw-mini { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .obw-mini .obw-icon { width: 68px; height: 68px; border-radius: 16px; font-size: 34px; }
+  .obw-c1 { background: linear-gradient(145deg, #3e9eff, #3e9eff99); }
+  .obw-c2 { background: linear-gradient(145deg, #46d390, #46d39099); }
+  .obw-c3 { background: linear-gradient(145deg, #a878ff, #a878ff99); }
+  .obw-mini-name { color: #e7edf8; font-size: 25px; font-weight: 900; }
+  .obw-mini-desc { color: #8d99af; font-size: 17px; font-weight: 600; }
+  #obw-more { display: flex; align-items: center; justify-content: center;
+    color: #76819a; font-size: 24px; font-weight: 800; letter-spacing: 3px; }
+</style>
+
+<div id="obw-bg" data-layout-allow-overflow></div>
+<div id="obw-head">
+  <div id="obw-kicker">WORKS</div>
+  <div id="obw-title">【创作者名称】的作品们</div>
+</div>
+<div id="obw-grid">
+  <div class="obw-cell" id="obw-hero">
+    <div class="obw-icon">A</div>
+    <div id="obw-hero-name">【主推作品】</div>
+    <div id="obw-hero-desc">【一句话介绍】· 最新发布</div>
+    <div id="obw-hero-badge">NEW · 客户端</div>
+  </div>
+  <div class="obw-cell obw-mini"><div class="obw-icon obw-c1">B</div>
+    <div class="obw-mini-name">【作品 B】</div><div class="obw-mini-desc">【一句话介绍】</div></div>
+  <div class="obw-cell obw-mini"><div class="obw-icon obw-c2">C</div>
+    <div class="obw-mini-name">【作品 C】</div><div class="obw-mini-desc">【一句话介绍】</div></div>
+  <div class="obw-cell obw-mini"><div class="obw-icon obw-c3">D</div>
+    <div class="obw-mini-name">【作品 D】</div><div class="obw-mini-desc">【一句话介绍】</div></div>
+  <div class="obw-cell" id="obw-more">还有 N 款 · 主页都有</div>
+</div>
+
+<script>
+  tl.from("#obw-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from(["#obw-kicker", "#obw-title"], { autoAlpha: 0, y: 22, duration: 0.5, stagger: 0.12 }, t0 + 0.35);
+  tl.from("#obw-hero", { autoAlpha: 0, scale: 0.82, duration: 0.6, ease: "back.out(1.5)" }, t0 + 0.8);
+  tl.from("#obw-hero .obw-icon", { scale: 0.4, rotation: -10, duration: 0.55, ease: "back.out(2)" }, t0 + 1.0);
+  tl.from([".obw-mini", "#obw-more"], { autoAlpha: 0, y: 44, scale: 0.92, duration: 0.5,
+    ease: "back.out(1.5)", stagger: 0.14 }, t0 + 1.3);
+  tl.to("#obw-hero", { boxShadow: "0 0 100px rgba(255,178,36,.3)", duration: 1.1,
+    yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 2.2);
+</script>

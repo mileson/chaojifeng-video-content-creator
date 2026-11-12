@@ -1,0 +1,55 @@
+<!--
+模式：混色块大字标题（色块拼接金句）【参数化框架】
+适用场景：一句话金句/俗语/口号，把关键词拆成不同色块强调（"船大"白块 + "难掉头"红块）。
+  白红双块标题，典型文案："船大难掉头"。
+框架参数：
+  - 色块数量 2~3 块；语义配色：白块（中性陈述）、红块（问题/警示）、绿块（答案/收益）、黄块（关键数字）
+  - 块内文字可以是词、数字、短语；不同块字数可不等
+  - 新增色块只需复制 .block 加底色规则（底色 + 文字色 + 外发光）
+结构要点：
+  - 每块独立圆角矩形 + 大投影；色块本身就是对比度保障，但底部副行文字必须带深色底板
+  - 配顶部向下渐变 scrim（180deg）压住画面上半部
+动画要点：
+  - 块依次从上方砸入（y:-160 + back.out(1.4) + 微旋转 ±5°），间隔 0.3s
+  - 语义重点块（如绿块）入场后 scale yoyo 脉冲
+-->
+<style>
+  #bh-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5, 8, 14, 0.78) 0%, rgba(5, 8, 14, 0.55) 50%, transparent 80%);
+  }
+  #bh-line { position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto; width: fit-content; display: flex; gap: 22px; }
+  #bh-line .block {
+    font-size: 106px; font-weight: 900; line-height: 1.1;
+    padding: 18px 30px 22px; border-radius: 10px;
+    will-change: transform;
+  }
+  #bh-line .block.w { background: #f4f4f5; color: #14161e; box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5); }
+  #bh-line .block.g { background: #30a46c; color: #fff; box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 44px rgba(48, 164, 108, 0.55); }
+  #bh-line .block.r { background: #d93a3f; color: #fff; box-shadow: 0 14px 44px rgba(0,0,0,.5), 0 0 44px rgba(229, 72, 77, 0.55); }
+  #bh-foot {
+    position: absolute; top: 360px; left: 0; right: 0; margin: 0 auto; width: fit-content;
+    color: #ffd58a; font-size: 33px; font-weight: 800; letter-spacing: 4px;
+    text-shadow: 0 0 14px rgba(255, 178, 36, 0.55);
+    background: rgba(8, 10, 16, 0.8); border-radius: 12px; padding: 12px 28px;
+    will-change: transform;
+  }
+</style>
+
+<div id="bh-scrim"></div>
+<div id="bh-line">
+  <div class="block w" id="bh-b1">【词块一】</div>
+  <div class="block g" id="bh-b2">【词块二】</div>
+</div>
+<div id="bh-foot">【底部副行说明】</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#bh-scrim", { autoAlpha: 0, duration: 0.45, ease: "power1.out" }, 0)
+   .from("#bh-b1", { y: -160, autoAlpha: 0, rotation: -5, duration: 0.5, ease: "back.out(1.4)" }, 0.25)
+   .from("#bh-b2", { y: -160, autoAlpha: 0, rotation: 5, duration: 0.5, ease: "back.out(1.4)" }, 0.55)
+   .to("#bh-b2", { scale: 1.05, duration: 0.28, ease: "power1.inOut", repeat: 3, yoyo: true }, 1.25)
+   .from("#bh-foot", { y: 40, autoAlpha: 0, duration: 0.45 }, 1.1)
+   .to("#bh-line, #bh-foot", { y: -60, autoAlpha: 0, duration: 0.4, ease: "power2.in", stagger: 0.05 }, 3.2)
+   .to("#bh-scrim", { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, 3.4);
+</script>

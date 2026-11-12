@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #hta-wrap { position: absolute; top: 140px; left: 56px; }
+  #hta-scrim { position: absolute; top: -50px; left: -80px; width: 600px; height: 360px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  .hta-item { position: relative; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 26px; }
+  .hta-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 9px; }
+  .hta-t { color: #fff; font-size: 24px; font-weight: 800; letter-spacing: 1px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  .hta-e { color: #93a0b4; font-size: 13px; font-weight: 700; letter-spacing: 4px; margin-top: 4px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #hta-line { position: relative; margin-top: 16px; color: #fff; font-size: 38px; font-weight: 900;
+    letter-spacing: 2px; text-shadow: 0 3px 18px rgba(0,0,0,.9), 0 0 30px rgba(255,255,255,.18); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="hta" class="clip beat" data-start="0.4" data-duration="5.0" data-track-index="0" data-layout-allow-overflow>
+  <div id="hta-wrap">
+    <div id="hta-scrim"></div>
+    <div class="hta-item"><div class="hta-dot" style="background:#3e9eff;box-shadow:0 0 12px rgba(62,158,255,.8)"></div>
+      <div><div class="hta-t">总结爆款的共性 · 规律</div><div class="hta-e">FIND THE PATTERN</div></div></div>
+    <div class="hta-item"><div class="hta-dot" style="background:#46d390;box-shadow:0 0 12px rgba(70,211,144,.8)"></div>
+      <div><div class="hta-t">不用切网页 · 不用点很多次</div><div class="hta-e">ONE GLANCE</div></div></div>
+    <div id="hta-line">一目了然 · 非常实用</div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  /* ===== 要点+结论标语（0.4 起，结论压轴脉冲）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hta-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from(".hta-item", { autoAlpha: 0, x: -28, duration: 0.5, ease: "back.out(1.5)", stagger: 0.8 }, t0 + 0.1);
+    tl.from("#hta-line", { autoAlpha: 0, y: 26, scale: 0.92, duration: 0.55, ease: "back.out(1.8)" }, t0 + 2.1);
+    tl.fromTo("#hta-line", { scale: 1 }, { scale: 1.04, duration: 0.22, yoyo: true, repeat: 1, ease: "power2.inOut" }, t0 + 2.8);
+    tl.to("#hta-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.4);
+  })();
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

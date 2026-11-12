@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  :root {
+    --lrf-ink: #101820;
+    --lrf-muted: #647081;
+    --lrf-blue: #2f6bff;
+    --lrf-orange: #ff8920;
+    --lrf-border: #d9e0e8;
+    --lrf-paper: #f4f6f8;
+    --lrf-active: #e8f7ed;
+    --lrf-active-border: #58b878;
+  }
+  #lrf-root { position: absolute; inset: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--lrf-ink); }
+  #lrf-root[data-variant="overview-horizontal"] .lrf-scene { display: none; }
+  #lrf-root[data-variant="scene-vertical"] .lrf-overview { display: none; }
+  .lrf-panel { position: absolute; background: rgba(244,246,248,.97); border: 1px solid rgba(217,224,232,.96); box-shadow: 0 18px 54px rgba(28,38,52,.18); overflow: hidden; }
+  .lrf-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 7px; background: var(--lrf-blue); }
+  .lrf-overview { left: 72px; top: 72px; width: 1384px; height: 360px; border-radius: 28px; padding: 32px 34px 28px; box-sizing: border-box; }
+  .lrf-head { display: flex; align-items: center; gap: 18px; height: 54px; }
+  .lrf-kicker { padding: 8px 15px; border: 1px solid #efd4af; border-radius: 14px; background: #fff7ea; font-size: 22px; line-height: 1; font-weight: 800; white-space: nowrap; }
+  .lrf-title { font-size: 38px; line-height: 1.12; font-weight: 900; letter-spacing: -.5px; }
+  .lrf-overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 24px; }
+  .lrf-case { min-height: 166px; border: 1px solid var(--lrf-border); border-radius: 20px; background: #fff; padding: 20px 19px; box-sizing: border-box; box-shadow: 0 5px 16px rgba(28,38,52,.05); }
+  .lrf-case:first-child { background: #eef3ff; border-color: #a8c0f2; }
+  .lrf-num { color: #4884df; font-size: 18px; line-height: 1; font-weight: 900; letter-spacing: .8px; }
+  .lrf-case-title { margin-top: 10px; font-size: 25px; line-height: 1.15; font-weight: 900; white-space: nowrap; }
+  .lrf-mini-flow { display: flex; align-items: center; gap: 9px; margin-top: 18px; }
+  .lrf-pill { min-width: 88px; padding: 8px 12px; border: 1px solid #dce3ec; border-radius: 12px; background: rgba(255,255,255,.92); text-align: center; font-size: 17px; font-weight: 800; color: #3a4654; white-space: nowrap; }
+  .lrf-mini-arrow { color: var(--lrf-blue); font-size: 24px; font-weight: 900; }
+  .lrf-overview-note { display: inline-flex; align-items: center; margin-top: 18px; padding: 8px 16px; border-radius: 11px; background: var(--lrf-orange); color: #231a12; font-size: 19px; line-height: 1; font-weight: 900; }
+
+  .lrf-scene { left: 72px; top: 126px; width: 500px; height: 818px; border-radius: 26px; padding: 28px 24px 22px; box-sizing: border-box; }
+  .lrf-scene .lrf-title { font-size: 32px; }
+  .lrf-steps { margin-top: 22px; }
+  .lrf-step-wrap { position: relative; }
+  .lrf-step { min-height: 125px; border: 1px solid var(--lrf-border); border-radius: 18px; background: #fff; padding: 16px 17px; box-sizing: border-box; transition: background .25s ease, border-color .25s ease, box-shadow .25s ease; }
+  .lrf-step.is-active { background: var(--lrf-active); border-color: var(--lrf-active-border); box-shadow: 0 0 0 1px rgba(88,184,120,.22); }
+  .lrf-step-main { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
+  .lrf-step-title { margin-top: 8px; font-size: 24px; line-height: 1.1; font-weight: 900; }
+  .lrf-step-sub { margin-top: 7px; font-size: 17px; line-height: 1.25; font-weight: 700; color: var(--lrf-muted); }
+  .lrf-role { padding: 7px 11px; border: 1px solid #bdd0f2; border-radius: 11px; background: #eef4ff; color: #3769b5; font-size: 16px; font-weight: 900; white-space: nowrap; }
+  .lrf-role-stack { display: grid; gap: 4px; text-align: right; }
+  .lrf-role-stack span { padding: 4px 8px; border-radius: 8px; background: #f3f5f7; color: #53606d; font-size: 13px; font-weight: 800; }
+  .lrf-down { height: 29px; display: grid; place-items: center; color: var(--lrf-blue); font-size: 25px; line-height: 1; font-weight: 900; transform-origin: 50% 0; }
+  .lrf-scene-note { display: inline-flex; margin-top: 15px; padding: 8px 13px; border-radius: 10px; background: var(--lrf-orange); color: #231a12; font-size: 17px; font-weight: 900; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="lrf-root" data-variant="demo">
+  <section class="lrf-panel lrf-overview">
+    <header class="lrf-head">
+      <span class="lrf-kicker">协同全景</span>
+      <h2 class="lrf-title">4 种多 Agent 协同方式</h2>
+    </header>
+    <div class="lrf-overview-grid">
+      <article class="lrf-case"><div class="lrf-num">01</div><div class="lrf-case-title">同项目新任务</div><div class="lrf-mini-flow"><span class="lrf-pill">主 Agent</span><span class="lrf-mini-arrow">→</span><span class="lrf-pill">新线程</span></div></article>
+      <article class="lrf-case"><div class="lrf-num">02</div><div class="lrf-case-title">跨项目新任务</div><div class="lrf-mini-flow"><span class="lrf-pill">项目 A</span><span class="lrf-mini-arrow">→</span><span class="lrf-pill">项目 B</span></div></article>
+      <article class="lrf-case"><div class="lrf-num">03</div><div class="lrf-case-title">跨项目旧会话</div><div class="lrf-mini-flow"><span class="lrf-pill">会话 ID</span><span class="lrf-mini-arrow">→</span><span class="lrf-pill">继续接力</span></div></article>
+      <article class="lrf-case"><div class="lrf-num">04</div><div class="lrf-case-title">多 Agent 并行</div><div class="lrf-mini-flow"><span class="lrf-pill">主 Agent</span><span class="lrf-mini-arrow">→</span><span class="lrf-pill">多线程</span></div></article>
+    </div>
+    <div class="lrf-overview-note">先认识 4 种协同，再分别看怎么做</div>
+  </section>
+
+  <section class="lrf-panel lrf-scene">
+    <header class="lrf-head"><span class="lrf-kicker">场景四</span><h2 class="lrf-title">一对多，并行调研</h2></header>
+    <div class="lrf-steps">
+      <div class="lrf-step-wrap"><article class="lrf-step is-active"><div class="lrf-num">01</div><div class="lrf-step-main"><div><div class="lrf-step-title">拆分问题</div><div class="lrf-step-sub">划清各自边界</div></div><span class="lrf-role">主 Agent</span></div></article><div class="lrf-down">↓</div></div>
+      <div class="lrf-step-wrap"><article class="lrf-step"><div class="lrf-num">02</div><div class="lrf-step-main"><div><div class="lrf-step-title">启动多线程</div><div class="lrf-step-sub">一对多分派</div></div><span class="lrf-role">主 Agent</span></div></article><div class="lrf-down">↓</div></div>
+      <div class="lrf-step-wrap"><article class="lrf-step"><div class="lrf-num">03</div><div class="lrf-step-main"><div><div class="lrf-step-title">并行调研</div><div class="lrf-step-sub">3 个线程同时执行</div></div><span class="lrf-role-stack"><span>工作 Agent 1</span><span>工作 Agent 2</span><span>工作 Agent 3</span></span></div></article><div class="lrf-down">↓</div></div>
+      <div class="lrf-step-wrap"><article class="lrf-step"><div class="lrf-num">04</div><div class="lrf-step-main"><div><div class="lrf-step-title">汇总验收</div><div class="lrf-step-sub">合并并交叉检查</div></div><span class="lrf-role">主 Agent</span></div></article></div>
+    </div>
+    <div class="lrf-scene-note">关键词：多个独立线程</div>
+  </section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const lrfRoot = document.querySelector("#lrf-root");
+  const lrfVariant = lrfRoot.dataset.variant || "demo";
+  const lrfTimeline = gsap.timeline();
+  const lrfOverview = ".lrf-overview";
+  const lrfScene = ".lrf-scene";
+  const lrfSteps = gsap.utils.toArray(".lrf-scene .lrf-step");
+
+  if (lrfVariant === "overview-horizontal" || lrfVariant === "demo") {
+    lrfTimeline.from(lrfOverview, { autoAlpha: 0, y: -26, scale: .985, duration: .42, ease: "power2.out" }, .18)
+      .from(".lrf-case", { autoAlpha: 0, y: 18, duration: .42, stagger: .14, ease: "power2.out" }, .5)
+      .from(".lrf-mini-arrow", { autoAlpha: 0, scaleX: 0, transformOrigin: "0% 50%", duration: .42, stagger: .12, ease: "power2.out" }, .95)
+      .from(".lrf-overview-note", { autoAlpha: 0, x: -14, duration: .35, ease: "power2.out" }, 1.35);
+  }
+
+  if (lrfVariant === "demo") {
+    gsap.set(lrfScene, { autoAlpha: 0 });
+    lrfTimeline.to(lrfOverview, { autoAlpha: 0, duration: .35, ease: "power2.in" }, 5.8)
+      .fromTo(lrfScene, { autoAlpha: 0, x: -24 }, { autoAlpha: 1, x: 0, duration: .45, ease: "power2.out" }, 6.35);
+  } else if (lrfVariant === "scene-vertical") {
+    lrfTimeline.from(lrfScene, { autoAlpha: 0, x: -28, duration: .45, ease: "power2.out" }, .18);
+  }
+
+  if (lrfVariant === "scene-vertical" || lrfVariant === "demo") {
+    const sceneStart = lrfVariant === "demo" ? 6.65 : .48;
+    lrfTimeline.from(".lrf-step", { autoAlpha: 0, x: -18, duration: .38, stagger: .16, ease: "power2.out" }, sceneStart)
+      .from(".lrf-down", { autoAlpha: 0, scaleY: 0, duration: .28, stagger: .16, ease: "power2.out" }, sceneStart + .24);
+    lrfSteps.forEach((step, index) => {
+      lrfTimeline.call(() => {
+        lrfSteps.forEach((item) => item.classList.remove("is-active"));
+        step.classList.add("is-active");
+      }, [], sceneStart + 1.05 + index * 1.05);
+    });
+    lrfTimeline.from(".lrf-scene-note", { autoAlpha: 0, x: -12, duration: .32, ease: "power2.out" }, sceneStart + 4.2);
+  }
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

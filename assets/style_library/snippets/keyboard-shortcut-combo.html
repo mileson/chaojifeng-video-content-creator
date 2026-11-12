@@ -1,0 +1,55 @@
+<!--
+模式：快捷键组合按压（教程演示「按这几个键」）
+适用场景：教程讲快捷键/命令面板/操作技巧。键帽实体感按压 + 发光，比口述直观十倍。
+结构要点：
+  - 键帽 .ksc-key：深色立体（上亮下暗渐变 + 底部 4px 实体阴影模拟键帽厚度）
+  - 组合用 + 号连接，下方一行说明该组合做什么
+  - 按压态：y+6 + 底部阴影压缩 + accent 发光描边（模拟真实按下）
+动画要点：
+  - 键帽 stagger 弹入 → 依次「按下-弹起」（先后按出组合感，间隔 0.18）
+  - 全部按下瞬间说明行闪现 + 键帽集体发光脉冲（触发反馈）
+  - 可循环按压 2 次加深记忆
+参数：键帽字符数组/说明文案/accent 色
+-->
+<style>
+  #ksc-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; }
+  #ksc-keys { display: flex; align-items: center; justify-content: center; gap: 22px; }
+  .ksc-key {
+    min-width: 110px; height: 110px; border-radius: 20px; padding: 0 28px;
+    background: linear-gradient(180deg, #2a3041, #181c28);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 6px 0 #0a0d14, 0 18px 40px rgba(0, 0, 0, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    color: #e8ecf4; font-size: 52px; font-weight: 800; will-change: transform;
+  }
+  .ksc-plus { color: #5b6478; font-size: 46px; font-weight: 900; }
+  #ksc-desc { margin-top: 44px; color: #c9d0de; font-size: 30px; font-weight: 700;
+    letter-spacing: 2px; will-change: transform; }
+  #ksc-desc em { color: #3e9eff; font-style: normal; font-weight: 900; }
+</style>
+
+<div id="ksc-wrap">
+  <div id="ksc-keys">
+    <div class="ksc-key">⌘</div>
+    <div class="ksc-plus">+</div>
+    <div class="ksc-key">K</div>
+  </div>
+  <div id="ksc-desc">【按下后做什么 · <em>关键效果</em>】</div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from(".ksc-key, .ksc-plus", { y: 60, autoAlpha: 0, duration: 0.5, ease: "back.out(1.8)", stagger: 0.1 }, 0.2);
+  // 两轮按压：每轮键帽先后按下再集体弹起
+  [1.2, 3.4].forEach((t) => {
+    b.to(".ksc-key", {
+      y: 6, boxShadow: "0 1px 0 #0a0d14, 0 10px 26px rgba(0,0,0,.5), 0 0 30px rgba(62,158,255,.55)",
+      borderColor: "rgba(62,158,255,.9)", duration: 0.14, ease: "power2.in", stagger: 0.18 }, t);
+    b.to(".ksc-key", {
+      y: 0, boxShadow: "0 6px 0 #0a0d14, 0 18px 40px rgba(0,0,0,.5)",
+      borderColor: "rgba(255,255,255,.18)", duration: 0.3, ease: "back.out(2)", stagger: 0.06 }, t + 0.5);
+  });
+  b.from("#ksc-desc", { y: 26, autoAlpha: 0, duration: 0.45 }, 1.9)
+    .to("#ksc-wrap", { y: -60, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.2);
+</script>

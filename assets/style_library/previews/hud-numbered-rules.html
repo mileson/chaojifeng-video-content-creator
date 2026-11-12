@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #hnr-wrap { position: absolute; top: 150px; left: 56px; width: 560px; }
+  #hnr-scrim { position: absolute; top: -50px; left: -80px; width: 700px; height: 420px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  .hnr-rule { position: relative; margin-bottom: 52px; display: flex; gap: 18px; }
+  .hnr-no { width: 52px; height: 52px; border-radius: 12px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 900; color: #fff; }
+  #hnr-no1 { background: #e5484d; box-shadow: 0 0 22px rgba(229,72,77,.55); }
+  #hnr-no2 { background: #3e9eff; box-shadow: 0 0 22px rgba(62,158,255,.55); }
+  .hnr-kick { font-size: 14px; font-weight: 800; letter-spacing: 4px; color: #93a0b4;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  .hnr-line { margin-top: 6px; font-size: 30px; font-weight: 900; letter-spacing: 1px;
+    color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.85); line-height: 1.35; }
+  .hnr-line .hl-r { color: #ff6b70; }
+  .hnr-line .hl-b { color: #6db4ff; }
+  .hnr-chips { margin-top: 12px; display: flex; gap: 10px; }
+  .hnr-chip { padding: 6px 18px; border-radius: 999px; font-size: 18px; font-weight: 800;
+    color: #dfe6f2; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.3);
+    text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="hnr" class="clip beat" data-start="0.4" data-duration="5.6" data-track-index="0" data-layout-allow-overflow>
+  <div id="hnr-wrap">
+    <div id="hnr-scrim"></div>
+    <div class="hnr-rule" id="hnr-r1">
+      <div class="hnr-no" id="hnr-no1">1</div>
+      <div>
+        <div class="hnr-kick">RULE 01 · 入场门槛</div>
+        <div class="hnr-line">完播率 <span class="hl-r">&lt; 40%</span> · 别想破 10万</div>
+      </div>
+    </div>
+    <div class="hnr-rule" id="hnr-r2">
+      <div class="hnr-no" id="hnr-no2">2</div>
+      <div>
+        <div class="hnr-kick">RULE 02 · 十万 → 百万</div>
+        <div class="hnr-line">差距藏在<span class="hl-b">两个指标</span></div>
+        <div class="hnr-chips"><div class="hnr-chip">分享</div><div class="hnr-chip">收藏</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  /* ===== 编号规则结论列（0.4 起，规则一→规则二先后）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hnr-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hnr-no1", { autoAlpha: 0, scale: 0.3, duration: 0.5, ease: "back.out(2)" }, t0 + 0.1);
+    tl.from("#hnr-r1 .hnr-kick", { autoAlpha: 0, x: -20, duration: 0.4 }, t0 + 0.25);
+    tl.from("#hnr-r1 .hnr-line", { autoAlpha: 0, y: 16, duration: 0.45 }, t0 + 0.4);
+    tl.from("#hnr-no2", { autoAlpha: 0, scale: 0.3, duration: 0.5, ease: "back.out(2)" }, t0 + 1.7);
+    tl.from("#hnr-r2 .hnr-kick", { autoAlpha: 0, x: -20, duration: 0.4 }, t0 + 1.85);
+    tl.from("#hnr-r2 .hnr-line", { autoAlpha: 0, y: 16, duration: 0.45 }, t0 + 2.0);
+    tl.from(".hnr-chip", { autoAlpha: 0, scale: 0.5, duration: 0.4, ease: "back.out(1.8)", stagger: 0.15 }, t0 + 2.5);
+    tl.to("#hnr-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 5.0);
+  })();
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

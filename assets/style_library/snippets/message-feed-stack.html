@@ -1,0 +1,44 @@
+<!--
+模式：消息流弹入堆叠（message-feed-stack）【容器层 · 场景叙事】
+适用场景：「客户消息一条不漏 / AI 自动盯防」场景，3 条客户消息 + 1 条 AI 汇总卡。
+框架参数：
+  - 消息条数（3+1 典型）：头像渐变 / 名字 / 内容 / 未读角标
+  - AI 汇总卡（绿色语义 = 已解决）方向区别于普通消息
+技术要点：
+  - 普通消息 x -90 左滑入（每 0.5s 一条），角标 scale 0 back.out(3) 弹出
+  - AI 汇总卡改用 y 50 + scale 0.94 底部浮入（方向差异 = 角色差异）
+  - 汇总卡 boxShadow 绿色描边 yoyo 脉冲 = 「处理完成」确认
+  - 左侧 4px accent 竖条 + 深底卡片（铁律可读性）
+-->
+<style>
+  .mfs-card { position: absolute; left: 110px; width: 560px; background: rgba(13,17,26,.94);
+    border: 1px solid rgba(255,255,255,.12); border-left: 4px solid #4dd0e1; border-radius: 14px;
+    padding: 18px 22px; display: flex; gap: 14px; box-shadow: 0 16px 44px rgba(0,0,0,.5); }
+  .mfs-ava { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 21px; color: #fff; font-weight: 900; }
+  .mfs-n { color: #fff; font-size: 18px; font-weight: 800; }
+  .mfs-m { color: #9aa3b5; font-size: 16px; line-height: 1.45; margin-top: 4px; }
+  .mfs-badge { margin-left: auto; flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: #ff5c5c;
+    color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  #mfs-c1 { top: 200px; } #mfs-c2 { top: 340px; } #mfs-c3 { top: 480px; } #mfs-c4 { top: 620px; }
+  #mfs-tag { position: absolute; left: 110px; top: 120px; background: rgba(10,14,22,.88); color: #fff;
+    border: 1px solid rgba(255,255,255,.16); border-radius: 12px; padding: 12px 26px; font-size: 22px; font-weight: 900; }
+  #mfs-tag em { color: #4dd0e1; font-style: normal; }
+</style>
+
+<div id="mfs-tag">【场景标题 · 】<em>【高亮】</em></div>
+<div class="mfs-card" id="mfs-c1"><div class="mfs-ava" style="background:linear-gradient(135deg,#4dd0e1,#2b7fd4)">【字】</div><div><div class="mfs-n">【名字 · 身份】</div><div class="mfs-m">【消息内容】</div></div><div class="mfs-badge">1</div></div>
+<div class="mfs-card" id="mfs-c2"><div class="mfs-ava" style="background:linear-gradient(135deg,#ff7a59,#e8862a)">【字】</div><div><div class="mfs-n">【名字 · 身份】</div><div class="mfs-m">【消息内容】</div></div><div class="mfs-badge">2</div></div>
+<div class="mfs-card" id="mfs-c3"><div class="mfs-ava" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">【字】</div><div><div class="mfs-n">【名字 · 身份】</div><div class="mfs-m">【消息内容】</div></div><div class="mfs-badge">1</div></div>
+<div class="mfs-card" id="mfs-c4"><div class="mfs-ava" style="background:linear-gradient(135deg,#46d390,#1d7a4f)">AI</div><div><div class="mfs-n">【AI 角色 · 汇总】</div><div class="mfs-m">【处理结论】 ✓</div></div></div>
+
+<script>
+  tl.from("#mfs-tag", { autoAlpha: 0, x: -40, duration: 0.4 }, t0);
+  ["#mfs-c1", "#mfs-c2", "#mfs-c3"].forEach(function (sel, i) {
+    tl.from(sel, { autoAlpha: 0, x: -90, duration: 0.45, ease: "power3.out" }, t0 + 0.4 + i * 0.5);
+    tl.from(sel + " .mfs-badge", { scale: 0, duration: 0.3, ease: "back.out(3)" }, t0 + 0.75 + i * 0.5);
+  });
+  tl.from("#mfs-c4", { autoAlpha: 0, y: 50, scale: 0.94, duration: 0.5, ease: "back.out(1.8)" }, t0 + 2.2);
+  tl.to("#mfs-c4", { boxShadow: "0 0 0 3px rgba(70,211,144,.5), 0 16px 44px rgba(0,0,0,.5)", duration: 0.4, yoyo: true, repeat: 1 }, t0 + 2.8);
+  tl.to(["#mfs-tag", ".mfs-card"], { autoAlpha: 0, x: -60, duration: 0.4, stagger: 0.05, ease: "power2.in" }, t0 + 4.0);
+</script>

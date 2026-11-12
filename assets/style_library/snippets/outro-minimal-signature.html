@@ -1,0 +1,43 @@
+<!--
+模式：极简签名片尾（outro-minimal-signature）【片尾层 · 拼接式结尾】
+适用场景：深度长文式视频/情绪向内容的克制收尾 4~6s——近黑场上一条
+  手写签名线描出 + 日期戳，没有任何引导话术；「作品自己会说话」的姿态。
+框架参数：
+  - 签名 SVG path（手写轨迹）、日期文案、墨色
+技术要点：
+  - 签名 path stroke drawLine（dasharray/offset），速度先快后慢（power2.out 像运笔收锋）
+  - 写完笔锋处一个墨点轻落（scale 弹入小圆）
+  - 日期等宽小字最后渐入；全程只有 3 个元素，留白即高级
+-->
+<style>
+  #oms-bg { position: absolute; inset: 0; background: #08090d; }
+  #oms-svg { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); }
+  #oms-sig { fill: none; stroke: #e8ecf4; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  #oms-dot { fill: #e8ecf4; }
+  #oms-date { position: absolute; left: 50%; top: 60%; transform: translateX(-50%);
+    color: #5d6678; font-size: 24px; font-weight: 600; letter-spacing: 10px;
+    font-family: "SF Mono", Menlo, monospace; }
+</style>
+
+<div id="oms-bg" data-layout-allow-overflow></div>
+<svg id="oms-svg" width="760" height="300" viewBox="0 0 760 300">
+  <!-- 手写体「作者名」拼音流线签名（示意轨迹，可换真实签名 path） -->
+  <path id="oms-sig" d="M 70 190 C 110 90, 170 80, 175 140 C 178 185, 130 215, 110 195
+    M 200 170 C 240 120, 290 110, 295 155 C 298 190, 260 205, 245 190 C 255 220, 310 215, 340 175
+    M 380 100 C 375 160, 370 200, 372 225 M 360 150 C 400 130, 440 128, 470 140
+    C 520 158, 560 150, 600 120 C 640 95, 680 105, 690 140"/>
+  <circle id="oms-dot" cx="700" cy="148" r="7"/>
+</svg>
+<div id="oms-date">2026 · 06 · 12</div>
+
+<script>
+  (function () {
+    var p = document.getElementById("oms-sig"), L = p.getTotalLength();
+    gsap.set(p, { strokeDasharray: L, strokeDashoffset: L });
+    gsap.set("#oms-dot", { scale: 0, transformOrigin: "50% 50%" });
+    tl.from("#oms-bg", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.to(p, { strokeDashoffset: 0, duration: 2.2, ease: "power2.out" }, t0 + 0.5);
+    tl.to("#oms-dot", { scale: 1, duration: 0.35, ease: "back.out(3)" }, t0 + 2.6);
+    tl.from("#oms-date", { autoAlpha: 0, letterSpacing: "22px", duration: 1.0 }, t0 + 2.9);
+  })();
+</script>

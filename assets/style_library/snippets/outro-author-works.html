@@ -1,0 +1,104 @@
+<!--
+模式：作者作品墙片尾（outro-author-works）【片尾层 · 拼接式结尾】
+适用场景：教程/测评/口播视频结尾，整段拼接（concat）在成片后面的 8~10s 全屏片尾：
+  上方作者身份 → 中部作品矩阵（图标+名称+类型徽章+一句话）stagger 入场 → 底部合规弱引导。
+  默认作为「固定片尾」选择性追加；教程类、产品相关内容优先加。
+
+⚠️ 平台合规铁律（抖音/视频号/小红书/B站通用，使用前以目标平台当前规则为准）：
+  - 禁止二维码（OCR 必检，限流硬红线）
+  - 禁止网址/域名全称、微信号、手机号、任何联系方式及其变体
+  - 禁止「扫码 / 点击链接 / 加微信 / 站外下载」等导流话术
+  - 弱引导只允许模糊指向平台内：「主页 / 简介里都有」「感兴趣可以搜索作品名」
+  - 只陈述「这是作者 + 这些是作品」事实，不写「最 / 第一」等绝对化用语
+
+框架参数：
+  - 作者名/身份签名、作品条目数组（图标/名称/类型徽章/一句话，4 列网格自适应 4~8 个）
+  - 类型徽章四色：iOS App 蓝 / 网站 绿 / GitHub 开源 紫 / 客户端 青
+  - 图标：默认取名称首字做字标；有 logo 时放进项目 assets/，把 .oaw-icon 换成 <img>
+技术要点：
+  - 本片尾是「拼接段」：背景不透明（深石墨蓝渐变 + 网格质感），单独渲染后用 ffmpeg concat 接到成片尾部
+  - 入场节奏：背景定场 → 作者行 y 浮入 → 卡片 grid stagger {amount:.9, from:"start"} → 引导行最后入
+  - 卡片仅 transform + autoAlpha；图标 back.out 微弹；结尾整屏不退场（直接黑场收束由合成端处理）
+-->
+<style>
+  #oaw-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #18243a 0%, #0b111e 58%, #070b14 100%); }
+  #oaw-bg::after { content: ""; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 64px 64px; }
+  #oaw-head { position: absolute; left: 50%; top: 92px; text-align: center; white-space: nowrap; }
+  #oaw-kicker { color: #4dd0e1; font-size: 22px; font-weight: 800; letter-spacing: 6px; }
+  #oaw-author { color: #f4f7ff; font-size: 58px; font-weight: 900; letter-spacing: 2px; margin-top: 10px; }
+  #oaw-sub { color: #9aa6ba; font-size: 24px; font-weight: 700; margin-top: 12px; }
+  #oaw-grid { position: absolute; left: 50%; top: 300px; display: grid;
+    grid-template-columns: repeat(4, 372px); gap: 26px; }
+  .oaw-card { display: flex; align-items: center; gap: 18px; padding: 22px 24px;
+    background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.13); border-radius: 20px;
+    backdrop-filter: blur(8px); box-shadow: 0 18px 44px rgba(0,0,0,.35); }
+  .oaw-icon { width: 76px; height: 76px; border-radius: 18px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 38px; font-weight: 900;
+    border: 1px solid rgba(255,255,255,.2); box-shadow: 0 8px 22px rgba(0,0,0,.45); }
+  .oaw-t-ios .oaw-icon { background: linear-gradient(145deg, #3e9eff, #3e9eff99); }
+  .oaw-t-web .oaw-icon { background: linear-gradient(145deg, #46d390, #46d39099); }
+  .oaw-t-gh .oaw-icon { background: linear-gradient(145deg, #a878ff, #a878ff99); }
+  .oaw-t-client .oaw-icon { background: linear-gradient(145deg, #4dd0e1, #4dd0e199); }
+  .oaw-meta { min-width: 0; }
+  .oaw-name { color: #eef2fb; font-size: 26px; font-weight: 900; white-space: nowrap; }
+  .oaw-desc { color: #97a2b6; font-size: 17px; font-weight: 600; margin-top: 6px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 235px; }
+  .oaw-badge { display: inline-block; font-size: 14px; font-weight: 800; border-radius: 99px;
+    padding: 3px 12px; margin-top: 7px; letter-spacing: 1px; }
+  .oaw-ios { color: #7ab8ff; background: rgba(62,158,255,.16); border: 1px solid rgba(62,158,255,.4); }
+  .oaw-web { color: #5fe0a8; background: rgba(70,211,144,.14); border: 1px solid rgba(70,211,144,.4); }
+  .oaw-gh { color: #c9a8ff; background: rgba(168,120,255,.16); border: 1px solid rgba(168,120,255,.4); }
+  .oaw-client { color: #4dd0e1; background: rgba(77,208,225,.14); border: 1px solid rgba(77,208,225,.4); }
+  #oaw-cta { position: absolute; left: 50%; bottom: 96px; color: #cdd6e6; font-size: 27px; font-weight: 800;
+    white-space: nowrap; background: rgba(10,14,22,.7); border: 1px solid rgba(77,208,225,.35);
+    border-radius: 99px; padding: 16px 46px; }
+  #oaw-cta b { color: #4dd0e1; }
+</style>
+
+<div id="oaw-bg" data-layout-allow-overflow></div>
+<div id="oaw-head">
+  <div id="oaw-kicker">【ABOUT THE CREATOR】</div>
+  <div id="oaw-author">【创作者名称】</div>
+  <div id="oaw-sub">【一句话身份签名】</div>
+</div>
+<div id="oaw-grid">
+  <!-- 卡片条目 4~8 个；类型按 oaw-t-ios / oaw-t-web / oaw-t-gh / oaw-t-client 与对应徽章类成对替换 -->
+  <div class="oaw-card oaw-t-ios"><div class="oaw-icon">A</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 A】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-ios">iOS App</span></div></div>
+  <div class="oaw-card oaw-t-ios"><div class="oaw-icon">B</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 B】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-ios">iOS App</span></div></div>
+  <div class="oaw-card oaw-t-web"><div class="oaw-icon">C</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 C】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-web">网站</span></div></div>
+  <div class="oaw-card oaw-t-web"><div class="oaw-icon">D</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 D】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-web">网站</span></div></div>
+  <div class="oaw-card oaw-t-gh"><div class="oaw-icon">E</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 E】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-gh">GitHub 开源</span></div></div>
+  <div class="oaw-card oaw-t-gh"><div class="oaw-icon">F</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 F】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-gh">GitHub 开源</span></div></div>
+  <div class="oaw-card oaw-t-client"><div class="oaw-icon">G</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 G】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-client">客户端</span></div></div>
+  <div class="oaw-card oaw-t-client"><div class="oaw-icon">H</div>
+    <div class="oaw-meta"><div class="oaw-name">【作品 H】</div><div class="oaw-desc">【一句话介绍】</div><span class="oaw-badge oaw-client">客户端</span></div></div>
+</div>
+<div id="oaw-cta">【这些都是我的作品，感兴趣的话，<b>主页 · 简介里都有</b>】</div>
+
+<script>
+  gsap.set(["#oaw-head", "#oaw-grid", "#oaw-cta"], { xPercent: -50 });
+  tl.from("#oaw-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from("#oaw-kicker", { autoAlpha: 0, y: -18, duration: 0.45 }, t0 + 0.35);
+  tl.from("#oaw-author", { autoAlpha: 0, y: 26, duration: 0.55, ease: "back.out(1.5)" }, t0 + 0.5);
+  tl.from("#oaw-sub", { autoAlpha: 0, y: 16, duration: 0.45 }, t0 + 0.75);
+  tl.from(".oaw-card", { autoAlpha: 0, y: 44, scale: 0.92, duration: 0.5, ease: "back.out(1.4)",
+    stagger: { amount: 0.9, from: "start" } }, t0 + 1.05);
+  tl.from(".oaw-icon", { scale: 0.55, duration: 0.4, ease: "back.out(2.2)",
+    stagger: { amount: 0.9, from: "start" } }, t0 + 1.15);
+  tl.from("#oaw-cta", { autoAlpha: 0, y: 30, duration: 0.5, ease: "back.out(1.6)" }, t0 + 2.3);
+  tl.to("#oaw-cta", { boxShadow: "0 0 38px rgba(77,208,225,.45)", duration: 0.55, yoyo: true, repeat: 3,
+    ease: "sine.inOut" }, t0 + 2.9);
+  // 片尾不做退场：拼接段结尾由合成端淡出/黑场收束
+</script>

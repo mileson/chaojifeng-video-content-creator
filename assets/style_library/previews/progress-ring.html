@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #ring-wrap {
+    position: absolute; top: 150px; left: 0; right: 0; margin: 0 auto;
+    width: 560px; text-align: center;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px; padding: 30px 30px 34px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #ring-wrap h3 { color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 5px; margin-bottom: 18px; text-shadow: 0 0 14px rgba(62,158,255,.5); }
+  #ring-svg { display: block; margin: 0 auto; }
+  #ring-svg .track { stroke: rgba(255, 255, 255, 0.1); }
+  #ring-svg .bar { stroke: url(#ring-grad); filter: drop-shadow(0 0 10px rgba(70, 211, 144, 0.7)); }
+  #ring-center {
+    position: absolute; top: 188px; left: 0; right: 0;
+    color: #fff; font-size: 88px; font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 26px rgba(70, 211, 144, 0.6);
+    will-change: transform;
+  }
+  #ring-foot { color: #c8cad3; font-size: 27px; font-weight: 700; margin-top: 16px; }
+  #ring-foot em { color: #46d390; font-style: normal; font-weight: 900; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="ring-wrap">
+  <h3>【ENGLISH LABEL · 中文说明】</h3>
+  <svg id="ring-svg" width="320" height="320" viewBox="0 0 320 320">
+    <defs>
+      <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#46d390" /><stop offset="100%" stop-color="#3e9eff" />
+      </linearGradient>
+    </defs>
+    <circle class="track" cx="160" cy="160" r="132" fill="none" stroke-width="26" />
+    <circle class="bar" id="ring-bar" cx="160" cy="160" r="132" fill="none" stroke-width="26"
+      stroke-linecap="round" transform="rotate(-90 160 160)"
+      stroke-dasharray="829.38" stroke-dashoffset="829.38" />
+  </svg>
+  <div id="ring-center">【数字】<span style="font-size:44px;color:#8b8d98;"> /【总量】</span></div>
+  <div id="ring-foot">【结论行 · <em>强调词</em>】</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  // 周长 829.38；先画到 75%（offset=207.3）示意总量，再回落到真实小占比
+  b.from("#ring-wrap", { y: 80, autoAlpha: 0, duration: 0.55 }, 0.15)
+   .to("#ring-bar", { strokeDashoffset: 207.3, duration: 1.1, ease: "power2.inOut" }, 0.7)
+   .to("#ring-bar", { strokeDashoffset: 827.7, duration: 0.9, ease: "power3.inOut" }, 2.0)
+   .from("#ring-center", { scale: 0.4, autoAlpha: 0, duration: 0.55, ease: "back.out(1.8)" }, 2.6)
+   .from("#ring-foot", { y: 30, autoAlpha: 0, duration: 0.4 }, "<0.15")
+   .to("#ring-center", { scale: 1.06, duration: 0.25, ease: "power1.inOut", repeat: 3, yoyo: true }, 3.4)
+   .to("#ring-wrap", { y: 70, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 5.05);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

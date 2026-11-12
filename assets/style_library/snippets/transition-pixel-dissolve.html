@@ -1,0 +1,38 @@
+<!--
+模式：像素格子溶解转场（pixel dissolve）【转场层 · 第13种转场】
+适用场景：复古游戏/数码感章节切换。格子从中心盖屏 → 章节文字 → 从边缘揭开。
+  借鉴 Hyperframes 官方 grid-pixelate-wipe 组件。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - 网格密度（16x9 默认 = 144 格）、格子颜色、中段文字与停留时长
+  - stagger from 方向：盖屏 "center" / 揭开 "edges"（可换 "random" 更碎）
+技术要点：
+  - 格子 JS 动态生成（144 个 div，grid 布局自动排位）
+  - gsap.set scale 0 初始（不要写 CSS transform: scale(0)，会和 tween 冲突）
+  - stagger: { amount: 0.55, from: "center", grid: [9, 16] }——grid 参数让波纹按真实网格位置扩散
+  - 盖屏与揭开方向相反（center 进 / edges 出）= 有"呼吸"节奏
+-->
+<style>
+  #pd-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(16,1fr); grid-template-rows: repeat(9,1fr); }
+  .pd-cell { background: #0d0f16; }
+  #pd-text { position: absolute; left: 0; right: 0; top: 44%; text-align: center; color: #fff; font-size: 88px; font-weight: 900; letter-spacing: 8px; }
+  #pd-text em { color: #3e9eff; font-style: normal; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；grid 加 data-layout-ignore -->
+<div id="pd-grid"></div>
+<div id="pd-text">【章节序号】 · <em>【章节标题】</em></div>
+
+<script>
+  const b = gsap.timeline();
+  const grid = document.getElementById("pd-grid");
+  for (let i = 0; i < 144; i++) {
+    const c = document.createElement("div");
+    c.className = "pd-cell";
+    grid.appendChild(c);
+  }
+  gsap.set(".pd-cell", { scale: 0 });
+  b.to(".pd-cell", { scale: 1, duration: 0.55, ease: "power2.inOut", stagger: { amount: 0.55, from: "center", grid: [9, 16] } }, 0);
+  b.from("#pd-text", { autoAlpha: 0, y: 30, duration: 0.4, ease: "power3.out" }, 0.9);
+  b.to("#pd-text", { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, 2.3);
+  b.to(".pd-cell", { scale: 0, duration: 0.55, ease: "power2.inOut", stagger: { amount: 0.55, from: "edges", grid: [9, 16] } }, 2.6);
+</script>

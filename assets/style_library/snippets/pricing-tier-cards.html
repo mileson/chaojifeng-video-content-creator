@@ -1,0 +1,80 @@
+<!--
+模式：三档定价卡（产品定价/方案对比发布）
+适用场景：独立开发者公布产品定价、对比订阅档位、讲「哪个档最划算」。
+结构要点：
+  - 三张同构卡横排：档位名 + 大价格 + 周期 + 3 条权益行
+  - 推荐档（中间）.hot：渐变描边 + 顶部「最划算」缎带 + scale 1.06 放大
+  - 价格 font-variant-numeric: tabular-nums 防 count-up 抖动
+动画要点：
+  - 三卡 y+120 stagger 0.14 back.out 弹入（左→中→右）
+  - 推荐档入场后再放大到 1.06 + 发光脉冲一次，权益行逐条浮入
+  - 价格数字可配 count-up（从 0 跳到目标价）
+参数：档位名/价格/权益行/推荐档位置；卡数 2~4 张均可（调宽度与间距）
+-->
+<style>
+  #ptc-row { position: absolute; top: 50%; left: 50%; display: flex; gap: 36px;
+    transform: translate(-50%, -50%); }
+  .ptc-card {
+    width: 380px; border-radius: 24px; padding: 38px 34px 40px; position: relative;
+    background: rgba(15, 18, 27, 0.95); border: 1.5px solid rgba(255, 255, 255, 0.13);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); will-change: transform;
+  }
+  .ptc-card h4 { color: #9aa3b8; font-size: 26px; font-weight: 800; letter-spacing: 3px; }
+  .ptc-price { margin-top: 18px; color: #fff; font-size: 76px; font-weight: 900;
+    font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+  .ptc-price small { font-size: 26px; color: #8b93a6; font-weight: 600; margin-left: 6px; }
+  .ptc-feats { margin-top: 26px; display: flex; flex-direction: column; gap: 14px; }
+  .ptc-feat { display: flex; gap: 12px; color: #c4cbd9; font-size: 24px; will-change: transform; }
+  .ptc-feat i { color: #46d390; font-weight: 900; font-style: normal; }
+  .ptc-card.hot { border: 2px solid transparent;
+    background: linear-gradient(rgba(17, 21, 34, 0.97), rgba(17, 21, 34, 0.97)) padding-box,
+      linear-gradient(135deg, #46d390, #3e9eff) border-box; }
+  .ptc-card.hot .ptc-price { color: #46d390; text-shadow: 0 0 26px rgba(70, 211, 144, 0.45); }
+  .ptc-ribbon { position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #46d390, #3e9eff); color: #07101e;
+    font-size: 21px; font-weight: 900; letter-spacing: 2px;
+    border-radius: 999px; padding: 9px 24px; box-shadow: 0 10px 26px rgba(70, 211, 144, 0.4);
+    will-change: transform; }
+</style>
+
+<div id="ptc-row">
+  <div class="ptc-card">
+    <h4>【免费版】</h4>
+    <div class="ptc-price">¥0</div>
+    <div class="ptc-feats">
+      <div class="ptc-feat"><i>✓</i>【基础权益 1】</div>
+      <div class="ptc-feat"><i>✓</i>【基础权益 2】</div>
+      <div class="ptc-feat"><i>✓</i>【基础权益 3】</div>
+    </div>
+  </div>
+  <div class="ptc-card hot">
+    <div class="ptc-ribbon">最划算</div>
+    <h4>【专业版】</h4>
+    <div class="ptc-price">¥【价】<small>/月</small></div>
+    <div class="ptc-feats">
+      <div class="ptc-feat"><i>✓</i>【核心权益 1】</div>
+      <div class="ptc-feat"><i>✓</i>【核心权益 2】</div>
+      <div class="ptc-feat"><i>✓</i>【核心权益 3】</div>
+    </div>
+  </div>
+  <div class="ptc-card">
+    <h4>【买断版】</h4>
+    <div class="ptc-price">¥【价】<small>一次</small></div>
+    <div class="ptc-feats">
+      <div class="ptc-feat"><i>✓</i>【权益 1】</div>
+      <div class="ptc-feat"><i>✓</i>【权益 2】</div>
+      <div class="ptc-feat"><i>✓</i>【权益 3】</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from(".ptc-card", { y: 120, autoAlpha: 0, duration: 0.6, ease: "back.out(1.4)", stagger: 0.14 }, 0.2)
+    .from(".ptc-ribbon", { scale: 0, autoAlpha: 0, duration: 0.45, ease: "back.out(2.2)" }, 0.9)
+    .to(".ptc-card.hot", { scale: 1.06, duration: 0.45, ease: "back.out(1.6)" }, 1.05)
+    .fromTo(".ptc-card.hot", { boxShadow: "0 30px 80px rgba(0,0,0,.55), 0 0 0 rgba(70,211,144,0)" },
+      { boxShadow: "0 30px 80px rgba(0,0,0,.55), 0 0 70px rgba(70,211,144,.35)", duration: 0.5, yoyo: true, repeat: 1 }, 1.15)
+    .from(".ptc-card.hot .ptc-feat", { x: -22, autoAlpha: 0, duration: 0.35, stagger: 0.1 }, 1.2)
+    .to("#ptc-row", { y: 80, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.8);
+</script>

@@ -1,0 +1,76 @@
+<!--
+模式：动态折线图（趋势 / 下降曲线 / 走势对比）
+适用场景：讲价格下降、增长趋势、阶梯对比。SVG path 描画 + 渐变面积 + 数据点逐个亮起。
+结构要点：
+  - trend path：粗描边 + 圆角端点 + drop-shadow 发光；area path：垂直渐变填充（顶部 35% 透明度→0）
+  - 网格线 3 根半透明白横线即可，不要画满
+  - 数据点 circle：白底 + 主题色描边；起点用警示红描边、终点放大并配大号结论 label
+  - SVG text 记得 font-family: inherit，否则字体和卡片不一致
+动画要点：
+  - 描画核心：JS 里 getTotalLength() 取真实长度，gsap.set strokeDasharray=len、strokeDashoffset=len，
+    再 to strokeDashoffset:0（1.2s power2.inOut）
+  - 数据点 scale 0→1 back.out(2.5) + stagger 0.28，与描画进度大致同步
+  - 面积层晚于线 0.6s 淡入，终点结论 label 最后弹出
+-->
+<style>
+  #lc-card {
+    position: absolute; top: 140px; left: 0; right: 0; margin: 0 auto;
+    width: 920px;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px; padding: 34px 44px 30px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #lc-card h3 { color: #3e9eff; font-size: 26px; font-weight: 800; letter-spacing: 5px; margin-bottom: 8px; text-shadow: 0 0 14px rgba(62,158,255,.5); }
+  #lc-card h3 em { color: #46d390; font-style: normal; }
+  #lc-chart { display: block; }
+  #lc-chart .grid-line { stroke: rgba(255, 255, 255, 0.08); stroke-width: 1.5; }
+  #lc-chart .axis-label { fill: #8b8d98; font-size: 22px; font-weight: 700; font-family: inherit; }
+  #lc-chart .pt-label { fill: #ff8589; font-size: 26px; font-weight: 900; font-family: inherit; }
+  #lc-chart .pt-label.end { fill: #46d390; font-size: 34px; }
+  #lc-trend { stroke: #46d390; stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(70, 211, 144, 0.7)); }
+  #lc-area { fill: url(#lc-fill); }
+  #lc-chart .pt { fill: #fff; stroke: #46d390; stroke-width: 4; }
+  #lc-chart .pt.start { stroke: #e5484d; }
+</style>
+
+<div id="lc-card">
+  <h3>【ENGLISH LABEL · 中文标题 <em>强调词</em>】</h3>
+  <svg id="lc-chart" width="830" height="330" viewBox="0 0 830 330">
+    <defs>
+      <linearGradient id="lc-fill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(70,211,144,0.35)" /><stop offset="100%" stop-color="rgba(70,211,144,0)" />
+      </linearGradient>
+    </defs>
+    <line class="grid-line" x1="60" y1="60" x2="800" y2="60" />
+    <line class="grid-line" x1="60" y1="150" x2="800" y2="150" />
+    <line class="grid-line" x1="60" y1="240" x2="800" y2="240" />
+    <!-- area = trend 路径 + 右下/左下两点闭合 -->
+    <path id="lc-area" d="M 90 70 L 330 160 L 570 230 L 770 258 L 770 290 L 90 290 Z" />
+    <path id="lc-trend" d="M 90 70 L 330 160 L 570 230 L 770 258" />
+    <circle class="pt start" id="lc-p1" cx="90" cy="70" r="9" />
+    <circle class="pt" id="lc-p2" cx="330" cy="160" r="9" />
+    <circle class="pt" id="lc-p3" cx="570" cy="230" r="9" />
+    <circle class="pt" id="lc-p4" cx="770" cy="258" r="11" />
+    <text class="pt-label" id="lc-t1" x="116" y="66">【起点标签】</text>
+    <text class="axis-label" x="306" y="200">【中间点一】</text>
+    <text class="axis-label" x="540" y="270">【中间点二】</text>
+    <text class="pt-label end" id="lc-t4" x="600" y="240">【终点结论】</text>
+    <text class="axis-label" x="88" y="320">【底部注释】</text>
+  </svg>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const trend = document.querySelector("#lc-trend");
+  const len = trend.getTotalLength();
+  gsap.set(trend, { strokeDasharray: len, strokeDashoffset: len });
+  b.from("#lc-card", { y: 80, autoAlpha: 0, duration: 0.5 }, 0.15)
+   .from("#lc-area", { autoAlpha: 0, duration: 0.8 }, 1.3)
+   .to(trend, { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut" }, 0.7)
+   .from("#lc-p1, #lc-p2, #lc-p3, #lc-p4", { scale: 0, transformOrigin: "center center", duration: 0.35, ease: "back.out(2.5)", stagger: 0.28 }, 0.7)
+   .from("#lc-t1", { autoAlpha: 0, duration: 0.3 }, 0.9)
+   .from("#lc-t4", { autoAlpha: 0, scale: 0.5, transformOrigin: "center center", duration: 0.45, ease: "back.out(1.8)" }, 1.9)
+   .to("#lc-card", { y: 70, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 3.1);
+</script>

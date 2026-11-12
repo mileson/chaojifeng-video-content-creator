@@ -1,0 +1,47 @@
+<!--
+模式：电影漏光叠加（util 质感层）
+适用场景：情绪段/回忆段/产品美图段叠加暖色漏光，模拟胶片机漏光质感；
+  也可单次扫过当作软转场点缀。与 film-grain-vignette 互补可叠用。
+结构要点：
+  - 两个大径向渐变光斑（暖橙 + 玫红）+ 一条对角线性光带，全部 mix-blend-mode: screen
+  - 光斑用 blur(60px) 软化边缘；容器 pointer-events 无关（视频渲染）
+  - 强度由透明度控制：默认峰值 .55，含蓄场景 .35
+动画要点：
+  - 光斑从画外斜向缓慢扫过（x/y 大位移 18s 级别超慢速）+ 透明度呼吸（sine yoyo）
+  - 光带 rotate 微转 + 位移，制造「光源在动」的有机感
+  - 单次软转场用法：把扫过时长压到 1.2s、峰值拉到 .8，扫过即收
+参数：光斑色（暖橙/玫红/冷青）/峰值强度/扫过速度
+-->
+<style>
+  #llk-wrap { position: absolute; inset: 0; overflow: hidden; }
+  .llk-blob { position: absolute; border-radius: 50%; mix-blend-mode: screen;
+    filter: blur(60px); will-change: transform, opacity; }
+  #llk-a { width: 900px; height: 900px; left: -300px; top: -360px;
+    background: radial-gradient(circle, rgba(255, 145, 64, 0.9) 0%, rgba(255, 145, 64, 0) 65%); }
+  #llk-b { width: 760px; height: 760px; right: -260px; bottom: -300px;
+    background: radial-gradient(circle, rgba(255, 84, 112, 0.8) 0%, rgba(255, 84, 112, 0) 65%); }
+  #llk-band { position: absolute; left: -20%; right: -20%; top: 38%; height: 220px;
+    background: linear-gradient(90deg, transparent, rgba(255, 196, 110, 0.5), transparent);
+    mix-blend-mode: screen; filter: blur(34px); transform: rotate(-14deg);
+    will-change: transform, opacity; }
+</style>
+
+<div id="llk-wrap">
+  <div class="llk-blob" id="llk-a"></div>
+  <div class="llk-blob" id="llk-b"></div>
+  <div id="llk-band"></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "sine.inOut" } });
+  gsap.set([".llk-blob", "#llk-band"], { opacity: 0 });
+  b.to(["#llk-a", "#llk-b"], { opacity: 0.55, duration: 1.2, stagger: 0.3 }, 0.2)
+    .to("#llk-band", { opacity: 0.6, duration: 1.4 }, 0.6)
+    // 超慢速漂移：光源缓慢游走
+    .to("#llk-a", { x: 420, y: 260, duration: 7.5 }, 0.2)
+    .to("#llk-b", { x: -360, y: -220, duration: 7.5 }, 0.2)
+    .to("#llk-band", { x: 240, rotate: -10, duration: 7.5 }, 0.2)
+    // 呼吸：强度起伏避免死板
+    .to(["#llk-a", "#llk-b"], { opacity: 0.34, duration: 2.2, yoyo: true, repeat: 1 }, 2.4)
+    .to(["#llk-a", "#llk-b", "#llk-band"], { opacity: 0, duration: 1.0 }, 7.0);
+</script>

@@ -1,0 +1,60 @@
+<!--
+模式：玻璃面板虚线网络（glass-panel-network）【容器层 · 架构总览】
+适用场景：「AI 工作流网络 / 模块协作总览」，多块玻璃面板 + 发光虚线连接。
+框架参数：
+  - 面板数（5 块典型）：位置 + 微倾角度 + 标题（INBOX/BRAIN/...）+ 骨架线
+  - SVG path 连线（青/橙交替），dashoffset 描画
+技术要点：
+  - 深底 scrim 全屏打底（铁律：虚线在亮底不可见）→ 面板 stagger 0.16 back.out 落位
+  - 连线 getTotalLength + dasharray/dashoffset 描画（每条错开 0.18s）
+  - 面板 CSS transform rotate 微倾 OK（不与 GSAP scale/y tween 冲突时可保留；
+    若 tween transform 系属性需改 gsap.set rotation）—— 本例 from autoAlpha/y/scale 与 rotate 冲突，
+    实测 from 入场后 rotate 终态保留，因 GSAP from 会以 CSS 计算后矩阵为终点
+  - 面板 boxShadow 呼吸（sine.inOut yoyo + stagger）= 网络活性
+-->
+<style>
+  #gpn-bg { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(13,17,23,.92), rgba(26,34,51,.92)); }
+  #gpn-svg { position: absolute; inset: 0; overflow: visible; }
+  .gpn-panel { position: absolute; background: rgba(20,28,42,.72); border: 1.5px solid rgba(77,208,225,.4);
+    border-radius: 16px; box-shadow: 0 0 40px rgba(77,208,225,.12), 0 24px 60px rgba(0,0,0,.5); padding: 20px 24px; }
+  .gpn-h { color: #4dd0e1; font-size: 15px; font-weight: 800; letter-spacing: 3px; }
+  .gpn-line { height: 10px; border-radius: 5px; background: rgba(255,255,255,.14); margin-top: 12px; }
+  #gpn-pa { left: 250px; top: 200px; width: 380px; transform: rotate(-1.2deg); }
+  #gpn-pb { left: 820px; top: 140px; width: 340px; transform: rotate(.8deg); }
+  #gpn-pc { left: 1310px; top: 300px; width: 330px; transform: rotate(-0.8deg); }
+  #gpn-pd { left: 560px; top: 580px; width: 420px; transform: rotate(.6deg); }
+  #gpn-pe { left: 1150px; top: 650px; width: 350px; transform: rotate(-1deg); }
+  #gpn-title { position: absolute; left: 0; right: 0; top: 64px; text-align: center; }
+  #gpn-title span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px; padding: 12px 30px; font-size: 24px; font-weight: 900; }
+  #gpn-title em { color: #4dd0e1; font-style: normal; }
+</style>
+
+<div id="gpn-bg" data-layout-ignore></div>
+<div id="gpn-title"><span>【网络标题 · 】<em>【高亮】</em></span></div>
+<svg id="gpn-svg" viewBox="0 0 1920 1080">
+  <path id="gpn-e1" d="M 630,260 C 700,240 750,230 820,220" fill="none" stroke="rgba(77,208,225,.7)" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round"/>
+  <path id="gpn-e2" d="M 1160,230 C 1230,250 1260,280 1310,330" fill="none" stroke="rgba(77,208,225,.7)" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round"/>
+  <path id="gpn-e3" d="M 820,340 C 760,430 720,500 680,580" fill="none" stroke="rgba(255,122,89,.7)" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round"/>
+  <path id="gpn-e4" d="M 980,660 C 1040,670 1090,680 1150,700" fill="none" stroke="rgba(77,208,225,.7)" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round"/>
+  <path id="gpn-e5" d="M 1450,420 C 1420,490 1390,560 1350,650" fill="none" stroke="rgba(255,122,89,.7)" stroke-width="3" stroke-dasharray="6 10" stroke-linecap="round"/>
+</svg>
+<div class="gpn-panel" id="gpn-pa"><div class="gpn-h">【模块A · 说明】</div><div class="gpn-line" style="width:84%"></div><div class="gpn-line" style="width:60%"></div></div>
+<div class="gpn-panel" id="gpn-pb"><div class="gpn-h">【模块B · 说明】</div><div class="gpn-line" style="width:74%"></div><div class="gpn-line" style="width:88%"></div></div>
+<div class="gpn-panel" id="gpn-pc"><div class="gpn-h">【模块C · 说明】</div><div class="gpn-line" style="width:66%"></div><div class="gpn-line" style="width:80%"></div></div>
+<div class="gpn-panel" id="gpn-pd"><div class="gpn-h">【模块D · 说明】</div><div class="gpn-line" style="width:90%"></div><div class="gpn-line" style="width:72%"></div></div>
+<div class="gpn-panel" id="gpn-pe"><div class="gpn-h">【模块E · 说明】</div><div class="gpn-line" style="width:70%"></div><div class="gpn-line" style="width:58%"></div></div>
+
+<script>
+  tl.from("#gpn-bg", { autoAlpha: 0, duration: 0.4 }, t0);
+  tl.from("#gpn-title", { autoAlpha: 0, y: -20, duration: 0.4 }, t0 + 0.25);
+  tl.from(".gpn-panel", { autoAlpha: 0, y: 40, scale: 0.92, duration: 0.5, ease: "back.out(1.6)", stagger: 0.16 }, t0 + 0.4);
+  ["#gpn-e1", "#gpn-e2", "#gpn-e3", "#gpn-e4", "#gpn-e5"].forEach(function (sel, i) {
+    var p = document.querySelector(sel);
+    var len = p.getTotalLength();
+    gsap.set(p, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } });
+    tl.to(p, { attr: { "stroke-dashoffset": 0 }, duration: 0.55, ease: "power2.inOut" }, t0 + 1.4 + i * 0.18);
+  });
+  tl.to(".gpn-panel", { boxShadow: "0 0 60px rgba(77,208,225,.28), 0 24px 60px rgba(0,0,0,.5)", duration: 0.7, yoyo: true, repeat: 1, stagger: 0.1, ease: "sine.inOut" }, t0 + 2.6);
+  tl.to(["#gpn-bg", "#gpn-title", ".gpn-panel", "#gpn-svg"], { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, t0 + 4.9);
+</script>

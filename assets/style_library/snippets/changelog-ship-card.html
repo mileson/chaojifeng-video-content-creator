@@ -1,0 +1,72 @@
+<!--
+模式：版本发布清单卡（独立开发者 Ship Log）
+适用场景：宣布产品更新「vX.Y 上线了，这次带来 N 个新东西」、周报式 build in public。
+结构要点：
+  - 顶部：版本徽章（渐变胶囊 v2.4）+ 发布日期 + SHIPPED 印章角标
+  - 清单：3~5 行新功能，每行 = 复选框 + 功能名 + 类型 tag（新功能绿/修复橙/优化蓝）
+  - 复选框 SVG 勾用 stroke-dashoffset 画出
+动画要点：
+  - 卡浮入 + 版本徽章 back.out 弹出 → 行 stagger 滑入
+  - 勾逐个画出（dashoffset→0，stagger 0.35）+ 行文字同拍由灰变白
+  - SHIPPED 印章最后旋转盖下（scale 2.2→1 + rotate -18°，模拟盖章）
+参数：版本号/日期/功能行与类型 tag/印章文字
+-->
+<style>
+  #clg-card {
+    position: absolute; top: 50%; left: 50%; width: 700px;
+    background: rgba(14, 16, 25, 0.96); border: 1.5px solid rgba(255, 255, 255, 0.13);
+    border-radius: 24px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+    padding: 38px 44px 42px; will-change: transform;
+  }
+  #clg-head { display: flex; align-items: center; gap: 18px; }
+  #clg-ver { background: linear-gradient(135deg, #3e9eff, #b388ff); color: #fff;
+    font-size: 30px; font-weight: 900; letter-spacing: 1px; border-radius: 999px;
+    padding: 10px 26px; box-shadow: 0 10px 30px rgba(62, 158, 255, 0.4); will-change: transform; }
+  #clg-date { color: #8b93a6; font-size: 23px; }
+  #clg-stamp { position: absolute; top: 26px; right: 34px; color: #46d390;
+    border: 4px solid #46d390; border-radius: 12px; font-size: 30px; font-weight: 900;
+    letter-spacing: 4px; padding: 6px 18px; transform: rotate(-12deg);
+    text-shadow: 0 0 16px rgba(70, 211, 144, 0.6); box-shadow: 0 0 24px rgba(70, 211, 144, 0.25),
+    inset 0 0 14px rgba(70, 211, 144, 0.15); will-change: transform; }
+  #clg-list { margin-top: 32px; display: flex; flex-direction: column; gap: 20px; }
+  .clg-row { display: flex; align-items: center; gap: 16px; will-change: transform; }
+  .clg-box { flex: none; width: 36px; height: 36px; border-radius: 10px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; }
+  .clg-box svg { width: 22px; height: 22px; }
+  .clg-box path { stroke: #46d390; stroke-width: 3.4; fill: none; stroke-linecap: round;
+    stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24;
+    filter: drop-shadow(0 0 6px rgba(70, 211, 144, 0.8)); }
+  .clg-row span { color: #6f7787; font-size: 27px; font-weight: 600; }
+  .clg-tag { margin-left: auto; font-size: 19px; font-weight: 800; letter-spacing: 1px;
+    border-radius: 999px; padding: 6px 16px; }
+  .t-new { color: #0c1f15; background: #46d390; }
+  .t-fix { color: #271403; background: #ffb224; }
+  .t-imp { color: #07131f; background: #3e9eff; }
+</style>
+
+<div id="clg-card">
+  <div id="clg-head">
+    <div id="clg-ver">v【2.4】</div>
+    <div id="clg-date">【2026.06.12 发布】</div>
+  </div>
+  <div id="clg-stamp">SHIPPED</div>
+  <div id="clg-list">
+    <div class="clg-row"><div class="clg-box"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div><span>【新功能 1】</span><i class="clg-tag t-new">NEW</i></div>
+    <div class="clg-row"><div class="clg-box"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div><span>【新功能 2】</span><i class="clg-tag t-new">NEW</i></div>
+    <div class="clg-row"><div class="clg-box"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div><span>【修复项】</span><i class="clg-tag t-fix">FIX</i></div>
+    <div class="clg-row"><div class="clg-box"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div><span>【性能优化项】</span><i class="clg-tag t-imp">FASTER</i></div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  gsap.set("#clg-card", { xPercent: -50, yPercent: -50 });
+  b.from("#clg-card", { y: "+=90", autoAlpha: 0, duration: 0.55 }, 0.15)
+    .from("#clg-ver", { scale: 0, autoAlpha: 0, duration: 0.5, ease: "back.out(2)" }, 0.5)
+    .from(".clg-row", { x: -30, autoAlpha: 0, duration: 0.4, stagger: 0.12 }, 0.8)
+    .to(".clg-box path", { strokeDashoffset: 0, duration: 0.4, ease: "power2.inOut", stagger: 0.35 }, 1.5)
+    .to(".clg-row span", { color: "#e8ecf4", duration: 0.3, stagger: 0.35 }, 1.55)
+    .fromTo("#clg-stamp", { scale: 2.2, autoAlpha: 0, rotate: -2 },
+      { scale: 1, autoAlpha: 1, rotate: -12, duration: 0.4, ease: "power4.in" }, 3.4)
+    .to("#clg-card", { y: "+=70", autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 7.0);
+</script>

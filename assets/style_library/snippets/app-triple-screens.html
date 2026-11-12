@@ -1,0 +1,65 @@
+<!--
+模式：三机浮动产品展示（产品宣传主力画面）
+适用场景：App 产品宣传/功能总览。中间主屏放核心界面，左右两屏后退展示辅助界面，
+  整体缓慢浮动呈现「产品矩阵感」。截图用 img（assets/ 内放真实截图），缺图自动渐变占位。
+结构要点：
+  - 三个 .ats-phone 同构：圆角机身 + 刘海条 + 屏幕区 img
+  - 主屏 z-index 高、scale 1；侧屏 scale .82 + 亮度压暗 + 模糊 0.5px 制造景深
+  - 底部产品名 + 一句话（可选，讲到产品名时出）
+动画要点：
+  - 主屏 y+120 back.out 浮入 → 左右屏从主屏后方 x 错位滑出（stagger 0.12）
+  - 入场后三屏各自 yoyo 浮动（y ±10，周期错开，sine.inOut）营造悬浮感
+  - 退场整体 y+80 + autoAlpha 0
+参数：三张截图路径/产品名/副标题；侧屏角度可加 rotateY(±6deg) 增强透视
+-->
+<style>
+  #ats-stage { position: absolute; inset: 0; }
+  .ats-phone {
+    /* 居中只用 gsap xPercent -50，勿再加 margin-left（双重偏移） */
+    position: absolute; top: 130px; left: 50%; width: 360px; height: 740px;
+    border-radius: 48px; background: #15171f;
+    border: 2px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65), inset 0 0 0 6px #07080c;
+    padding: 14px; will-change: transform;
+  }
+  .ats-phone .scr {
+    width: 100%; height: 100%; border-radius: 36px; overflow: hidden;
+    background: linear-gradient(160deg, #1d2940, #11182a);
+  }
+  .ats-phone .scr img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ats-phone .notch {
+    position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 26px; border-radius: 14px; background: #07080c; z-index: 2;
+  }
+  #ats-l { z-index: 1; } #ats-r { z-index: 1; } #ats-c { z-index: 3; }
+  #ats-foot {
+    position: absolute; bottom: 86px; left: 0; right: 0; text-align: center; will-change: transform;
+  }
+  #ats-foot b { color: #fff; font-size: 44px; font-weight: 900; letter-spacing: 3px;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8); }
+  #ats-foot span { display: block; margin-top: 10px; color: #aeb6c5; font-size: 26px; letter-spacing: 2px; }
+</style>
+
+<div id="ats-stage">
+  <div class="ats-phone" id="ats-l"><div class="notch"></div><div class="scr"><img src="assets/screen-left.png" alt="" /></div></div>
+  <div class="ats-phone" id="ats-r"><div class="notch"></div><div class="scr"><img src="assets/screen-right.png" alt="" /></div></div>
+  <div class="ats-phone" id="ats-c"><div class="notch"></div><div class="scr"><img src="assets/screen-main.png" alt="" /></div></div>
+  <div id="ats-foot"><b>【产品名】</b><span>【一句话定位 · 三个核心界面】</span></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  gsap.set("#ats-l", { xPercent: -50, scale: 0.82, filter: "brightness(.55) blur(.5px)", rotateY: 6 });
+  gsap.set("#ats-r", { xPercent: -50, scale: 0.82, filter: "brightness(.55) blur(.5px)", rotateY: -6 });
+  gsap.set("#ats-c", { xPercent: -50 });
+  b.from("#ats-c", { y: 140, autoAlpha: 0, duration: 0.7, ease: "back.out(1.3)" }, 0.15)
+    .to("#ats-l", { x: -330, duration: 0.65, ease: "power3.inOut" }, 0.55)
+    .to("#ats-r", { x: 330, duration: 0.65, ease: "power3.inOut" }, 0.67)
+    .from(["#ats-l", "#ats-r"], { autoAlpha: 0, duration: 0.4 }, 0.55)
+    .from("#ats-foot", { y: 50, autoAlpha: 0, duration: 0.5 }, 1.1);
+  // 悬浮呼吸：三屏周期错开
+  b.to("#ats-c", { y: -10, duration: 1.6, yoyo: true, repeat: 3, ease: "sine.inOut" }, 1.3);
+  b.to("#ats-l", { y: -8, duration: 1.9, yoyo: true, repeat: 2, ease: "sine.inOut" }, 1.5);
+  b.to("#ats-r", { y: -12, duration: 1.7, yoyo: true, repeat: 2, ease: "sine.inOut" }, 1.4);
+  b.to("#ats-stage", { y: 80, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 7.4);
+</script>

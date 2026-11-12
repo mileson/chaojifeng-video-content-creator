@@ -1,0 +1,67 @@
+<!--
+  模式：编号规则结论列（无卡 overlay）⚙️
+  适用：「规律一/规律二」「三条结论」类口播——彩色圆角方号 + 小 kicker + 结论句
+    （关键词彩色高亮）+ 可选标签 chips，直贴画面左侧；常与右侧截图浮窗组成
+    「左结论右证据」双栏版式。
+  适配铁律：亮色素材保留 .hnr-scrim；编号色按语义（红=门槛/警示，蓝=进阶，绿=正向）。
+  参数化：条目数/编号色/kicker/结论句与高亮词/chips 文案/出现时间点。
+-->
+<style>
+  #hnr-wrap { position: absolute; top: 150px; left: 56px; width: 560px; }
+  #hnr-scrim { position: absolute; top: -50px; left: -80px; width: 700px; height: 420px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  .hnr-rule { position: relative; margin-bottom: 52px; display: flex; gap: 18px; }
+  .hnr-no { width: 52px; height: 52px; border-radius: 12px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 900; color: #fff; }
+  #hnr-no1 { background: #e5484d; box-shadow: 0 0 22px rgba(229,72,77,.55); }
+  #hnr-no2 { background: #3e9eff; box-shadow: 0 0 22px rgba(62,158,255,.55); }
+  .hnr-kick { font-size: 14px; font-weight: 800; letter-spacing: 4px; color: #93a0b4;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  .hnr-line { margin-top: 6px; font-size: 30px; font-weight: 900; letter-spacing: 1px;
+    color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.85); line-height: 1.35; }
+  .hnr-line .hl-r { color: #ff6b70; }
+  .hnr-line .hl-b { color: #6db4ff; }
+  .hnr-chips { margin-top: 12px; display: flex; gap: 10px; }
+  .hnr-chip { padding: 6px 18px; border-radius: 999px; font-size: 18px; font-weight: 800;
+    color: #dfe6f2; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.3);
+    text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+</style>
+
+<div id="hnr" class="clip beat" data-start="0.4" data-duration="5.6" data-track-index="0" data-layout-allow-overflow>
+  <div id="hnr-wrap">
+    <div id="hnr-scrim"></div>
+    <div class="hnr-rule" id="hnr-r1">
+      <div class="hnr-no" id="hnr-no1">1</div>
+      <div>
+        <div class="hnr-kick">RULE 01 · 入场门槛</div>
+        <div class="hnr-line">完播率 <span class="hl-r">&lt; 40%</span> · 别想破 10万</div>
+      </div>
+    </div>
+    <div class="hnr-rule" id="hnr-r2">
+      <div class="hnr-no" id="hnr-no2">2</div>
+      <div>
+        <div class="hnr-kick">RULE 02 · 十万 → 百万</div>
+        <div class="hnr-line">差距藏在<span class="hl-b">两个指标</span></div>
+        <div class="hnr-chips"><div class="hnr-chip">分享</div><div class="hnr-chip">收藏</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ===== 编号规则结论列（0.4 起，规则一→规则二先后）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hnr-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hnr-no1", { autoAlpha: 0, scale: 0.3, duration: 0.5, ease: "back.out(2)" }, t0 + 0.1);
+    tl.from("#hnr-r1 .hnr-kick", { autoAlpha: 0, x: -20, duration: 0.4 }, t0 + 0.25);
+    tl.from("#hnr-r1 .hnr-line", { autoAlpha: 0, y: 16, duration: 0.45 }, t0 + 0.4);
+    tl.from("#hnr-no2", { autoAlpha: 0, scale: 0.3, duration: 0.5, ease: "back.out(2)" }, t0 + 1.7);
+    tl.from("#hnr-r2 .hnr-kick", { autoAlpha: 0, x: -20, duration: 0.4 }, t0 + 1.85);
+    tl.from("#hnr-r2 .hnr-line", { autoAlpha: 0, y: 16, duration: 0.45 }, t0 + 2.0);
+    tl.from(".hnr-chip", { autoAlpha: 0, scale: 0.5, duration: 0.4, ease: "back.out(1.8)", stagger: 0.15 }, t0 + 2.5);
+    tl.to("#hnr-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 5.0);
+  })();
+</script>

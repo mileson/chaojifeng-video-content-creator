@@ -1,0 +1,66 @@
+<!--
+模式：AI 对话流式输出（AI 内容核心画面）
+适用场景：演示和 AI 的一问一答、prompt 教学、模型能力对比。用户气泡弹入 →
+  AI 气泡流式逐字输出（带光标），复刻常见 AI 对话产品的流式输出体验。
+结构要点：
+  - 对话容器卡：顶部模型名标签 + 气泡区
+  - 用户气泡右对齐蓝底；AI 气泡左对齐玻璃底 + 头像圆点
+  - AI 文字放 #acs-out（流式写入），尾部 .acs-cursor 闪烁块
+动画要点：
+  - 用户气泡 back.out 弹入 → 停 0.4s（模拟思考）→ AI 气泡框先出
+  - 流式输出：把全文按字符切片，用 tl 每 0.03~0.05s 追加一字（onUpdate 按进度截取）
+  - 输出完成后光标消失 + 气泡底部出现「↑ 复制」动作条（可选）
+参数：问题/回答文案、模型名、输出速度（字/秒）
+-->
+<style>
+  #acs-card {
+    position: absolute; top: 170px; left: 50%; width: 800px;
+    background: rgba(14, 16, 24, 0.95); border: 1.5px solid rgba(255, 255, 255, 0.13);
+    border-radius: 22px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+    padding: 24px 28px 30px; will-change: transform;
+  }
+  #acs-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  #acs-head i { width: 14px; height: 14px; border-radius: 50%;
+    background: linear-gradient(135deg, #46d390, #3e9eff); box-shadow: 0 0 12px rgba(70, 211, 144, 0.8); }
+  #acs-head b { color: #d4dae6; font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+  .acs-bub { max-width: 86%; border-radius: 18px; padding: 18px 24px; font-size: 27px;
+    line-height: 1.65; will-change: transform; }
+  #acs-q { margin-left: auto; background: linear-gradient(135deg, #2f6fed, #3e9eff);
+    color: #fff; font-weight: 700; border-bottom-right-radius: 6px; }
+  #acs-a { display: flex; gap: 14px; margin-top: 18px; background: rgba(255, 255, 255, 0.07);
+    color: #e6eaf2; border: 1px solid rgba(255, 255, 255, 0.10); border-bottom-left-radius: 6px; }
+  #acs-a .av { flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #b388ff, #3e9eff);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px; font-weight: 900; }
+  #acs-out em { color: #46d390; font-style: normal; font-weight: 800; }
+  .acs-cursor { display: inline-block; width: 13px; height: 28px; margin-left: 4px;
+    vertical-align: -4px; background: #46d390; border-radius: 3px; }
+</style>
+
+<div id="acs-card">
+  <div id="acs-head"><i></i><b>【模型名 · Nova 5】</b></div>
+  <div class="acs-bub" id="acs-q">【用户的问题，一句话】</div>
+  <div class="acs-bub" id="acs-a">
+    <span class="av">AI</span>
+    <span><span id="acs-out"></span><span class="acs-cursor" id="acs-cur"></span></span>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  // 流式文案：可带 <em> 强调（按字符流式时保持标签完整：用 token 数组而非裸字符串切片）
+  const ACS_TOKENS = ("【流式输出的回答文案，建议 40~80 字，关键词用强调色】").split("");
+  gsap.set("#acs-card", { xPercent: -50 });
+  gsap.set("#acs-a", { autoAlpha: 0 });
+  b.from("#acs-card", { y: 90, autoAlpha: 0, duration: 0.55 }, 0.15)
+    .from("#acs-q", { scale: 0.7, autoAlpha: 0, duration: 0.5, ease: "back.out(1.8)" }, 0.55)
+    .to("#acs-a", { autoAlpha: 1, duration: 0.35 }, 1.35);
+  const acsSt = { n: 0 };
+  b.to(acsSt, { n: ACS_TOKENS.length, duration: ACS_TOKENS.length * 0.045, ease: "none",
+    onUpdate() { document.getElementById("acs-out").textContent = ACS_TOKENS.slice(0, Math.round(acsSt.n)).join(""); } }, 1.6);
+  // 输出期间光标闪烁，结束后隐藏
+  b.to("#acs-cur", { autoAlpha: 0, duration: 0.4, yoyo: true, repeat: 7, ease: "steps(1)" }, 1.6)
+    .set("#acs-cur", { display: "none" }, "+=0.1")
+    .to("#acs-card", { y: -60, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 7.2);
+</script>

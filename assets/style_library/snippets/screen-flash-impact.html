@@ -1,0 +1,38 @@
+<!--
+模式：白闪冲击帧（screen-flash-impact）【工具层 · 节奏点缀】
+适用场景：重大反转/结果揭晓/卡点切换的 2~4 帧白闪 + 色差错位，
+  给剪辑点加一记「闪光灯」，常与 camera-shake-impact 组合（先闪后震）。
+框架参数：
+  - flashAt(t, color)：闪光时间点与颜色（默认白，可用主题色 #3e9eff）
+  - 色差强度（CHROMA px，默认 10）
+技术要点：
+  - 闪光层 0.06s 拉满 → 0.28s power2.out 衰减（人眼残像曲线）
+  - 色差用红/青两个半透明副本层瞬时左右错位再归零（RGB split 的廉价实现）
+  - 全部 data-layout-ignore；一次性效果，同一镜头别超过 2 次（会廉价）
+-->
+<style>
+  #sfi-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  .sfi-chroma { position: absolute; inset: 0; opacity: 0; pointer-events: none; mix-blend-mode: screen; }
+  #sfi-red { background: rgba(255, 40, 60, .35); }
+  #sfi-cyan { background: rgba(40, 220, 255, .35); }
+</style>
+
+<div id="sfi-red" class="sfi-chroma" data-layout-ignore></div>
+<div id="sfi-cyan" class="sfi-chroma" data-layout-ignore></div>
+<div id="sfi-flash" data-layout-ignore></div>
+
+<script>
+  (function () {
+    var CHROMA = 10;
+    window.flashAt = function (t, color) {
+      if (color) tl.set("#sfi-flash", { background: color }, t);
+      tl.fromTo("#sfi-flash", { opacity: 0 }, { opacity: 1, duration: 0.06, ease: "power4.in" }, t);
+      tl.to("#sfi-flash", { opacity: 0, duration: 0.28, ease: "power2.out" }, t + 0.06);
+      tl.fromTo("#sfi-red", { x: -CHROMA, opacity: .9 }, { x: 0, opacity: 0, duration: 0.3, ease: "power2.out" }, t + 0.04);
+      tl.fromTo("#sfi-cyan", { x: CHROMA, opacity: .9 }, { x: 0, opacity: 0, duration: 0.3, ease: "power2.out" }, t + 0.04);
+    };
+  })();
+  // 演示：白闪 → 主题色闪
+  flashAt(t0 + 0.8);
+  flashAt(t0 + 2.6, "#bfe0ff");
+</script>

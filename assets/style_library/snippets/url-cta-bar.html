@@ -1,0 +1,39 @@
+<!--
+模式：官网行动引导条（url-cta-bar）【节拍层 · 片尾转化】
+适用场景：片尾「官网 + 平台徽章 + 免费下载」转化节拍，5s 驻留。
+框架参数：
+  - URL 文案、平台徽章（macOS/Windows/...）、CTA 按钮文案、底部 hint
+技术要点：
+  - 整条胶囊 y 70 back.out(1.6) 浮入 → 平台徽章 scale 0.6 stagger 弹出 → CTA 按钮最后弹出
+  - CTA boxShadow 青色 yoyo 呼吸 3 次 = 持续召唤
+  - white-space: nowrap 防止条内换行（铁律）；条与 hint 都 gsap.set xPercent -50 居中
+-->
+<style>
+  #ucb-bar { position: absolute; left: 50%; bottom: 200px; display: flex; align-items: center; gap: 26px;
+    background: rgba(10,14,22,.92); border: 1px solid rgba(77,208,225,.4); border-radius: 99px;
+    padding: 20px 44px; box-shadow: 0 0 50px rgba(77,208,225,.15), 0 30px 70px rgba(0,0,0,.55); white-space: nowrap; }
+  #ucb-url { color: #4dd0e1; font-size: 38px; font-weight: 900; letter-spacing: 1px; }
+  .ucb-plat { display: flex; align-items: center; gap: 9px; color: #cfd5e3; font-size: 20px; font-weight: 800;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 22px; }
+  #ucb-free { color: #06121a; font-size: 21px; font-weight: 900; background: linear-gradient(135deg, #4dd0e1, #2b7fd4);
+    border-radius: 99px; padding: 10px 26px; }
+  #ucb-hint { position: absolute; left: 50%; bottom: 140px; color: #8b93a3; font-size: 19px; font-weight: 700; white-space: nowrap; }
+</style>
+
+<div id="ucb-bar">
+  <span id="ucb-url">【yourproduct.com】</span>
+  <span class="ucb-plat"> macOS</span>
+  <span class="ucb-plat">⊞ Windows</span>
+  <span id="ucb-free">【免费下载】</span>
+</div>
+<div id="ucb-hint">【一句话降低行动门槛】</div>
+
+<script>
+  gsap.set(["#ucb-bar", "#ucb-hint"], { xPercent: -50 });
+  tl.from("#ucb-bar", { autoAlpha: 0, y: 70, duration: 0.55, ease: "back.out(1.6)" }, t0);
+  tl.from(".ucb-plat", { autoAlpha: 0, scale: 0.6, duration: 0.4, ease: "back.out(2)", stagger: 0.14 }, t0 + 0.45);
+  tl.from("#ucb-free", { autoAlpha: 0, scale: 0.5, duration: 0.45, ease: "back.out(2.4)" }, t0 + 0.8);
+  tl.from("#ucb-hint", { autoAlpha: 0, y: 16, duration: 0.4 }, t0 + 1.1);
+  tl.to("#ucb-free", { boxShadow: "0 0 36px rgba(77,208,225,.8)", duration: 0.5, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 1.6);
+  tl.to(["#ucb-bar", "#ucb-hint"], { autoAlpha: 0, y: 40, duration: 0.5, ease: "power2.in" }, t0 + 4.4);
+</script>

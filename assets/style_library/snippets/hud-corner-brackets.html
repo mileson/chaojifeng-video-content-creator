@@ -1,0 +1,45 @@
+<!--
+模式：四角括号圈注（hud-corner-brackets）【节拍层 · 屏录圈注】
+适用场景：叠在录屏/UI 上圈出关键按钮或区域（「看这里」），替代鼠标圈划。
+框架参数：
+  - target 容器 left/top/width/height 对准底片上的目标区域
+  - tag 文案、accent 色（默认珊瑚橙 #ff7a59）
+技术要点：
+  - 四角分别只画两条边（border-top/left 等组合）形成取景框
+  - 入场：整体 scale 1.25→1 聚焦 + 四角从外侧 x/y ±40 合拢（back.out(2) stagger 0.07）
+  - 扫描线 fromTo y 0→height 扫一遍（power1.inOut）增强「检测感」
+  - 四角 drop-shadow yoyo 脉冲一次 = 确认节拍；tag 深底白字（铁律）
+-->
+<style>
+  #hcb-target { position: absolute; left: 620px; top: 360px; width: 680px; height: 320px; }
+  .hcb-c { position: absolute; width: 56px; height: 56px; border: 0 solid #ff7a59;
+    filter: drop-shadow(0 0 10px rgba(255,122,89,.7)); }
+  #hcb-c1 { left: 0; top: 0; border-top-width: 5px; border-left-width: 5px; border-top-left-radius: 8px; }
+  #hcb-c2 { right: 0; top: 0; border-top-width: 5px; border-right-width: 5px; border-top-right-radius: 8px; }
+  #hcb-c3 { left: 0; bottom: 0; border-bottom-width: 5px; border-left-width: 5px; border-bottom-left-radius: 8px; }
+  #hcb-c4 { right: 0; bottom: 0; border-bottom-width: 5px; border-right-width: 5px; border-bottom-right-radius: 8px; }
+  #hcb-tag { position: absolute; left: 0; top: -74px; background: rgba(10,14,22,.9); border: 1px solid rgba(255,122,89,.5);
+    color: #ffa48c; border-radius: 10px; padding: 10px 24px; font-size: 22px; font-weight: 900; white-space: nowrap; }
+  #hcb-scan { position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255,122,89,.9), transparent); }
+</style>
+
+<div id="hcb-target">
+  <div class="hcb-c" id="hcb-c1"></div><div class="hcb-c" id="hcb-c2"></div>
+  <div class="hcb-c" id="hcb-c3"></div><div class="hcb-c" id="hcb-c4"></div>
+  <div id="hcb-scan"></div>
+  <div id="hcb-tag">⌐ 【看这里 · 标注文案】</div>
+</div>
+
+<script>
+  tl.from("#hcb-target", { autoAlpha: 0, scale: 1.25, duration: 0.5, ease: "power3.out" }, t0);
+  tl.from(["#hcb-c1", "#hcb-c2", "#hcb-c3", "#hcb-c4"], {
+    x: function (i) { return [40, -40, 40, -40][i]; },
+    y: function (i) { return [40, 40, -40, -40][i]; },
+    autoAlpha: 0, duration: 0.4, ease: "back.out(2)", stagger: 0.07 }, t0 + 0.2);
+  tl.fromTo("#hcb-scan", { y: 0, opacity: 0 }, { y: 316, opacity: 1, duration: 0.7, ease: "power1.inOut" }, t0 + 0.7);
+  tl.to("#hcb-scan", { opacity: 0, duration: 0.2 }, t0 + 1.4);
+  tl.from("#hcb-tag", { autoAlpha: 0, y: 18, duration: 0.4 }, t0 + 0.9);
+  tl.to(["#hcb-c1", "#hcb-c2", "#hcb-c3", "#hcb-c4"], { filter: "drop-shadow(0 0 22px rgba(255,122,89,1))", duration: 0.4, yoyo: true, repeat: 1 }, t0 + 1.8);
+  tl.to("#hcb-target", { autoAlpha: 0, scale: 1.1, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+</script>

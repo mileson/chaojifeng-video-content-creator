@@ -1,0 +1,44 @@
+<!--
+模式：流动网格渐变背景（mesh-gradient-bg）【工具层 · 背景底】
+适用场景：片头标题/片尾/全屏文字卡的动态底——多团品牌色光斑缓慢游动，
+  替代死板纯色底；Stripe/Linear 发布会风格。
+框架参数：
+  - 光斑颜色组（默认蓝/青/紫品牌系）、游动速度（默认 10s 级缓动）
+  - 暗度罩透明度（文字多就调深）
+技术要点：
+  - 4 团大半径 radial blob + blur(90px)，各自沿不同椭圆轨迹 yoyo 游动
+  - 轨迹周期取互质秒数（9.7/11.3/13.1）避免同步呼吸
+  - 顶层噪点罩（SVG feTurbulence data URI）压渐变 banding
+  - 放最底 track；上面的内容卡正常叠
+-->
+<style>
+  #mgb-wrap { position: absolute; inset: 0; overflow: hidden; background: #0b101c; }
+  .mgb-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; }
+  #mgb-b1 { left: -200px; top: -260px; width: 1100px; height: 900px; background: #1d4fd8; }
+  #mgb-b2 { right: -260px; top: -120px; width: 950px; height: 850px; background: #0d7ea8; }
+  #mgb-b3 { left: 30%; bottom: -380px; width: 1200px; height: 880px; background: #5b3bd1; }
+  #mgb-b4 { right: 8%; bottom: -200px; width: 700px; height: 640px; background: #0fa37f; opacity: .4; }
+  #mgb-dim { position: absolute; inset: 0; background: rgba(6,9,16,.38); }
+  #mgb-noise { position: absolute; inset: 0; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"); }
+</style>
+
+<div id="mgb-wrap" data-layout-allow-overflow>
+  <div class="mgb-blob" id="mgb-b1" data-layout-ignore></div>
+  <div class="mgb-blob" id="mgb-b2" data-layout-ignore></div>
+  <div class="mgb-blob" id="mgb-b3" data-layout-ignore></div>
+  <div class="mgb-blob" id="mgb-b4" data-layout-ignore></div>
+  <div id="mgb-dim" data-layout-ignore></div>
+  <div id="mgb-noise" data-layout-ignore></div>
+</div>
+
+<script>
+  /* MGB_PLAY = 该背景需要持续漂浮的秒数（按段长改）；禁止 repeat:-1（破坏确定性渲染） */
+  var MGB_PLAY = 30;
+  tl.from("#mgb-wrap", { autoAlpha: 0, duration: 0.8 }, t0);
+  [["#mgb-b1", 260, 170, 1.15, 9.7], ["#mgb-b2", -300, 220, 0.9, 11.3],
+   ["#mgb-b3", -220, -160, 1.12, 13.1], ["#mgb-b4", 180, -200, 1, 8.3]].forEach(function (b) {
+    tl.to(b[0], { x: b[1], y: b[2], scale: b[3], duration: b[4], yoyo: true,
+      repeat: Math.max(1, Math.ceil(MGB_PLAY / b[4])), ease: "sine.inOut" }, t0);
+  });
+</script>

@@ -1,0 +1,48 @@
+# ASR provider policy. Do not store secrets in this file.
+
+default_provider_order:
+  - "volcengine_bigmodel_flash"
+  - "volcengine_vc"
+  - "local_existing_transcript"
+
+providers:
+  volcengine_bigmodel_flash:
+    kind: "sync_local_audio_base64"
+    purpose: "High-accuracy Doubao speech large-model transcription with utterance and word timestamps; supports local WAV/MP3/OGG via base64."
+    credential_sources:
+      - env: "VOLCENGINE_API_KEY"
+      - env: "VOLCENGINE_ARK_API_KEY"
+      - env: "ARK_API_KEY"
+    recognize_url: "https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash"
+    resource_id: "volc.bigasr.auc_turbo"
+    language: "zh-CN"
+    enable_itn: true
+    raw_output: "asr/volcengine_bigmodel_flash_result.json"
+    normalized_output: "asr/transcript_segments.json"
+  volcengine_vc:
+    kind: "async_audio_url"
+    purpose: "High-accuracy Chinese transcription with utterance and word timestamps."
+    credential_sources:
+      - env: "VOLCENGINE_API_KEY"
+      - env: "VOLCENGINE_ARK_API_KEY"
+      - env: "ARK_API_KEY"
+    submit_url: "https://openspeech.bytedance.com/api/v1/vc/submit"
+    query_url: "https://openspeech.bytedance.com/api/v1/vc/query"
+    language: "zh-CN"
+    use_itn: true
+    use_capitalize: true
+    max_lines: 1
+    words_per_line: 15
+    hotwords_source: "data/corrections.yaml"
+    raw_output: "asr/volcengine_result.json"
+    normalized_output: "asr/transcript_segments.json"
+  doubao_ime_optional:
+    kind: "optional_local_client"
+    purpose: "Experimental local client reference only; use after separately confirming the package and credential path."
+    package: "doubaoime-asr"
+    credential_sources:
+      - local_file: "~/.config/doubaoime-asr/credentials.json"
+    normalized_output: "asr/transcript_segments.json"
+  local_existing_transcript:
+    kind: "fallback"
+    purpose: "Use an existing transcript JSON/SRT when cloud ASR is unavailable."

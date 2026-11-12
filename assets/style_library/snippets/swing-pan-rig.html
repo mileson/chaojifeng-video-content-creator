@@ -1,0 +1,129 @@
+<!--
+模式：荡秋千运镜 rig（swing-pan-rig）【工具层 · 镜头语言】
+适用场景：录屏/截图/视频底片需要出现轻微左右荡开、带一点晕动和速度感的过渡段。
+框架参数：
+  - swingAt(t, opts)：在主 timeline 的 t 秒触发一次完整摆动
+  - opts.target：包住底片内容的容器，默认 #spr-stage
+  - opts.duration：默认 3.5s
+  - opts.rotation：默认 3deg，往返为 +3° → -3°
+  - opts.startX / opts.midX：默认 -140px → 70px → -140px
+  - opts.scale：默认 1.2，用 overscan 避免倾斜/平移露边
+技术要点：
+  - 目标必须是底片容器；透明 overlay 没法摇动已经渲染好的下层视频
+  - 位移用两段贝塞尔曲线：(.21,.93,.48,.97) 与 (.73,.02,.86,.1)
+  - 前半段加水平 SVG 高斯模糊，模拟方向运动模糊
+  - 与 zoom-punch-rig / camera-shake-impact 互斥控制同一个容器
+-->
+<style>
+  #spr-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transform-origin: 50% 50%;
+    will-change: transform, filter;
+  }
+
+  .spr-filter-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
+
+<svg class="spr-filter-defs" aria-hidden="true" focusable="false">
+  <filter id="spr-horizontal-blur" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur id="spr-horizontal-blur-node" in="SourceGraphic" stdDeviation="0 0" />
+  </filter>
+</svg>
+<div id="spr-stage" data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    function cubicBezierEase(x1, y1, x2, y2) {
+      function value(t) {
+        var mt = 1 - t;
+        return {
+          x: 3 * x1 * mt * mt * t + 3 * x2 * mt * t * t + t * t * t,
+          y: 3 * y1 * mt * mt * t + 3 * y2 * mt * t * t + t * t * t,
+        };
+      }
+
+      return function (p) {
+        var lo = 0;
+        var hi = 1;
+        for (var i = 0; i < 14; i++) {
+          var mid = (lo + hi) / 2;
+          if (value(mid).x > p) hi = mid;
+          else lo = mid;
+        }
+        return value((lo + hi) / 2).y;
+      };
+    }
+
+    var easeOut = cubicBezierEase(0.21, 0.93, 0.48, 0.97);
+    var easeBack = cubicBezierEase(0.73, 0.02, 0.86, 0.1);
+
+    function resolveTarget(target) {
+      if (target instanceof Element) return target;
+      return document.querySelector(target || "#spr-stage");
+    }
+
+    function setBlur(el, amount) {
+      var node = document.getElementById("spr-horizontal-blur-node");
+      if (!node) return;
+      if (amount > 0.15) {
+        node.setAttribute("stdDeviation", amount.toFixed(2) + " 0.35");
+        el.style.filter = "url(#spr-horizontal-blur)";
+      } else {
+        node.setAttribute("stdDeviation", "0 0");
+        el.style.filter = "";
+      }
+    }
+
+    window.swingAt = function (t, opts) {
+      opts = opts || {};
+      var el = resolveTarget(opts.target);
+      if (!el) return null;
+
+      var dur = opts.duration || 3.5;
+      var startX = opts.startX !== undefined ? opts.startX : -120;
+      var midX = opts.midX !== undefined ? opts.midX : 60;
+      var rotation = opts.rotation !== undefined ? opts.rotation : 3;
+      var scale = opts.scale || 1.2;
+      var blurMax = opts.blurMax !== undefined ? opts.blurMax : 7.5;
+      var blurState = { v: blurMax };
+      var local = gsap.timeline();
+
+      local.set(el, {
+        x: startX,
+        y: 0,
+        rotation: rotation,
+        scale: scale,
+        transformOrigin: opts.origin || "50% 50%",
+        force3D: true,
+      }, 0);
+      local.to(el, { x: midX, duration: dur * 0.5, ease: easeOut }, 0);
+      local.to(el, { x: startX, duration: dur * 0.5, ease: easeBack }, dur * 0.5);
+      local.to(el, { rotation: -rotation, duration: dur, ease: "none" }, 0);
+      local.to(blurState, {
+        v: 0,
+        duration: dur * 0.5,
+        ease: easeOut,
+        onStart: function () { setBlur(el, blurMax); },
+        onUpdate: function () { setBlur(el, blurState.v); },
+        onComplete: function () { setBlur(el, 0); },
+      }, 0);
+
+      if (opts.reset !== false) {
+        local.set(el, { x: 0, y: 0, rotation: 0, scale: 1, clearProps: "filter" }, dur + 0.02);
+      }
+
+      tl.add(local, t);
+      return local;
+    };
+  })();
+
+  // 演示节奏：一次完整「荡秋千」运镜
+  swingAt(t0, { duration: 3.5 });
+</script>

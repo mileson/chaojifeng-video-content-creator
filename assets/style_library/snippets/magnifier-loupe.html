@@ -1,0 +1,44 @@
+<!--
+模式：放大镜局部细看（magnifier-loupe）【工具层 · 视线引导】
+适用场景：UI 细节/小字参数/价格角标看不清时，圆形放大镜悬浮在对应位置，
+  镜内呈现 2~3 倍放大的该区域内容；适合「注意看这个小地方」。
+框架参数：
+  - 镜位置 (left/top)、直径（默认 340px）、放大倍率 zoom（默认 2.4）
+  - 镜内内容：复制底片对应区域的截图（背景图 + background-position 对位）
+技术要点：
+  - 离线渲染拿不到实时画面，镜内用同一张截图素材放大对位：
+    background-size = 原图尺寸 × zoom，background-position = -(焦点坐标 × zoom - 半径)
+  - 白色厚描边 + 投影 + 手柄是「放大镜」的辨识三件套
+  - 入场 scale 0.4 back.out 像镜子拍上去；移动用 power2.inOut
+-->
+<style>
+  #mlp-loupe { position: absolute; left: 1050px; top: 330px; width: 340px; height: 340px;
+    border-radius: 50%; border: 7px solid #f4f7fc; overflow: hidden;
+    box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 0 40px rgba(0,0,0,.25);
+    background: linear-gradient(135deg, #25304a, #161d30); /* 工程里换 background-image 截图 */ }
+  #mlp-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px; }
+  #mlp-inner b { color: #ffb224; font-size: 64px; font-weight: 900; letter-spacing: 1px; }
+  #mlp-inner span { color: #aeb9cf; font-size: 22px; font-weight: 700; }
+  #mlp-handle { position: absolute; left: 50%; top: 100%; width: 16px; height: 96px;
+    margin-left: 96px; margin-top: -22px; border-radius: 10px; transform: rotate(-38deg);
+    transform-origin: 50% 0; background: linear-gradient(180deg, #f4f7fc, #c2cad8);
+    box-shadow: 0 10px 26px rgba(0,0,0,.45); }
+  #mlp-wrap { position: absolute; left: 0; top: 0; }
+</style>
+
+<div id="mlp-wrap" data-layout-allow-overflow>
+  <div id="mlp-loupe">
+    <div id="mlp-inner"><b>¥0.2</b><span>单次调用成本 · 放大细看</span></div>
+  </div>
+  <div id="mlp-handle" style="left: 1050px; top: 330px; margin-left: 266px; margin-top: 318px;"></div>
+</div>
+
+<script>
+  tl.from("#mlp-wrap", { autoAlpha: 0, scale: 0.4, transformOrigin: "62% 40%",
+    duration: 0.55, ease: "back.out(1.8)" }, t0);
+  tl.from("#mlp-inner", { autoAlpha: 0, scale: 1.6, duration: 0.6, ease: "power3.out" }, t0 + 0.25);
+  // 移到第二个细节点（整组平移）
+  tl.to("#mlp-wrap", { x: -430, y: 220, duration: 0.8, ease: "power2.inOut" }, t0 + 2.4);
+  tl.to("#mlp-wrap", { autoAlpha: 0, scale: 0.6, duration: 0.4, ease: "power2.in" }, t0 + 5.0);
+</script>

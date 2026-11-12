@@ -1,0 +1,60 @@
+{
+  "mode": "standard",
+  "source": {
+    "video": "<source-video.mp4>",
+    "transcript": "aroll/transcript.normalized.json",
+    "notes": "本文件只记录这条视频的剪辑、字幕拆分和口癖删除计划；可复用规则写入 data/filler_rules.yaml 或 data/corrections.yaml。"
+  },
+  "global_replacements": [
+    {
+      "from": "<ASR 识别错词>",
+      "to": "<正确写法>",
+      "reason": "仅限本条视频的错字、专名或同音词修正"
+    }
+  ],
+  "word_cut_ranges": [
+    {
+      "start": 12.34,
+      "end": 12.72,
+      "text": "嗯",
+      "reason": "无效语气词/口水话",
+      "padding_before": 0.0,
+      "padding_after": 0.0,
+      "confidence": "high"
+    },
+    {
+      "start": 23.10,
+      "end": 24.85,
+      "text": "今天的话",
+      "reason": "纯口癖，删后不改变语义",
+      "padding_before": 0.0,
+      "padding_after": 0.0,
+      "confidence": "medium"
+    }
+  ],
+  "event_overrides": [
+    {
+      "range_start": 30.0,
+      "range_end": 34.2,
+      "reason": "原字幕把两个完整意群粘在一起",
+      "parts": [
+        {
+          "text": "第一句完整意思",
+          "weight": 1.0
+        },
+        {
+          "text": "第二句完整意思",
+          "weight": 1.0
+        }
+      ]
+    }
+  ],
+  "review_required": [
+    {
+      "range": "45.20-48.10",
+      "text": "<候选删除内容>",
+      "reason": "可能影响语义，需人工确认",
+      "confidence": "low"
+    }
+  ]
+}

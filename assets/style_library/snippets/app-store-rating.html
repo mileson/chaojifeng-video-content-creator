@@ -1,0 +1,66 @@
+<!--
+模式：App Store 评分社证卡（星星逐颗点亮）
+适用场景：产品宣传给社会证明：评分 + 评论数 + 一条真实好评。
+结构要点：
+  - 玻璃卡：左侧大评分数字 + 5 颗星；右侧评论数/榜单名次两行小指标
+  - 底部一条精选评论（引号 + 用户名），评论区可换成榜单徽章
+  - 星星用 SVG path（半星用 clip 矩形宽度控制，支持 4.5 这类评分）
+动画要点：
+  - 卡浮入 → 评分数字 count-up（0→4.9，1 位小数）
+  - 星星逐颗 scale 0→1 back.out(2.6) 点亮（stagger 0.12），每颗带金色 glow 闪一下
+  - 评论行最后浮入；退场整体下沉
+参数：评分值/评论数/榜单文案/精选评论；星色 #ffb224
+-->
+<style>
+  #asr-card {
+    position: absolute; top: 50%; left: 50%; width: 720px; transform-origin: center;
+    background: rgba(15, 17, 26, 0.95); border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+    padding: 40px 44px 36px; will-change: transform;
+  }
+  #asr-top { display: flex; align-items: center; gap: 40px; }
+  #asr-score { color: #fff; font-size: 110px; font-weight: 900; line-height: 1;
+    font-variant-numeric: tabular-nums; text-shadow: 0 0 30px rgba(255, 178, 36, 0.35); }
+  #asr-stars { display: flex; gap: 10px; margin-top: 6px; }
+  .asr-star { width: 44px; height: 44px; will-change: transform;
+    filter: drop-shadow(0 0 8px rgba(255, 178, 36, 0.7)); }
+  #asr-meta { margin-left: auto; text-align: right; }
+  #asr-meta .m { color: #c9d0de; font-size: 25px; margin-top: 10px; }
+  #asr-meta .m b { color: #ffb224; font-weight: 900; }
+  #asr-quote { margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.09); padding-top: 24px;
+    color: #d8dde8; font-size: 27px; line-height: 1.6; will-change: transform; }
+  #asr-quote span { display: block; margin-top: 10px; color: #8b93a6; font-size: 22px; }
+</style>
+
+<div id="asr-card">
+  <div id="asr-top">
+    <div>
+      <div id="asr-score">0.0</div>
+      <div id="asr-stars">
+        <svg class="asr-star" viewBox="0 0 24 24"><path fill="#ffb224" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <svg class="asr-star" viewBox="0 0 24 24"><path fill="#ffb224" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <svg class="asr-star" viewBox="0 0 24 24"><path fill="#ffb224" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <svg class="asr-star" viewBox="0 0 24 24"><path fill="#ffb224" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <svg class="asr-star" viewBox="0 0 24 24"><path fill="#ffb224" d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+      </div>
+    </div>
+    <div id="asr-meta">
+      <div class="m"><b>【1,284】</b> 个评分</div>
+      <div class="m">【分类榜】第 <b>【N】</b> 名</div>
+    </div>
+  </div>
+  <div id="asr-quote">「【一条真实好评，20~40 字】」<span>—— 【用户名】</span></div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  gsap.set("#asr-card", { xPercent: -50, yPercent: -50 });
+  const asrSt = { v: 0 };
+  b.from("#asr-card", { y: "+=90", autoAlpha: 0, duration: 0.55 }, 0.15)
+    .to(asrSt, { v: 4.9, duration: 1.0, ease: "power1.out",
+      onUpdate() { document.getElementById("asr-score").textContent = asrSt.v.toFixed(1); } }, 0.6)
+    .from(".asr-star", { scale: 0, autoAlpha: 0, duration: 0.5, ease: "back.out(2.6)", stagger: 0.12 }, 0.7)
+    .from("#asr-meta .m", { x: 30, autoAlpha: 0, duration: 0.4, stagger: 0.12 }, 1.3)
+    .from("#asr-quote", { y: 26, autoAlpha: 0, duration: 0.5 }, 1.8)
+    .to("#asr-card", { y: "+=70", autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.4);
+</script>

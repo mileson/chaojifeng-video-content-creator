@@ -1,0 +1,48 @@
+<!--
+模式：手绘标注三件套（arrow-scribble-pack）【工具层 · 视线引导】
+适用场景：截图/录屏上手绘风格指点——弯钩箭头指向按钮、椭圆圈选重点区、
+  波浪下划线划重点文字；比方框标注更有「手绘」的温度。
+框架参数：
+  - 三种元素各自的 SVG path 坐标（对准底片目标）与颜色
+  - 出现时间点（建议跟口播逐个出现，不要同时全出）
+技术要点：
+  - 全部 SVG stroke + drawLine（strokeDasharray/offset 从 0 画到全长），像现场手绘
+  - path 故意带抖动控制点（手绘感核心，直线没有灵魂）
+  - stroke-linecap: round；箭头头部是 path 末端折返而非 marker（一笔画完）
+  - 画完轻微整体抖一下（rotation ±0.6deg）增强手绘生命感
+-->
+<style>
+  #asp-svg { position: absolute; inset: 0; pointer-events: none; }
+  .asp-st { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+
+<svg id="asp-svg" viewBox="0 0 1920 1080" data-layout-allow-overflow>
+  <!-- 弯钩箭头：从左下弯向右上目标 -->
+  <path class="asp-st" id="asp-arrow" stroke="#ffb224" stroke-width="9"
+    d="M 520 760 C 700 740, 900 620, 1020 470 C 1040 445, 1055 430, 1068 415 M 1068 415 L 1010 432 M 1068 415 L 1052 472"/>
+  <!-- 椭圆圈选：两圈不闭合（手绘圈感） -->
+  <path class="asp-st" id="asp-circle" stroke="#e5484d" stroke-width="8"
+    d="M 1240 305 C 1190 250, 1340 215, 1460 235 C 1580 255, 1610 330, 1520 365 C 1430 400, 1230 380, 1225 318 C 1222 280, 1300 245, 1395 240"/>
+  <!-- 波浪下划线 -->
+  <path class="asp-st" id="asp-wave" stroke="#46d390" stroke-width="8"
+    d="M 560 905 q 30 -18 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0"/>
+</svg>
+
+<script>
+  (function () {
+    ["#asp-arrow", "#asp-circle", "#asp-wave"].forEach(function (sel) {
+      var p = document.querySelector(sel), L = p.getTotalLength();
+      gsap.set(p, { strokeDasharray: L, strokeDashoffset: L, autoAlpha: 0 });
+    });
+    function draw(sel, t, dur) {
+      tl.set(sel, { autoAlpha: 1 }, t);
+      tl.to(sel, { strokeDashoffset: 0, duration: dur, ease: "power2.inOut" }, t);
+      tl.to(sel, { rotation: 0.6, transformOrigin: "50% 50%", duration: 0.12,
+        yoyo: true, repeat: 3, ease: "sine.inOut" }, t + dur);
+    }
+    draw("#asp-arrow", t0, 0.7);
+    draw("#asp-circle", t0 + 1.2, 0.8);
+    draw("#asp-wave", t0 + 2.4, 0.6);
+    tl.to("#asp-svg", { autoAlpha: 0, duration: 0.4 }, t0 + 5.2);
+  })();
+</script>

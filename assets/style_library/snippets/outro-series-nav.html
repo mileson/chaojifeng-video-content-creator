@@ -1,0 +1,70 @@
+<!--
+模式：系列导航片尾（outro-series-nav）【片尾层 · 拼接式结尾】
+适用场景：系列教程收尾 6~8s——「本系列 第 N 集」进度点 + 上一集/下一集卡片，
+  追剧式留人；适合多集连载的课程型内容。
+框架参数：
+  - 系列名、当前集数/总集数、上一集与下一集标题
+  - 进度点个数 = 总集数；当前集高亮
+技术要点：
+  - 集数进度点逐个点亮到当前集（带尾迹光晕）
+  - 上一集卡灰阶（已看过），下一集卡主题色描边 + 呼吸光晕（去看这张）
+  - 下一集卡 hover 态做成自动「抬起」动画（y -10 循环）暗示可点
+-->
+<style>
+  #osn-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #17213a 0%, #0c111e 58%, #070a13 100%); }
+  #osn-head { position: absolute; left: 50%; top: 130px; transform: translateX(-50%); text-align: center; }
+  #osn-series { color: #4dd0e1; font-size: 24px; font-weight: 800; letter-spacing: 8px; }
+  #osn-ep { color: #f4f7ff; font-size: 54px; font-weight: 900; margin-top: 12px; }
+  #osn-ep b { color: #4dd0e1; }
+  #osn-dots { position: absolute; left: 50%; top: 318px; transform: translateX(-50%); display: flex; gap: 22px; }
+  .osn-dot { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.14); }
+  .osn-dot.lit { background: #4dd0e1; box-shadow: 0 0 18px #4dd0e1aa; }
+  #osn-cards { position: absolute; left: 50%; top: 420px; transform: translateX(-50%); display: flex; gap: 44px; }
+  .osn-card { width: 640px; border-radius: 22px; padding: 30px 34px; position: relative;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); }
+  #osn-next.osn-card { border: 2px solid rgba(77,208,225,.6); box-shadow: 0 0 50px rgba(77,208,225,.18); }
+  .osn-tag { font-size: 19px; font-weight: 800; letter-spacing: 4px; color: #8b96ac; }
+  #osn-next .osn-tag { color: #4dd0e1; }
+  .osn-card-title { color: #e7edf8; font-size: 31px; font-weight: 900; margin-top: 14px; line-height: 1.45; }
+  #osn-prev .osn-card-title { color: #9aa5ba; }
+  .osn-thumb { margin-top: 20px; height: 150px; border-radius: 14px;
+    background: linear-gradient(150deg, #232e4a, #141b2e); display: flex; align-items: center;
+    justify-content: center; color: #5b6880; font-size: 20px; font-weight: 800; letter-spacing: 6px; }
+</style>
+
+<div id="osn-bg" data-layout-allow-overflow></div>
+<div id="osn-head">
+  <div id="osn-series">AI 降本实战 · 系列</div>
+  <div id="osn-ep">第 <b>3</b> 集 / 共 6 集</div>
+</div>
+<div id="osn-dots">
+  <div class="osn-dot"></div><div class="osn-dot"></div><div class="osn-dot"></div>
+  <div class="osn-dot"></div><div class="osn-dot"></div><div class="osn-dot"></div>
+</div>
+<div id="osn-cards">
+  <div class="osn-card" id="osn-prev">
+    <div class="osn-tag">上一集 · 已更新</div>
+    <div class="osn-card-title">第 2 集：缓存复用实测，命中率拉到 90%</div>
+    <div class="osn-thumb">EP · 02</div>
+  </div>
+  <div class="osn-card" id="osn-next">
+    <div class="osn-tag">下一集 · 周五见</div>
+    <div class="osn-card-title">第 4 集：批量调用半价跑万级任务实战</div>
+    <div class="osn-thumb">EP · 04</div>
+  </div>
+</div>
+
+<script>
+  tl.from("#osn-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from(["#osn-series", "#osn-ep"], { autoAlpha: 0, y: 24, duration: 0.5, stagger: 0.12 }, t0 + 0.35);
+  tl.from(".osn-dot", { autoAlpha: 0, scale: 0.3, duration: 0.3, stagger: 0.08 }, t0 + 0.8);
+  // 点亮到当前集（第 3 个）
+  document.querySelectorAll(".osn-dot").forEach(function (d, i) {
+    if (i < 3) tl.add(function () { d.classList.add("lit"); }, t0 + 1.3 + i * 0.22);
+  });
+  tl.from("#osn-prev", { autoAlpha: 0, x: -70, duration: 0.55, ease: "power3.out" }, t0 + 1.9);
+  tl.from("#osn-next", { autoAlpha: 0, x: 70, duration: 0.55, ease: "power3.out" }, t0 + 2.1);
+  // 下一集卡呼吸抬起
+  tl.to("#osn-next", { y: -10, duration: 1.0, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 2.8);
+</script>

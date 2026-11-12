@@ -1,0 +1,46 @@
+<!--
+模式：片尾 logo 装配（logo outro assemble）【节拍层 · 品牌收尾】
+适用场景：片尾 5s 品牌定格：文字块左右装配合体 → 发光 bloom → 标语 → URL 药丸。
+  借鉴 Hyperframes 官方 logo-outro 组件。（Apache-2.0，署名见 THIRD_PARTY_NOTICES.md）
+框架参数：
+  - logo 文字块（两段拼合，第二段 accent 色）、标语、URL/CTA 文案
+  - accent 配色（蓝默认）、scrim 透明度（.88 接近全黑）
+技术要点：
+  - 两块文字相向 x ±220 power4.out 装配（碰撞感）
+  - 合体后 glow 椭圆亮起 + accent 块 textShadow yoyo bloom 一次
+  - 标语 letterSpacing 20px→8px 收拢入场（像聚焦）
+  - URL 药丸 back.out(2) 弹出 + boxShadow 脉冲 yoyo x3（最后的 CTA 心跳）
+-->
+<style>
+  #lo-scrim { position: absolute; inset: 0; background: rgba(4,5,8,.88); }
+  #lo-stage { position: absolute; left: 0; right: 0; top: 34%; text-align: center; }
+  .lo-blk { display: inline-block; color: #fff; font-size: 150px; font-weight: 900; letter-spacing: 4px; }
+  #lo-b2 { color: #3e9eff; }
+  #lo-glow { position: absolute; left: 50%; top: 30%; width: 700px; height: 280px; transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(62,158,255,.35), rgba(62,158,255,0) 70%); opacity: 0; }
+  #lo-tagline { color: #8b8d98; font-size: 28px; font-weight: 700; letter-spacing: 8px; margin-top: 24px; }
+  #lo-pill { display: inline-block; margin-top: 30px; background: rgba(62,158,255,.14); border: 1.5px solid rgba(62,158,255,.6);
+    color: #7ab8ff; border-radius: 99px; padding: 14px 44px; font-size: 26px; font-weight: 800; letter-spacing: 2px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；scrim/glow 加 data-layout-ignore -->
+<div id="lo-scrim"></div>
+<div id="lo-glow"></div>
+<div id="lo-stage">
+  <div><span class="lo-blk" id="lo-b1">【品牌前段】</span><span class="lo-blk" id="lo-b2">【accent 段】</span></div>
+  <div id="lo-tagline">【标语 · 用间隔点分隔】</div>
+  <div><span id="lo-pill">【URL 或 CTA】</span></div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#lo-scrim", { autoAlpha: 0, duration: 0.4 }, 0);
+  b.from("#lo-b1", { autoAlpha: 0, x: -220, duration: 0.55, ease: "power4.out" }, 0.4);
+  b.from("#lo-b2", { autoAlpha: 0, x: 220, rotation: 8, duration: 0.55, ease: "power4.out" }, 0.6);
+  b.to("#lo-glow", { opacity: 1, duration: 0.5 }, 1.1);
+  b.to("#lo-b2", { textShadow: "0 0 60px rgba(62,158,255,.9)", duration: 0.4, yoyo: true, repeat: 1 }, 1.15);
+  b.from("#lo-tagline", { autoAlpha: 0, y: 18, letterSpacing: "20px", duration: 0.6 }, 1.5);
+  b.from("#lo-pill", { autoAlpha: 0, scale: 0.6, duration: 0.5, ease: "back.out(2)" }, 2.0);
+  b.to("#lo-pill", { boxShadow: "0 0 30px rgba(62,158,255,.5)", duration: 0.5, yoyo: true, repeat: 3, ease: "sine.inOut" }, 2.6);
+  b.to(["#lo-stage", "#lo-glow", "#lo-scrim"], { autoAlpha: 0, duration: 0.6, ease: "power2.in" }, 4.7);
+</script>

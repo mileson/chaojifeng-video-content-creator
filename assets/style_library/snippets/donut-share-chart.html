@@ -1,0 +1,68 @@
+<!--
+模式：多分段环形占比图（市场份额/构成分析）
+适用场景：讲占比构成：市场份额、成本构成、用户来源分布。与 progress-ring（单值进度）互补。
+结构要点：
+  - SVG 同心圆多段 stroke：每段一个 circle，用 dasharray「段长 间隙」+ dashoffset 控制起点
+  - 周长 C=2πr（r=130 → 816.8）；段长 = C×占比，起点 offset 依次累加，留 2% 缝隙更精致
+  - 中心放主结论（最大占比方 + 百分数），右侧图例列出各段（色块 + 名称 + 值）
+动画要点：
+  - 各段 dasharray 从「0 C」补间到「段长 C-段长」依次画出（stagger 0.25，power2.inOut）
+  - 中心数字 count-up 同步最大段画出的节奏
+  - 图例行随对应段画出逐行浮入；hover 段微外扩可省（视频无交互）
+参数：分段数据数组（名称/占比/颜色）/中心结论；段数 ≤5 保证可读
+-->
+<style>
+  #dsc-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 70px; }
+  #dsc-ring { position: relative; width: 420px; height: 420px; }
+  #dsc-ring svg { transform: rotate(-90deg); }
+  #dsc-ring circle { fill: none; stroke-width: 44; }
+  #dsc-center { position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; }
+  #dsc-center b { color: #fff; font-size: 78px; font-weight: 900; font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 26px rgba(62, 158, 255, 0.45); }
+  #dsc-center span { color: #9aa3b8; font-size: 25px; font-weight: 700; letter-spacing: 2px; margin-top: 4px; }
+  #dsc-legend { display: flex; flex-direction: column; gap: 22px; }
+  .dsc-li { display: flex; align-items: center; gap: 16px; will-change: transform; }
+  .dsc-li i { width: 26px; height: 26px; border-radius: 8px; }
+  .dsc-li span { color: #d4dae6; font-size: 28px; font-weight: 700; }
+  .dsc-li b { margin-left: 14px; color: #fff; font-size: 30px; font-weight: 900;
+    font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="dsc-wrap">
+  <div id="dsc-ring">
+    <svg width="420" height="420" viewBox="0 0 420 420">
+      <circle cx="210" cy="210" r="130" stroke="rgba(255,255,255,.07)" />
+      <!-- C=816.8；占比 52/28/14 留缝；offset 负值=顺时针起点累加 -->
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#3e9eff" data-len="408" data-off="0" />
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#46d390" data-len="212" data-off="-424" />
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#ffb224" data-len="98" data-off="-652" />
+    </svg>
+    <div id="dsc-center"><b id="dsc-num">0%</b><span>【最大段名称】</span></div>
+  </div>
+  <div id="dsc-legend">
+    <div class="dsc-li"><i style="background:#3e9eff"></i><span>【分段 1】</span><b>52%</b></div>
+    <div class="dsc-li"><i style="background:#46d390"></i><span>【分段 2】</span><b>28%</b></div>
+    <div class="dsc-li"><i style="background:#ffb224"></i><span>【分段 3】</span><b>14%</b></div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const DSC_C = 816.8;
+  document.querySelectorAll(".dsc-seg").forEach((c) => {
+    c.style.strokeDasharray = "0 " + DSC_C;
+    c.style.strokeDashoffset = c.dataset.off;
+  });
+  b.from("#dsc-wrap", { y: 90, autoAlpha: 0, duration: 0.55 }, 0.15);
+  document.querySelectorAll(".dsc-seg").forEach((c, i) => {
+    const len = +c.dataset.len;
+    b.to(c, { strokeDasharray: len + " " + (DSC_C - len), duration: 0.9, ease: "power2.inOut" }, 0.6 + i * 0.25);
+  });
+  const dscSt = { v: 0 };
+  b.to(dscSt, { v: 52, duration: 0.9, ease: "power1.out",
+    onUpdate() { document.getElementById("dsc-num").textContent = Math.round(dscSt.v) + "%"; } }, 0.65)
+    .from(".dsc-li", { x: 40, autoAlpha: 0, duration: 0.45, stagger: 0.25 }, 0.8)
+    .to("#dsc-wrap", { y: -60, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.6);
+</script>

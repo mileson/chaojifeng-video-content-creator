@@ -1,0 +1,80 @@
+<!--
+模式：转化对比卡组（状态卡 + 箭头标注）【参数化框架】
+适用场景：A 状态 → B 状态的转化叙事（投入→产出、新手→专家、输入→输出）。
+  典型文案："INVEST → 6 MONTHS → EXPERT" 卡组。
+框架参数：
+  - 状态卡数量 2~4 张：2 卡（A→B）最常用；3 卡时中间再插一个 arrow-note；4 卡用更小卡宽（300px）
+  - 色调 class：tone-red（否定/投入侧）、tone-green（肯定/产出侧）；可扩展 tone-blue/tone-yellow（同样三件套：border + box-shadow + en/glyph 颜色）
+  - glyph 用单字符大符号（⌘ ★ ¥ ⚡），不依赖图片素材
+结构要点：
+  - 卡片：380px 宽深色底 + 2px 彩色描边 + 同色外发光；EN 标题 + 中文 + 大 glyph 三行居中
+  - arrow-note（箭头标注）必须带深色底板（rgba(8,10,16,.8)），否则压浅色画面时文字不可读
+  - 左上角 corner-tag 同样必须带深色底板
+动画要点：
+  - 叙事顺序：左卡滑入 → 箭头 back.out(2) 弹出 + x 平移 yoyo（指向感）→ 右卡滑入 + 脉冲
+  - 视觉权重偏向结果卡（绿卡），起点卡不加强调
+-->
+<style>
+  .corner-tag {
+    position: absolute; top: 56px; left: 72px;
+    background: rgba(8, 10, 16, 0.8); border-radius: 12px;
+    padding: 14px 22px 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .corner-tag .row1 { display: flex; align-items: center; gap: 12px; }
+  .corner-tag .bar { width: 5px; height: 26px; background: #ffb224; }
+  .corner-tag .en { font-size: 23px; font-weight: 800; letter-spacing: 6px; color: #ffb224; text-shadow: 0 0 12px rgba(255,178,36,.6); }
+  .corner-tag .cn { color: #c8cad3; font-size: 21px; font-weight: 700; margin-top: 8px; letter-spacing: 2px; }
+
+  #sc-row { position: absolute; top: 170px; left: 0; right: 0; margin: 0 auto; width: fit-content; display: flex; align-items: center; gap: 30px; }
+  .state-card {
+    width: 380px; border-radius: 16px; padding: 26px 30px 30px; text-align: center;
+    background: rgba(12, 14, 22, 0.88); will-change: transform;
+  }
+  .state-card .en { font-size: 26px; font-weight: 900; letter-spacing: 4px; }
+  .state-card .cn { color: #e8e8ec; font-size: 28px; font-weight: 700; margin-top: 10px; }
+  .state-card .glyph { font-size: 64px; font-weight: 900; margin-top: 18px; }
+  .state-card.tone-red { border: 2px solid #e5484d; box-shadow: 0 0 28px rgba(229, 72, 77, 0.35); }
+  .state-card.tone-red .en, .state-card.tone-red .glyph { color: #ff8589; text-shadow: 0 0 14px rgba(229,72,77,.6); }
+  .state-card.tone-green { border: 2px solid #30a46c; box-shadow: 0 0 32px rgba(48, 164, 108, 0.45), inset 0 0 20px rgba(48,164,108,.12); }
+  .state-card.tone-green .en, .state-card.tone-green .glyph { color: #46d390; text-shadow: 0 0 14px rgba(70,211,144,.6); }
+  .arrow-note {
+    text-align: center; will-change: transform;
+    background: rgba(8, 10, 16, 0.8); border-radius: 12px; padding: 12px 18px;
+  }
+  .arrow-note .lab { color: #ffb224; font-size: 25px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 12px rgba(255,178,36,.6); }
+  .arrow-note .arr { color: #ffb224; font-size: 60px; font-weight: 900; line-height: 1; text-shadow: 0 0 20px rgba(255,178,36,.7); }
+  .arrow-note .sub { color: #c8cad3; font-size: 21px; font-weight: 700; margin-top: 4px; }
+</style>
+
+<div class="corner-tag" id="sc-tag">
+  <div class="row1"><div class="bar"></div><span class="en">【ENGLISH TAG · 中文】</span></div>
+  <div class="cn">【角标副行说明】</div>
+</div>
+<div id="sc-row">
+  <div class="state-card tone-red" id="sc-c1">
+    <div class="en">【STATE A】</div>
+    <div class="cn">【状态 A 描述】</div>
+    <div class="glyph">【⌘】</div>
+  </div>
+  <div class="arrow-note" id="sc-arr">
+    <div class="lab">【转化条件】</div>
+    <div class="arr">→</div>
+    <div class="sub">【条件副注】</div>
+  </div>
+  <div class="state-card tone-green" id="sc-c2">
+    <div class="en">【STATE B】</div>
+    <div class="cn">【状态 B 描述】</div>
+    <div class="glyph">【★】</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  b.from("#sc-tag", { x: -60, autoAlpha: 0, duration: 0.45 }, 0.1)
+   .from("#sc-c1", { x: -110, autoAlpha: 0, duration: 0.5 }, 0.4)
+   .from("#sc-arr", { scale: 0, autoAlpha: 0, duration: 0.45, ease: "back.out(2)" }, 1.0)
+   .to("#sc-arr .arr", { x: 12, duration: 0.35, ease: "power1.inOut", repeat: 5, yoyo: true }, 1.45)
+   .from("#sc-c2", { x: 110, autoAlpha: 0, scale: 0.9, duration: 0.55, ease: "back.out(1.5)" }, 1.35)
+   .to("#sc-c2", { scale: 1.04, duration: 0.3, ease: "power1.inOut", repeat: 3, yoyo: true }, 2.3)
+   .to("#sc-tag, #sc-row", { y: -60, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 4.1);
+</script>

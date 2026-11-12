@@ -1,0 +1,55 @@
+<!--
+  模式：截图手绘标注（箭头+圈选）⚙️
+  适用：截图卡 + SVG 手绘弯曲箭头（dashoffset 描画 + marker 箭头头）+ 红框圈选（scale 1.18→1 落框 + 脉冲）+ 带底板标题 tag。比 spotlight-dim 轻量，不打断画面。
+  参数化：箭头 path 起止/框位置尺寸/颜色。箭头 SVG 与框需 data-layout-ignore。
+
+  通用规则：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    亮色录屏上裸白字会直接消失
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+-->
+<style>
+  /* ===== B5 annotate-arrow-box 截图手绘标注 ===== */
+  #b5-card { position: absolute; top: 200px; left: 50%; transform: translateX(-50%); width: 1180px;
+    border-radius: 18px; overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.16); }
+  #b5-card img { width: 100%; display: block; }
+  #b5-svg { position: absolute; inset: 0; pointer-events: none; }
+  #b5-box { position: absolute; top: 295px; left: 510px; width: 430px; height: 96px; border: 5px solid #e5484d; border-radius: 12px;
+    box-shadow: 0 0 24px rgba(229,72,77,.45); }
+  #b5-tag { position: absolute; top: 130px; left: 50%; transform: translateX(-50%); background: rgba(8,10,16,.85);
+    border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 10px 22px; color: #fff; font-size: 24px; font-weight: 800; }
+  #b5-tag em { color: #ff8589; font-style: normal; }
+</style>
+
+<!-- B5 截图手绘标注 -->
+  <div id="b5" class="clip beat" data-start="26.5" data-duration="5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b5-tag">大家都在说：<em>太贵了</em></div>
+    <div id="b5-card"><img src="assets/kazike_comment.jpg" /></div>
+    <div id="b5-box" data-layout-ignore></div>
+    <svg id="b5-svg" viewBox="0 0 1920 1080" data-layout-ignore>
+      <defs>
+        <marker id="b5-ah" markerWidth="9" markerHeight="9" refX="6.4" refY="4.5" orient="auto">
+          <path d="M1,1 L7.5,4.5 L1,8" fill="none" stroke="#e5484d" stroke-width="1.8" stroke-linecap="round" />
+        </marker>
+      </defs>
+      <path id="b5-arrow" d="M 1430 720 C 1330 700, 1240 660, 1180 580" fill="none" stroke="#e5484d" stroke-width="8" stroke-linecap="round" marker-end="url(#b5-ah)" />
+    </svg>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B5 截图手绘标注（26.5 起） ===== */
+  (function () {
+    var t0 = 26.5;
+    tl.from("#b5-card", { autoAlpha: 0, y: 50, scale: 0.95, duration: 0.6 }, t0);
+    tl.from("#b5-tag", { autoAlpha: 0, y: -24, duration: 0.45, ease: "back.out(1.7)" }, t0 + 0.35);
+    var path = document.getElementById("b5-arrow");
+    var len = path.getTotalLength();
+    tl.set(path, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } }, t0);
+    tl.to(path, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.inOut" }, t0 + 1.0);
+    tl.fromTo("#b5-box", { autoAlpha: 0, scale: 1.18 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, t0 + 1.45);
+    tl.to("#b5-box", { scale: 1.04, duration: 0.4, ease: "power2.inOut", yoyo: true, repeat: 3 }, t0 + 2.0);
+    tl.to("#b5", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, t0 + 4.4);
+  })();
+</script>

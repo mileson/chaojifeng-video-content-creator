@@ -1,0 +1,6 @@
+{
+  "cover_ratios": ["3:4", "4:3", "16:9"],
+  "platforms": ["xiaohongshu", "douyin", "kuaishou", "wechat_video", "bilibili", "youtube"],
+  "tag_sources": [],
+  "paid_research_budget": 0
+}

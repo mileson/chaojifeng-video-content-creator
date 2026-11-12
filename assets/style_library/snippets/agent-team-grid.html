@@ -1,0 +1,45 @@
+<!--
+模式：Agent 团队卡片墙（agent-team-grid）【容器层 · 多角色矩阵】
+适用场景：展示「我的 AI 员工团队」/ 多 Agent 并行 / 功能矩阵，3~8 张卡自适应。
+框架参数：
+  - 卡片数（grid 3 列自动换行）、每卡：emoji 头像 + 渐变底色、名称、职责、状态
+  - 标题栏文案（em 高亮关键词）
+技术要点：
+  - 卡片 stagger{each:0.14} + back.out(1.6) 依次落位，y 46 + scale 0.92 入场
+  - 状态绿点 sine.inOut yoyo 呼吸（repeat 5 + stagger 0.1）= 「运行中」生命感
+  - 每卡头像底色用不同 accent 区分角色（青/橙/紫/绿/黄/红）
+  - 深色卡底 rgba(13,17,26,.94) 在任意底片可读（铁律）
+-->
+<style>
+  #atg-wrap { position: absolute; left: 50%; top: 50%; width: 1280px; }
+  #atg-titlebar { background: rgba(10,14,22,.9); border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
+    padding: 16px 26px; display: inline-block; }
+  #atg-title { color: #fff; font-size: 30px; font-weight: 900; }
+  #atg-title em { color: #4dd0e1; font-style: normal; }
+  #atg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 24px; }
+  .atg-card { background: rgba(13,17,26,.94); border: 1px solid rgba(255,255,255,.12); border-radius: 16px;
+    padding: 22px 24px; display: flex; align-items: center; gap: 16px; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+  .atg-ava { width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 26px; }
+  .atg-name { color: #fff; font-size: 21px; font-weight: 900; }
+  .atg-role { color: #8b93a3; font-size: 14px; font-weight: 700; margin-top: 3px; }
+  .atg-st { margin-left: auto; display: flex; align-items: center; gap: 7px; color: #46d390; font-size: 13px; font-weight: 800; }
+  .atg-dot { width: 9px; height: 9px; border-radius: 50%; background: #46d390; box-shadow: 0 0 10px rgba(70,211,144,.9); }
+</style>
+
+<div id="atg-wrap">
+  <div id="atg-titlebar"><div id="atg-title">【我的 <em>AI 员工团队</em> · 正在上岗】</div></div>
+  <div id="atg-grid">
+    <!-- 按需复制 3~8 张；头像底色换 accent：rgba(77,208,225,.18)/rgba(255,122,89,.16)/rgba(139,92,246,.18)/... -->
+    <div class="atg-card"><div class="atg-ava" style="background:rgba(77,208,225,.18);border:1.5px solid rgba(77,208,225,.6)">【emoji】</div><div><div class="atg-name">【角色名】</div><div class="atg-role">【职责一句话】</div></div><div class="atg-st"><span class="atg-dot"></span>运行中</div></div>
+  </div>
+</div>
+
+<script>
+  gsap.set("#atg-wrap", { xPercent: -50, yPercent: -50 });
+  tl.from("#atg-titlebar", { autoAlpha: 0, x: -50, duration: 0.45 }, t0);
+  tl.from(".atg-card", { autoAlpha: 0, y: 46, scale: 0.92, duration: 0.5, ease: "back.out(1.6)",
+    stagger: { each: 0.14, from: "start" } }, t0 + 0.35);
+  tl.to(".atg-dot", { opacity: 0.35, duration: 0.55, yoyo: true, repeat: 5, ease: "sine.inOut", stagger: 0.1 }, t0 + 1.6);
+  tl.to("#atg-wrap", { autoAlpha: 0, y: -30, duration: 0.45, ease: "power2.in" }, t0 + 4.9);
+</script>

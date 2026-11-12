@@ -1,0 +1,63 @@
+<!--
+模式：搜索框逐字输入 + 联想下拉（「大家都在搜」）
+适用场景：资讯类引出话题热度（「打开搜索，满屏都是它」）、教程演示搜索操作。
+结构要点：
+  - 大搜索框：放大镜图标 + 输入区 + 闪烁光标竖线
+  - 下拉面板：4~5 条联想词，首条高亮（hot 标记 🔥 或「热」chip）
+  - 输入文字等宽呈现避免抖动；下拉与框间留 10px 浮空投影分层
+动画要点：
+  - 框 back.out 浮入 + 光标开始闪 → 逐字打出查询词（0.09s/字 steps 节奏）
+  - 打完停 0.3s，下拉面板 y-14 展开，联想行 stagger 0.1 浮入
+  - 首条联想行底色脉冲一次（吸引视线）；退场上提
+参数：查询词/联想词数组/首条热度标记
+-->
+<style>
+  #sqs-wrap { position: absolute; top: 300px; left: 50%; width: 760px; margin-left: -380px; }
+  #sqs-box { display: flex; align-items: center; gap: 18px; height: 96px;
+    background: rgba(18, 21, 31, 0.97); border: 2px solid rgba(62, 158, 255, 0.55);
+    border-radius: 999px; padding: 0 36px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 34px rgba(62, 158, 255, 0.18);
+    will-change: transform; }
+  #sqs-box svg { flex: none; width: 36px; height: 36px; }
+  #sqs-q { color: #fff; font-size: 34px; font-weight: 700; letter-spacing: 1px; white-space: nowrap; }
+  #sqs-cur { width: 3px; height: 42px; background: #3e9eff; border-radius: 2px; }
+  #sqs-drop { margin-top: 14px; background: rgba(15, 18, 27, 0.97);
+    border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 22px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); will-change: transform; }
+  .sqs-it { display: flex; align-items: center; gap: 16px; padding: 19px 32px;
+    color: #c6cdda; font-size: 27px; will-change: transform; }
+  .sqs-it svg { width: 24px; height: 24px; opacity: 0.45; flex: none; }
+  .sqs-it.hot { color: #fff; font-weight: 700; }
+  .sqs-hotchip { margin-left: auto; color: #2a1203; background: linear-gradient(135deg, #ffb224, #ff8a47);
+    font-size: 19px; font-weight: 900; border-radius: 999px; padding: 5px 15px; letter-spacing: 1px; }
+</style>
+
+<div id="sqs-wrap">
+  <div id="sqs-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#3e9eff" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5" stroke-linecap="round"/></svg>
+    <div id="sqs-q"></div>
+    <div id="sqs-cur"></div>
+  </div>
+  <div id="sqs-drop">
+    <div class="sqs-it hot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>【联想词 1 · 最热】<span class="sqs-hotchip">热</span></div>
+    <div class="sqs-it"><svg viewBox="0 0 24 24" fill="none" stroke="#8b93a6" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>【联想词 2】</div>
+    <div class="sqs-it"><svg viewBox="0 0 24 24" fill="none" stroke="#8b93a6" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>【联想词 3】</div>
+    <div class="sqs-it"><svg viewBox="0 0 24 24" fill="none" stroke="#8b93a6" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>【联想词 4】</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const SQS_QUERY = "【查询词】";
+  gsap.set("#sqs-drop", { autoAlpha: 0 });
+  b.from("#sqs-box", { y: 70, autoAlpha: 0, duration: 0.55, ease: "back.out(1.5)" }, 0.15);
+  b.to("#sqs-cur", { autoAlpha: 0, duration: 0.45, yoyo: true, repeat: 11, ease: "steps(1)" }, 0.5);
+  const sqsSt = { n: 0 };
+  b.to(sqsSt, { n: SQS_QUERY.length, duration: SQS_QUERY.length * 0.09, ease: "none",
+    onUpdate() { document.getElementById("sqs-q").textContent = SQS_QUERY.slice(0, Math.round(sqsSt.n)); } }, 1.0);
+  b.fromTo("#sqs-drop", { y: -14, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45 }, "+=0.35")
+    .from(".sqs-it", { x: -24, autoAlpha: 0, duration: 0.35, stagger: 0.1 }, "<+0.1")
+    .fromTo(".sqs-it.hot", { backgroundColor: "rgba(255,178,36,0)" },
+      { backgroundColor: "rgba(255,178,36,.12)", duration: 0.45, yoyo: true, repeat: 1 }, "+=0.25")
+    .to("#sqs-wrap", { y: -70, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 7.0);
+</script>

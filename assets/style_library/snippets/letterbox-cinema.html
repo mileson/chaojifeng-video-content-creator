@@ -1,0 +1,36 @@
+<!--
+模式：电影黑边 + 引言条（letterbox-cinema）【工具层 · 质感滤镜】
+适用场景：情绪段/故事段/引用名言时切换到 2.35:1 电影画幅，上下黑边滑入，
+  底部黑边内可走一行白字引言，5~20s 后滑出回正常画幅。
+框架参数：
+  - 黑边高度（默认 138px ≈ 2.35:1）、入出时间
+  - 底部引言文案（可空）、字距与浮现时机
+技术要点：
+  - 上下黑边纯黑 #000 不透明（电影画幅本体，不是渐变暗角）
+  - 黑边滑入 power3.inOut 0.8s（镜头幕帘感，比瞬切高级）
+  - 引言字符 letter-spacing 收缩入场（6px → 2px），衬线感可换 font-family
+  - 两层 data-layout-ignore，放独立 track 叠在所有内容之上
+-->
+<style>
+  #lbx-top, #lbx-bottom { position: absolute; left: 0; width: 100%; height: 138px; background: #000; }
+  #lbx-top { top: 0; }
+  #lbx-bottom { bottom: 0; display: flex; align-items: center; justify-content: center; }
+  #lbx-quote { color: #d8dde8; font-size: 30px; font-weight: 600; letter-spacing: 6px;
+    font-family: "Songti SC", "Noto Serif SC", serif; }
+</style>
+
+<div id="lbx-top" data-layout-ignore></div>
+<div id="lbx-bottom" data-layout-ignore>
+  <div id="lbx-quote">真正的成本优化，是让每一次调用都花在刀刃上</div>
+</div>
+
+<script>
+  gsap.set("#lbx-top", { yPercent: -100 });
+  gsap.set("#lbx-bottom", { yPercent: 100 });
+  tl.to(["#lbx-top", "#lbx-bottom"], { yPercent: 0, duration: 0.8, ease: "power3.inOut" }, t0);
+  tl.from("#lbx-quote", { autoAlpha: 0, letterSpacing: "14px", duration: 1.1, ease: "power2.out" }, t0 + 0.7);
+  // 退出回正常画幅
+  tl.to("#lbx-quote", { autoAlpha: 0, duration: 0.4 }, t0 + 5.6);
+  tl.to("#lbx-top", { yPercent: -100, duration: 0.7, ease: "power3.inOut" }, t0 + 6.0);
+  tl.to("#lbx-bottom", { yPercent: 100, duration: 0.7, ease: "power3.inOut" }, t0 + 6.0);
+</script>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #ccs-btn { position: absolute; left: 810px; top: 470px; background: linear-gradient(135deg, #4dd0e1, #2b7fd4);
+    color: #06121a; border-radius: 14px; padding: 22px 56px; font-size: 30px; font-weight: 900;
+    box-shadow: 0 16px 44px rgba(43,127,212,.4); }
+  #ccs-cursor { position: absolute; left: 0; top: 0; width: 44px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+  .ccs-ring { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 4px solid rgba(77,208,225,.9); }
+  #ccs-cap { position: absolute; left: 0; right: 0; top: 640px; text-align: center; }
+  #ccs-cap span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px; padding: 12px 28px; font-size: 22px; font-weight: 900; }
+  #ccs-cap em { color: #4dd0e1; font-style: normal; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="ccs-btn">【按钮文案】</div>
+<svg id="ccs-cursor" viewBox="0 0 24 24"><path d="M5 2 L5 20 L10 15.5 L13 21.5 L15.5 20.3 L12.6 14.4 L19 14 Z" fill="#fff" stroke="#1a1a2a" stroke-width="1.4"/></svg>
+<div id="ccs-cap"><span>【说明 · 】<em>【高亮】</em></span></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  var CLICK = { x: 985, y: 525 }; // 点击坐标 = 按钮中心
+  tl.from("#ccs-btn", { autoAlpha: 0, y: 30, duration: 0.45 }, t0);
+  tl.from("#ccs-cap", { autoAlpha: 0, y: 20, duration: 0.4 }, t0 + 0.3);
+  tl.fromTo("#ccs-cursor", { x: 1500, y: 870, autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, t0 + 0.5);
+  tl.to("#ccs-cursor", { x: 1180, y: 700, duration: 0.45, ease: "power2.inOut" }, t0 + 0.6);
+  tl.to("#ccs-cursor", { x: CLICK.x, y: CLICK.y, duration: 0.45, ease: "power2.out" }, t0 + 1.1);
+  // 停顿 0.5s 后点击
+  tl.to("#ccs-cursor", { scale: 0.82, duration: 0.1, ease: "power2.in" }, t0 + 2.1);
+  tl.to("#ccs-cursor", { scale: 1, duration: 0.18, ease: "back.out(3)" }, t0 + 2.2);
+  var stage = document.getElementById("ccs-btn").parentElement, rings = [];
+  for (var i = 0; i < 2; i++) {
+    var r = document.createElement("div");
+    r.className = "ccs-ring"; r.setAttribute("data-layout-ignore", "");
+    stage.appendChild(r); rings.push(r);
+  }
+  gsap.set(rings, { left: CLICK.x, top: CLICK.y, xPercent: -50, yPercent: -50, opacity: 0 });
+  rings.forEach(function (r, i) {
+    tl.fromTo(r, { scale: 0.3, opacity: 0.9 }, { scale: 2.2 + i, opacity: 0, duration: 0.65, ease: "power2.out" }, t0 + 2.1 + i * 0.12);
+  });
+  tl.to("#ccs-btn", { scale: 1.06, boxShadow: "0 0 50px rgba(77,208,225,.8)", duration: 0.18, ease: "back.out(2)" }, t0 + 2.1);
+  tl.to("#ccs-btn", { scale: 1, duration: 0.3 }, t0 + 2.35);
+  tl.to(["#ccs-btn", "#ccs-cursor", "#ccs-cap"], { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

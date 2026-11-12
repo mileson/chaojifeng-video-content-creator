@@ -1,0 +1,57 @@
+<!--
+  模式：无卡成长进度条（直贴 overlay）⚙️
+  适用：「越用越准/能力成长/进度提升」类口播——标题行（带 ↑ 高亮箭头）+
+    细进度条（生长 + ↗ 趋势箭头）+ 标签 chips，直贴画面暗部；
+    是 hud-progress-meter（卡片版）的无卡直贴版。
+  适配铁律：亮色素材保留 .hpo-scrim；成长用绿、风险用红。
+  参数化：标题与高亮词/进度目标值/标签 chips/主题色。
+-->
+<style>
+  #hpo-wrap { position: absolute; top: 150px; left: 56px; width: 460px; }
+  #hpo-scrim { position: absolute; top: -50px; left: -80px; width: 620px; height: 300px;
+    background: radial-gradient(ellipse at 30% 45%, rgba(4,6,10,.55) 0%, rgba(4,6,10,0) 72%);
+    pointer-events: none; }
+  #hpo-title { position: relative; color: #fff; font-size: 30px; font-weight: 900; letter-spacing: 1px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.85); }
+  #hpo-title .up { color: #46d390; text-shadow: 0 0 18px rgba(70,211,144,.7); }
+  #hpo-row { position: relative; margin-top: 22px; display: flex; align-items: center; gap: 14px; }
+  #hpo-label { color: #93a0b4; font-size: 16px; font-weight: 700; letter-spacing: 2px; flex: none;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85); }
+  #hpo-track { flex: 1; height: 12px; border-radius: 6px; background: rgba(255,255,255,.14); overflow: hidden; }
+  #hpo-fill { height: 100%; width: 100%; border-radius: 6px; transform-origin: left center;
+    background: linear-gradient(90deg, #2da06c, #5ee3a1); box-shadow: 0 0 16px rgba(70,211,144,.6); }
+  #hpo-arrow { color: #46d390; font-size: 24px; font-weight: 900; flex: none;
+    text-shadow: 0 0 14px rgba(70,211,144,.8); }
+  #hpo-chips { position: relative; margin-top: 22px; display: flex; gap: 12px; }
+  .hpo-chip { padding: 8px 20px; border-radius: 999px; font-size: 18px; font-weight: 800;
+    color: #dfe6f2; background: rgba(8,10,16,.55); border: 1px solid rgba(255,255,255,.3);
+    text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+</style>
+
+<div id="hpo" class="clip beat" data-start="0.4" data-duration="4.8" data-track-index="0" data-layout-allow-overflow>
+  <div id="hpo-wrap">
+    <div id="hpo-scrim"></div>
+    <div id="hpo-title">样本库 <span class="up">↑</span> · 预测越来越准</div>
+    <div id="hpo-row">
+      <div id="hpo-label">准确度</div>
+      <div id="hpo-track"><div id="hpo-fill"></div></div>
+      <div id="hpo-arrow">↗</div>
+    </div>
+    <div id="hpo-chips"><div class="hpo-chip">自主学习</div><div class="hpo-chip">自我迭代</div></div>
+  </div>
+</div>
+
+<script>
+  /* ===== 无卡成长进度条（0.4 起，fill 生长 78%）===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#hpo-scrim", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#hpo-title", { autoAlpha: 0, y: 20, duration: 0.5 }, t0 + 0.05);
+    tl.fromTo("#hpo-title .up", { y: 6 }, { y: -4, duration: 0.4, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 0.5);
+    tl.from("#hpo-row", { autoAlpha: 0, duration: 0.4 }, t0 + 0.45);
+    tl.fromTo("#hpo-fill", { scaleX: 0 }, { scaleX: 0.78, duration: 1.1, ease: "power2.out" }, t0 + 0.6);
+    tl.from("#hpo-arrow", { autoAlpha: 0, x: -10, y: 10, duration: 0.4, ease: "back.out(2)" }, t0 + 1.5);
+    tl.from(".hpo-chip", { autoAlpha: 0, scale: 0.5, duration: 0.4, ease: "back.out(1.8)", stagger: 0.18 }, t0 + 1.2);
+    tl.to("#hpo-wrap", { autoAlpha: 0, x: -26, duration: 0.4, ease: "power2.in" }, t0 + 4.2);
+  })();
+</script>

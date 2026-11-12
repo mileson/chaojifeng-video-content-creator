@@ -1,0 +1,46 @@
+<!--
+模式：无限跑马灯横带（marquee-keyword-belt）【工具层 · 氛围点缀】
+适用场景：开场/转场处一条关键词横带匀速滚过（技术栈、产品名、热词墙），
+  或上下两条反向滚动夹住标题；发布会 ticker 氛围。
+框架参数：
+  - 词条数组（JS 里 WORDS）、滚动速度（每秒像素）、条带垂直位置与倾斜角
+  - 配色：底条半透明深色 + 高亮词主题色
+技术要点：
+  - 词条序列复制 2 份首尾相接，x 从 0 滚到 -50% 宽即无缝循环
+  - 用 ease:"none" 匀速（跑马灯灵魂，任何缓动都出戏）
+  - 条带微倾斜 -2deg 增加动感；分隔符用 ◆
+  - 高亮词 .mkb-hot 主题色加粗
+-->
+<style>
+  #mkb-belt { position: absolute; left: -60px; right: -60px; top: 120px; height: 84px;
+    background: rgba(10,14,24,.82); border-top: 1px solid #3e9eff33; border-bottom: 1px solid #3e9eff33;
+    transform: rotate(-2deg); overflow: hidden; display: flex; align-items: center; }
+  #mkb-track { display: flex; white-space: nowrap; will-change: transform; }
+  .mkb-item { color: #8fa0bd; font-size: 30px; font-weight: 800; letter-spacing: 3px; padding: 0 28px; }
+  .mkb-sep { color: #3e9eff66; font-size: 20px; align-self: center; }
+  .mkb-hot { color: #3e9eff; }
+</style>
+
+<div id="mkb-belt" data-layout-allow-overflow>
+  <div id="mkb-track"></div>
+</div>
+
+<script>
+  (function () {
+    var WORDS = ["Nova 5", "成本优化", "¥0.2 / 次", "缓存复用", "批量调用",
+                 "AI 独立开发", "上下文工程", "Token 经济学"];
+    var HOT = { "¥0.2 / 次": 1, "成本优化": 1 };
+    var track = document.getElementById("mkb-track");
+    var html = WORDS.map(function (w) {
+      return '<span class="mkb-item' + (HOT[w] ? " mkb-hot" : "") + '">' + w +
+             '</span><span class="mkb-sep">◆</span>';
+    }).join("");
+    track.innerHTML = html + html; // 双份首尾相接
+    var half = track.scrollWidth / 2;
+    /* MKB_PLAY = 跑马灯需要持续的秒数（按段长改）；禁止 repeat:-1（破坏确定性渲染） */
+    var MKB_PLAY = 12, cycle = half / 160;
+    tl.from("#mkb-belt", { autoAlpha: 0, y: -30, duration: 0.5 }, t0);
+    tl.fromTo("#mkb-track", { x: 0 }, { x: -half, duration: cycle, ease: "none",
+      repeat: Math.max(1, Math.ceil(MKB_PLAY / cycle)) }, t0);
+  })();
+</script>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #dsc-wrap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 70px; }
+  #dsc-ring { position: relative; width: 420px; height: 420px; }
+  #dsc-ring svg { transform: rotate(-90deg); }
+  #dsc-ring circle { fill: none; stroke-width: 44; }
+  #dsc-center { position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; }
+  #dsc-center b { color: #fff; font-size: 78px; font-weight: 900; font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 26px rgba(62, 158, 255, 0.45); }
+  #dsc-center span { color: #9aa3b8; font-size: 25px; font-weight: 700; letter-spacing: 2px; margin-top: 4px; }
+  #dsc-legend { display: flex; flex-direction: column; gap: 22px; }
+  .dsc-li { display: flex; align-items: center; gap: 16px; will-change: transform; }
+  .dsc-li i { width: 26px; height: 26px; border-radius: 8px; }
+  .dsc-li span { color: #d4dae6; font-size: 28px; font-weight: 700; }
+  .dsc-li b { margin-left: 14px; color: #fff; font-size: 30px; font-weight: 900;
+    font-variant-numeric: tabular-nums; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="dsc-wrap">
+  <div id="dsc-ring">
+    <svg width="420" height="420" viewBox="0 0 420 420">
+      <circle cx="210" cy="210" r="130" stroke="rgba(255,255,255,.07)" />
+      
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#3e9eff" data-len="408" data-off="0" />
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#46d390" data-len="212" data-off="-424" />
+      <circle class="dsc-seg" cx="210" cy="210" r="130" stroke="#ffb224" data-len="98" data-off="-652" />
+    </svg>
+    <div id="dsc-center"><b id="dsc-num">0%</b><span>【最大段名称】</span></div>
+  </div>
+  <div id="dsc-legend">
+    <div class="dsc-li"><i style="background:#3e9eff"></i><span>【分段 1】</span><b>52%</b></div>
+    <div class="dsc-li"><i style="background:#46d390"></i><span>【分段 2】</span><b>28%</b></div>
+    <div class="dsc-li"><i style="background:#ffb224"></i><span>【分段 3】</span><b>14%</b></div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const DSC_C = 816.8;
+  document.querySelectorAll(".dsc-seg").forEach((c) => {
+    c.style.strokeDasharray = "0 " + DSC_C;
+    c.style.strokeDashoffset = c.dataset.off;
+  });
+  b.from("#dsc-wrap", { y: 90, autoAlpha: 0, duration: 0.55 }, 0.15);
+  document.querySelectorAll(".dsc-seg").forEach((c, i) => {
+    const len = +c.dataset.len;
+    b.to(c, { strokeDasharray: len + " " + (DSC_C - len), duration: 0.9, ease: "power2.inOut" }, 0.6 + i * 0.25);
+  });
+  const dscSt = { v: 0 };
+  b.to(dscSt, { v: 52, duration: 0.9, ease: "power1.out",
+    onUpdate() { document.getElementById("dsc-num").textContent = Math.round(dscSt.v) + "%"; } }, 0.65)
+    .from(".dsc-li", { x: 40, autoAlpha: 0, duration: 0.45, stagger: 0.25 }, 0.8)
+    .to("#dsc-wrap", { y: -60, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.6);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

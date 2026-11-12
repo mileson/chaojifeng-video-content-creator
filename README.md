@@ -75,10 +75,11 @@ git clone https://github.com/mileson/chaojifeng-video-content-creator.git
 
 ```mermaid
 flowchart LR
-    A["0 选题"] --> B["1 调研"] --> C["2 BRIEF"] --> D["3 口播稿"] --> E["4 分镜"] --> F["5 素材"]
-    F --> G["6 A-Roll 清洗<br/>渲染前剪口音轨质检"]
-    F -.-> H["5.5 数字人 A-Roll<br/>可选"] -.-> G
-    G --> I["7 特效粗剪"] --> J["8 发布包"]
+    P["0-3 规划<br/>选题 · 调研<br/>BRIEF · 口播稿"] --> S["4-5 分镜与素材<br/>A/B-Roll 分镜<br/>素材清单与审计"]
+    S --> C["6 A-Roll 清洗<br/>转写 · 去口水词<br/>剪口音轨质检"]
+    S -.-> D["5.5 数字人 A-Roll<br/>可选"] -.-> C
+    C --> E["7 特效粗剪<br/>字幕驱动节拍<br/>Hyperframes 叠加轨"]
+    E --> F["8 发布包<br/>成片 · 字幕<br/>发布文案"]
 ```
 
 | 阶段 | 做什么 | 门禁产物 |

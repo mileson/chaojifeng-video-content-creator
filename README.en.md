@@ -77,10 +77,11 @@ Put the folder in your agent's skills directory and keep the folder name `chaoji
 
 ```mermaid
 flowchart LR
-    A["0 Topic"] --> B["1 Research"] --> C["2 BRIEF"] --> D["3 Script"] --> E["4 Storyboard"] --> F["5 Assets"]
-    F --> G["6 A-roll cleanup<br/>pre-render cut audio QC"]
-    F -.-> H["5.5 Digital-human A-roll<br/>optional"] -.-> G
-    G --> I["7 Effects rough cut"] --> J["8 Publish package"]
+    P["0-3 Planning<br/>topic · research<br/>BRIEF · script"] --> S["4-5 Storyboard and assets<br/>A/B-roll shots<br/>asset list and audit"]
+    S --> C["6 A-roll cleanup<br/>transcribe · filler words<br/>cut audio QC"]
+    S -.-> D["5.5 Digital-human A-roll<br/>optional"] -.-> C
+    C --> E["7 Effects rough cut<br/>subtitle-driven beats<br/>Hyperframes overlay"]
+    E --> F["8 Publish package<br/>video · subtitles<br/>publish copy"]
 ```
 
 | Stage | What happens | Gate artifact |
